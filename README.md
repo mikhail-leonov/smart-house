@@ -1,4 +1,3 @@
-# Define the README content
 Smart House Automation System
 
 A cross-platform intelligent automation system for smart homes using LLMs (local or cloud-based) and MQTT to manage and react to environmental state.

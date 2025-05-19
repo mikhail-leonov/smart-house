@@ -1,7 +1,7 @@
 const mqtt = require('mqtt');
 const path = require('path');
 const fs = require('fs');
-const lib = require('./web-lib'); 
+const lib = require('./sensor-lib'); 
 
 function loadConfig(filePath) {
 
@@ -44,7 +44,7 @@ function publishVariable(variable, topic, value) {
     console.log(' - - - - Submit: ' + topic + ' = ' + value );
     mqttClient.publish(topic, JSON.stringify({
       value: value, 
-      type: "Web",
+      type: "Sensor",
       timestamp: new Date().toISOString()
     }), { retain: true });
 }

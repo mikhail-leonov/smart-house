@@ -1,0 +1,1 @@
+ollamasetup.exe /DIR="F:/Home/LLM"

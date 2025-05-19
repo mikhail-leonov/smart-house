@@ -1,0 +1,14 @@
+Set Environment Variable
+Open System Properties:
+Right-click on This PC or My Computer and select Properties.
+Click on Advanced system settings.
+Under the Advanced tab, click on Environment Variables.
+Add a new System Variable:
+Variable Name: OLLAMA_MODELS
+Variable Value: F:/Home/LLM/llms
+Click OK to save the changes.
+
+Install Ollama
+Open CMD as Administrator.
+Run the following command to install Ollama in the custom folder:
+ollamasetup.exe /DIR="F:/home/LLM"

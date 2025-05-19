@@ -1,0 +1,66 @@
+Состояние умного дома: {
+  "home": {
+    "inside": {
+      "house": {
+        "Unknown guest inna-phone": "Online",
+        "Unknown guest samsung": "Online",
+        "Unknown guest mike-desktop": "Online",
+        "Unknown guest inna-laptop": "Online",
+        "Unknown guest dasha-tablet": "Online",
+        "Unknown guest mikhail-phone": "Online",
+        "Unknown guest dasha-phone": "Online",
+        "Unknown guest 1921681247": "Online",
+        "INNA phone": "Online",
+        "MIKE desktop": "Online",
+        "Mikhail phone": "Online",
+        "Dasha tablet": "Online",
+        "INNA laptop": "Online",
+        "Dasha phone": "Online",
+        "Mikhail tablet": "Online",
+        "INNA tablet": "Offline"
+      },
+      "second_floor": {
+        "hall-2f": "closed",
+        "master-bathroom-2f": 21,
+        "bathroom-2f": 1,
+        "den-2f": 7,
+        "master-closet-2f": 73,
+        "stairs-2f": 146,
+        "master-bedroom-2f": 1,
+        "daria-bedroom-2f": 1,
+        "conditioner-2f": "locked",
+        "ivan-bedroom-2f": 5
+      },
+      "first_floor": {
+        "bathroom-1f": 71,
+        "dining-area-1f": 24,
+        "laundry-1f": 0,
+        "closet-1f": 6,
+        "stairs-1f": 86,
+        "office-1f": 38,
+        "hall-1f": 2,
+        "garage-1f": 1,
+        "kitchen-1f": 318,
+        "corridor-1f": "closed",
+        "living-room-1f": 1
+      }
+    },
+    "outside": {
+      "first_floor": {}
+    },
+    "internal": {
+      "house": {
+        "Unknown guest inna-s-s24": "Online",
+        "Unknown guest samsung": "Online",
+        "Unknown guest mike": "Online",
+        "Unknown guest inna": "Online",
+        "Unknown guest mikhail-s-s21": "Online"
+      }
+    }
+  }
+}
+Сейчас: 2025-05-18 19:34:28
+Правило: Закрыть дверь гаража если дома никого нет или уже ночь.
+Ограничения: Представь что ты джин который умеет отвечать только не выполнять правило или выполнить действия согласно правилу. 
+В ответах использовать только русский язык.
+Как когото воспринимать только членов семьи или гостей. Но никак не кошку или машину. Подробно объясни почему ты так решила?. Вывести значение всех переменных учавствоваших в принятии решения.

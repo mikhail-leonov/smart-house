@@ -1,3 +1,13 @@
+/**
+ * SmartHub - AI powered Smart Home
+ * Web server which is logging all what happens inside the home 
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.4.0
+ * @license MIT
+ */
+
 const mqtt = require('mqtt');
 const fs = require('fs');
 const path = require('path');

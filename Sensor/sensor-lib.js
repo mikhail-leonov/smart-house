@@ -1,14 +1,21 @@
+/**
+ * SmartHub - AI powered Smart Home
+ * Library for App which is reads values from sensors and send them to MQTT to update a home state
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.4.0
+ * @license MIT
+ */
+
 const request = require('sync-request');
-
-let LAT = +26.2700;
-let LON = -80.2700;
-
-let OCEAN_LAT =  26.291471;
-let OCEAN_LON = -80.073096;
+const lib = require('./common-lib.js'); 
+const location = require('../Shared/location.js');
+const constants = require('../Shared/constants.js');
 
 function getSensorData(lon, lat) {
   console.log("getSensorData");
-  let result = {};
+  let result = { sample: "11" };
   return result;
 }
 

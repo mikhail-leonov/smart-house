@@ -8,18 +8,23 @@
  * @license MIT
  */
 
+function pause(seconds) {
+  const start = Date.now();
+  while (Date.now() - start < 1000 * seconds) {
+    // Do nothing, just block
+  }
+}
 
 
-
-const content = {
-    // Define your shared functions or state here
+const webContent = {
+    pause
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     // Node.js
-    module.exports = content;
+    module.exports = webContent;
 } else {
     // Browser
     window.Jarvis = window.Jarvis || {};
-    window.Jarvis.web = content;
+    window.Jarvis.web = webContent;
 }

@@ -8,20 +8,31 @@
  */
 
 let mqtt = null;
+let mqttBrokerUrl = null;
 
 if (typeof window !== 'undefined') {
     mqtt = window.mqtt;
+    mqttBrokerUrl = "ws://localhost:9001";
 } else {
     try {
+        mqttBrokerUrl = "mqtt://localhost:1883";
         mqtt = require('mqtt');
     } catch (e) {
         console.error("MQTT module not found. Please run 'npm install mqtt'");
     }
 }
 
-const mqttBrokerUrl = "mqtt://localhost:1883";
 const mqttTopic = "home";
 let mqttClient = null;
+
+function buildMqttTopic(l, f, r, v) {
+    let topic = l;
+    if (f) {
+        topic += `/${f}`;
+    }
+    topic += `/${r}/${v}`;
+    return "home/" + topic;
+}
 
 function connectToMqtt() {
     if (mqttClient && mqttClient.connected) return mqttClient;
@@ -59,20 +70,21 @@ function publishToMQTT(variable, topic, value, type) {
     }
 }
 
-const mqttLib = {
-    mqttClient: () => mqttClient,
-    mqttBrokerUrl,
+const mqttContent = {
+    mqttClient,
     mqttTopic,
+    buildMqttTopic,
     connectToMqtt,
     disconnectFromMQTT,
     publishToMQTT
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = mqttLib;
+    module.exports = mqttContent;
 } else {
     window.Jarvis = window.Jarvis || {};
-    window.Jarvis.mqtt = mqttLib;
+    window.Jarvis.mqtt = mqttContent;
+    connectToMqtt();
     window.addEventListener('load', connectToMqtt);
-    window.addEventListener('beforeunload', disconnectMQTT);
+    window.addEventListener('beforeunload', disconnectFromMQTT);
 }

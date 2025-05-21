@@ -1,6 +1,6 @@
 /**
  * SmartHub - AI powered Smart Home
- * Sensor Library for any App 
+ * Config Library for any App 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
@@ -8,14 +8,15 @@
  * @license MIT
  */
 
-const sensorContent = {
-};
+function loadConfig(filePath) {
+    alert("Cannot be implemented");
+}
+
+configContent = { loadConfig };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    // Node.js
-    module.exports = sensorContent;
+    module.exports = configContent;
 } else {
-    // Browser
     window.Jarvis = window.Jarvis || {};
-    window.Jarvis.sensor = sensorContent;
+    window.Jarvis.config = configContent;
 }

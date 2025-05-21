@@ -1,21 +1,23 @@
 /**
  * SmartHub - AI powered Smart Home
- * Sensor Library for any App 
+ * Const Library Core (for Browser & Node.js)
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @author Mikhail Leonov mikecommon@gmail.com
  * @version 0.4.0
  * @license MIT
  */
 
-const sensorContent = {
+const LOG_URL = 'http://localhost:3000/log';
+const TIMEZONE = 'GMT-5';
+
+const constantsContent = { 
+    LOG_URL, 
+    TIMEZONE 
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    // Node.js
-    module.exports = sensorContent;
+    module.exports = constantsContent;
 } else {
-    // Browser
     window.Jarvis = window.Jarvis || {};
-    window.Jarvis.sensor = sensorContent;
+    window.Jarvis.constant = constantsContent;
 }

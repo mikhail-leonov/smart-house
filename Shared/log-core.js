@@ -43,15 +43,15 @@ function logToConsole(message, type = 'info') {
     }
 }
 
-const content = {
+const logContent = {
     logToConsole
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     // Node.js
-    module.exports = content;
+    module.exports = logContent;
 } else {
     // Browser
     window.Jarvis = window.Jarvis || {};
-    window.Jarvis.log = content;
+    window.Jarvis.log = logContent;
 }

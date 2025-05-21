@@ -267,7 +267,32 @@ body {
 }
 
 
-  .container-no-left {
+.container-no-left {
     margin-left: 0 !important;
     padding-left: 0 !important;
-  }
+}
+
+.room-flash {
+    border: 3px solid red !important; /* override existing border */
+    box-shadow: 0 0 8px 2px rgba(255, 0, 0, 0.7);
+    transition: box-shadow 0.3s ease;
+}
+
+/* Make tab buttons smaller, less padding and font size */
+.nav-tabs .nav-link {
+  padding: 0.25rem 0.5rem;  /* smaller vertical and horizontal padding */
+  font-size: 0.85rem;       /* smaller font */
+  border-radius: 0.25rem;   /* slightly rounded */
+  margin-bottom: 0;         /* remove bottom margin */
+}
+
+/* Remove gap between tabs and content */
+.tab-content {
+  margin-top: 0.25rem;      /* reduce top margin */
+  padding-top: 0;           /* remove padding top */
+}
+
+/* Optional: reduce modal content padding to bring content closer to modal edges */
+.modal-body {
+  padding: 0.5rem 1rem;
+}

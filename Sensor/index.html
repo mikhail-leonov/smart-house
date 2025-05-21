@@ -347,6 +347,7 @@
         
         // Send a random message
         function sendRandomMessage() {
+
             const randomVar = getRandomVariable();
             if (!randomVar) {
                 logToConsole('No variables available with current filters', 'error');
@@ -359,20 +360,8 @@
                 return;
             }
             
-            // Build topic
-            let topic = mqttTopicInput;
-            if (topic && !topic.endsWith('/')) {
-                topic += '/';
-            }
+            const topic = buildMqttTopic(randomVar.locationType, randomVar.floor, randomVar.room, randomVar.variable);
 
-            topic += randomVar.locationType;
-            
-            if (randomVar.locationType === 'inside') {
-                topic += `/${randomVar.floor}/${randomVar.room}/${randomVar.variable}`;
-            } else {
-                topic += `/${randomVar.area}/${randomVar.variable}`;
-            }
-            
             // Create payload
             const payload = {
                 value: value,
@@ -412,11 +401,11 @@
             }
         });
     </script>
-    <script src="../shared/const.js"></script>
-    <script src="../shared/log.js"></script>
-    <script src="../shared/mqtt.js"></script>
-    <script src="../shared/cache.js"></script>
-    <script src="../shared/web.js"></script>
-    <script src="../shared/sensor.js"></script>
+    <script src="../shared/constants-core.js"></script>
+    <script src="../shared/log-core.js"></script>
+    <script src="../shared/mqtt-core.js"></script>
+    <script src="../shared/cache-core.js"></script>
+    <script src="../shared/web-core.js"></script>
+    <script src="../shared/sensor-core.js"></script>
 </body>
 </html>

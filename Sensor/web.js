@@ -11,19 +11,27 @@
 const lib = require('./web-lib'); 
 const path = require('path');
 const fs = require('fs');
-const config = require('../Shared/config.js');
+const config = require('../Shared/config-node');
 const mqttReady = require('../Shared/mqtt-node');
+const web = require('../Shared/web-node');
 
 const CONFIG = {
   scanInterval: 5 * 60 * 1000,
   configPath: path.join(__dirname, 'web.cfg')
 };
 
-function scan(mqtt) {
+function pause(seconds) {
+  const start = Date.now();
+  while (Date.now() - start < 1000 * seconds) {
+    // Do nothing, just block
+  }
+}
 
-    console.log("scan");
+function scan(mqtt) {
+    console.log("Scan started");
 
     const cfg = config.loadConfig(CONFIG.configPath);
+
     try {
         const entry = cfg['entry'];
         for (const [key, value] of Object.entries(entry)) {
@@ -46,7 +54,11 @@ function scan(mqtt) {
                                 }
                                 topics.forEach(topic => {
                                     mqtt.publishToMQTT(varName, topic, varValue, "web");
+        			    console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "web")`);
+                                    pause(1);
                                 });
+                            } else {
+        			    console.log(` - ${varName} = 0`);
                             }
                         }
                     }
@@ -57,6 +69,7 @@ function scan(mqtt) {
     } catch (err) {
         console.error('Error during scan:', err);
     }
+    console.log("Scan done");
 }
 
 

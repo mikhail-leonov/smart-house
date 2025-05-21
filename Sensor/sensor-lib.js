@@ -13,12 +13,28 @@ const lib = require('./common-lib.js');
 const location = require('../Shared/location.js');
 const constants = require('../Shared/constants.js');
 
-function getSensorData(lon, lat) {
-  console.log("getSensorData");
-  let result = { sample: "11" };
+
+function parseData(data) {
+  return {
+    temperature: data.outTemp,                // Celsius
+    humidity: data.outHumidity,               // Percentage
+    windSpeed: data.windSpeed,                // m/s or km/h depending on unit settings
+    windDirection: data.windDir,              // Degrees
+    weatherCode: mapToWeatherCode(data),      // Optional mapping function
+    precipitation: data.hourlyRain            // mm or inches depending on config
+  };
+}
+function getStationData(ipAddress) {
+  console.log("getStationData");
+
+  const baseUrl = `http://${ipAddress}/data.json`; // Assumed WS-5000 endpoint
+  const res = request('GET', baseUrl);
+  const data = JSON.parse(res.getBody('utf8'));
+
+  let result = parseData(data);
   return result;
 }
 
 module.exports = {
-    getSensorData
+    getStationData
 };

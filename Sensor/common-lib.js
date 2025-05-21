@@ -8,8 +8,8 @@
  * @license MIT
  */
 
-const location = require('../Shared/location.js');
-const config = require('../Shared/config.js');
+const location = require('../Shared/location');
+const config = require('../Shared/config-node');
 
 function getWindDirection(degrees) {
   if (typeof degrees !== 'number' || degrees < 0 || degrees > 360) {

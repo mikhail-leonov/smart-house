@@ -19,9 +19,16 @@ const CONFIG = {
   configPath: path.join(__dirname, 'sensor.cfg')
 };
 
+function pause(seconds) {
+  const start = Date.now();
+  while (Date.now() - start < 1000 * seconds) {
+    // Do nothing, just block
+  }
+}
+
 function scan(mqtt) {
 
-    console.log("scan");
+    console.log("Scan started");
 
     const cfg = config.loadConfig(CONFIG.configPath);
     try {
@@ -46,7 +53,11 @@ function scan(mqtt) {
                                 }
                                 topics.forEach(topic => {
                                     mqtt.publishToMQTT(varName, topic, varValue, "sensor");
+        			    console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "web")`);
+                                    pause(1);
                                 });
+                            } else {
+        			    console.log(` - ${varName} = 0`);
                             }
                         }
                     }
@@ -57,6 +68,7 @@ function scan(mqtt) {
     } catch (err) {
         console.error('Error during scan:', err);
     }
+    console.log("Scan done");
 }
 
 

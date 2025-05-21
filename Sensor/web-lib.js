@@ -10,8 +10,8 @@
 
 const request = require('sync-request');
 const lib = require('./common-lib.js'); 
-const location = require('../Shared/location.js');
-const constants = require('../Shared/constants.js');
+const location = require('../Shared/location');
+const constants = require('../Shared/constants');
 
 function parseData(data) {
   const timeArray = data.hourly?.time;
@@ -35,7 +35,7 @@ function parseData(data) {
   return result;
 }
 
-function getOceanData(lon, lat) {
+function getOceanData() {
   console.log("getOceanData");
   const baseUrl = 'https://marine-api.open-meteo.com/v1/marine';
   const params = [

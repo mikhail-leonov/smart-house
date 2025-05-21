@@ -16,28 +16,27 @@ const execAsync = util.promisify(exec);
 
 // IPs to ignore completely
 const IGNORED_IPS = {
+  "192.168.1.75" : "media",
+  "192.168.1.82" : "Brother-BW-printer",
+  "192.168.1.92" : "NAS",
+  "192.168.1.93" : "NAS",
   "192.168.1.103": "DESKTOP-BHA979S",
   "192.168.1.141": "Samsung",
   "192.168.1.154": "unknown30b4b802c067",
-  "192.168.1.176": "RBR750",
   "192.168.1.211": "unknownacccfcc5733f",
-  "192.168.1.254": "Router",
-  "192.168.1.75": "media",
-  "192.168.1.82": "BRWF889D2DCC2B0",
-  "192.168.1.92": "NAS",
-  "192.168.1.93": "NAS"
+  "192.168.1.254": "ATT-Router"
 };
 
 const TRACKED_IPS = {
-  "192.168.1.78": "INNA phone",
-  "192.168.1.102": "INNA tablet",
+  "192.168.1.78" : "INNA-phone",
+  "192.168.1.102": "INNA-tablet",
   "192.168.1.172": "Galaxy-Tab-S6-Lite",
-  "192.168.1.174": "MIKE desktop",
-  "192.168.1.184": "INNA laptop",
-  "192.168.1.203": "Mikhail tablet",
-  "192.168.1.208": "Mikhail phone",
-  "192.168.1.207": "Dasha tablet",
-  "192.168.1.237": "Dasha phone"
+  "192.168.1.174": "MIKE-desktop",
+  "192.168.1.184": "INNA-laptop",
+  "192.168.1.203": "Mikhail-tablet",
+  "192.168.1.208": "Mikhail-phone",
+  "192.168.1.207": "Dasha-tablet",
+  "192.168.1.237": "Dasha-phone"
 };
 
 const KNOWN_GUESTS = {

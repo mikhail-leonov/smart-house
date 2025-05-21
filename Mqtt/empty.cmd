@@ -1,27 +1,37 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Configuration
-set HOST=localhost
-set TOPIC_BASE=home/#
+:: === Configuration ===
+set "HOST=localhost"
+set "TOPIC_BASE=#"
+set "TMPFILE=%TEMP%\mqtt_retained_topics.txt"
 
-echo Listing retained topics under %TOPIC_BASE%...
+:: === Clean up previous temp file ===
+if exist "%TMPFILE%" del "%TMPFILE%"
 
-:: Temporary file to store retained topics
-set TMPFILE=%TEMP%\mqtt_retained_topics.txt
+echo Scanning for retained messages under topic [%TOPIC_BASE%]...
 
-:: Subscribe and collect retained messages
-mosquitto_sub -h %HOST% -t %TOPIC_BASE% --retained-only -v -C 100 > "%TMPFILE%"
+:: === Capture retained messages ===
+mosquitto_sub -h %HOST% -t "%TOPIC_BASE%" --retained-only -v > "%TMPFILE%" 2>nul
 
 if not exist "%TMPFILE%" (
     echo No retained messages found.
     goto :end
 )
 
-:: Parse and publish null message to each retained topic
-for /f "usebackq tokens=1,* delims= " %%A in ("%TMPFILE%") do (
-    echo Deleting retained message from topic: %%A
-    mosquitto_pub -h %HOST% -t "%%A" -r -n
+:: === Process and delete each retained topic ===
+for /f "usebackq delims=" %%A in ("%TMPFILE%") do (
+    set "line=%%A"
+    setlocal enabledelayedexpansion
+
+    :: Extract topic (everything before first space)
+    for /f "tokens=1* delims= " %%T in ("!line!") do (
+        set "topic=%%T"
+        echo Deleting retained message from topic: [!topic!]
+        mosquitto_pub -h %HOST% -t "!topic!" -r -n
+    )
+
+    endlocal
 )
 
 :end

@@ -1,0 +1,1 @@
+Turn off the lights near the garage if it is > 23:00 and < 6:00

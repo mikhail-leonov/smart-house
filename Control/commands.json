@@ -1,0 +1,51 @@
+{
+  "light_on": {
+    "protocol": "mqtt",
+    "topic": "zigbee2mqtt/livingroom_light/set",
+    "payload": { "state": "ON" }
+  },
+  "light_off": {
+    "protocol": "mqtt",
+    "topic": "zigbee2mqtt/livingroom_light/set",
+    "payload": { "state": "OFF" }
+  },
+  "heater_on": {
+    "protocol": "mqtt",
+    "topic": "zigbee2mqtt/heater_plug/set",
+    "payload": { "state": "ON" }
+  },
+  "heater_off": {
+    "protocol": "mqtt",
+    "topic": "zigbee2mqtt/heater_plug/set",
+    "payload": { "state": "OFF" }
+  },
+  "toggle_desk": {
+    "protocol": "mqtt",
+    "topic": "zigbee2mqtt/desk_light/set",
+    "payload": { "toggle": true }
+  },
+  "tv_power": {
+    "protocol": "http",
+    "method": "post",
+    "url": "http://192.168.1.100:8080/api/power",
+    "data": { "power": "toggle" }
+  },
+  "get_temp": {
+    "protocol": "http",
+    "method": "get",
+    "url": "http://192.168.1.101/api/temperature"
+  },
+  "speaker_play": {
+    "protocol": "websocket",
+    "url": "ws://192.168.1.102:8089",
+    "message": { "action": "play", "source": "spotify" }
+  },
+  "system_reboot": {
+    "protocol": "shell",
+    "cmd": "sudo reboot"
+  },
+  "network_scan": {
+    "protocol": "shell",
+    "cmd": "nmap -sP 192.168.1.0/24"
+  }
+}

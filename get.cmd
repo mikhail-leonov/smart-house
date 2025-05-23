@@ -1,0 +1,1 @@
+git clone https://github.com/mikhail-leonov/smart-house.git 

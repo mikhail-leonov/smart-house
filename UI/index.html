@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<!-- 
+/**
+ * SmartHub - AI powered Smart Home
+ * UI App which is reads values from MQTT and show them to user
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.5.0
+ * @license MIT
+ */
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Dashboard</title>
+    <link href="../shared/ui.css" rel="stylesheet">
+    <link href="../shared/home.css" rel="stylesheet">
+    <script src="../shared/location.js"></script>
+    <script src="../shared/constants.js"></script>
+    <script src="../shared/log-core.js"></script>
+    <script src="generate.js"></script>
+    <script src="click.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@4.3.7/dist/mqtt.min.js"></script>
+  </head>
+  <body>
+    <div class="container container-no-left">
+      <div class="sidebar">
+        <h2>Smart Home</h2>
+        <ul>
+          <li onclick="showSection('map')">House Map</li>
+          <li onclick="showSection('config')">Config</li>
+        </ul>
+      </div>
+      <div class="main-content">
+        <div class="dashboard-header">
+          <h1>Smart Home Dashboard</h1>
+          <div id="current-time"></div>
+        </div>
+        <!-- Config Section -->
+        <div id="config" class="section" style="display: none;">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Config</h5>
+              <button id="getConfigBtn" class="btn btn-sm btn-outline-secondary" onclick="generateConfig();">Get Config</button>
+              <button id="getActionsgBtn" class="btn btn-sm btn-outline-secondary" onclick="generateActions();">Get Action</button>
+              <button id="copyConfigBtn" class="btn btn-sm btn-outline-secondary" onclick="selectTextAndCopy('config_text');">Copy</button>
+            </div>
+            <div class="card-body">
+              <pre style="height: 600px" id="config_text">
+{}
+              </pre>
+            </div>
+          </div>
+        </div>
+        <!-- Map Section -->
+        <div id="map" class="section" style="display: none;">
+          <!-- Nav tabs Section -->
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="first-tab" data-bs-toggle="tab" data-bs-target="#first" type="button" role="tab" aria-controls="first" aria-selected="true"> First Floor </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#second" type="button" role="tab" aria-controls="second" aria-selected="false"> Second Floor </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="roof-tab" data-bs-toggle="tab" data-bs-target="#roof" type="button" role="tab" aria-controls="roof" aria-selected="false"> House </button>
+            </li>
+          </ul>
+
+
+
+          <!-- CUT -->
+
+          <!-- Tab panes -->
+          <div class="tab-content mt-3" id="myTabContent">
+            <div class="tab-pane fade show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+
+
+              <!-- First Floor Tab -->
+              <div class="floor-map">
+                <h4></h4>
+                <div class="floorplan">
+                  <div class="room backyard" data-location="outside" data-floor="first_floor" data-room="backyard" onclick="entryClicked(this)">Backyard <div id="content">
+                      <div id="soil_temperature" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="soil_moisture" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="sprinkler_status" data-type="2"></div>
+                    </div>
+                  </div>
+                  <div class="room pool" data-location="outside" data-floor="first_floor" data-room="pool" onclick="entryClicked(this)">Pool <div id="content">
+                      <div id="water_temperature" data-type="1" data-min="0" data-max="40"></div>
+                      <div id="vac_status" data-type="2"></div>
+                    </div>
+                  </div>
+                  <div class="room home-left" data-location="outside" data-floor="first_floor" data-room="home-left" onclick="entryClicked(this)">Area left <div id="content">
+                      <div id="soil_temperature" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="soil_moisture" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="sprinkler_status" data-type="2"></div>
+                    </div>
+                  </div>
+                  <div class="room pool-area" data-location="outside" data-floor="first_floor" data-room="pool-area" onclick="entryClicked(this)">Pool filter</div>
+                  <div class="room ac-area" data-location="outside" data-floor="first_floor" data-room="ac-area" onclick="entryClicked(this)">AC</div>
+                  <div class="room water-area" data-location="outside" data-floor="first_floor" data-room="water-area" onclick="entryClicked(this)">Water in</div>
+                  <div class="room sprinkler-area" data-location="outside" data-floor="first_floor" data-room="sprinkler-area" onclick="entryClicked(this)">Sprinkler <div id="content">
+                      <div id="sprinkler_controller_status" data-actions="on, off" data-type="2"></div>
+                    </div>
+                  </div>
+                  <div class="room office-1f" data-location="inside" data-floor="first_floor" data-room="office-1f" onclick="entryClicked(this)">Office <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="fan_status" data-actions="start, stop" data-type="1" data-min="0" data-max="1000"></div>
+                    </div>
+                  </div>
+                  <div class="room bathroom-1f" data-location="inside" data-floor="first_floor" data-room="bathroom-1f" onclick="entryClicked(this)">Bathroom <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                    </div>
+                  </div>
+                  <div class="room living-room-1f" data-location="inside" data-floor="first_floor" data-room="living-room-1f" onclick="entryClicked(this)">Living Room <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
+                      <div id="fan_status" data-actions="start, stop" data-type="1" data-min="0" data-max="1000"></div>
+                    </div>
+                  </div>
+                  <div class="room dining-area-1f" data-location="inside" data-floor="first_floor" data-room="dining-area-1f" onclick="entryClicked(this)">Dining Area <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="fan_status" data-actions="start, stop" data-type="1" data-min="0" data-max="1000"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                    </div>
+                  </div>
+                  <div class="room kitchen-1f" data-location="inside" data-floor="first_floor" data-room="kitchen-1f" onclick="entryClicked(this)">Kitchen <div id="content">
+                      <div id="stove_status" data-type="2"></div>
+                      <div id="microwave_status" data-type="2"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="fridge_temp" data-type="1" data-min="-10" data-max="10"></div>
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="kettle_status" data-type="2" data-values="empty, heating, hot, warm, cold"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                    </div>
+                  </div>
+                  <div class="room corridor-1f" data-location="inside" data-floor="first_floor" data-room="corridor-1f" onclick="entryClicked(this)">Corridor <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                    </div>
+                  </div>
+                  <div class="room stairs-1f" data-location="inside" data-floor="first_floor" data-room="stairs-1f" onclick="entryClicked(this)">Stairs <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                    </div>
+                  </div>
+                  <div class="room laundry-1f" data-location="inside" data-floor="first_floor" data-room="laundry-1f" onclick="entryClicked(this)">Laundry <div id="content">
+                      <div id="washer_status" data-type="2"></div>
+                      <div id="dryer_status" data-type="2"></div>
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                    </div>
+                  </div>
+                  <div class="room closet-1f" data-location="inside" data-floor="first_floor" data-room="closet-1f" onclick="entryClicked(this)">Closet <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                    </div>
+                  </div>
+                  <div class="room garage-1f" data-location="inside" data-floor="first_floor" data-room="garage-1f" onclick="entryClicked(this)">Garage <div id="content">
+                      <div id="car_presence" data-type="2"></div>
+                      <div id="door_status" data-actions="open, close" data-type="2" data-values="open, opening, closed, closing"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                    </div>
+                  </div>
+                  <div class="room hall-1f" data-location="inside" data-floor="first_floor" data-room="hall-1f" onclick="entryClicked(this)">Hall <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-actions="open, close, lock, unlock" data-type="2" data-values="open, closed, locked"></div>
+                    </div>
+                  </div>
+                  <div class="room front-yard" data-location="outside" data-floor="first_floor" data-room="frontyard" onclick="entryClicked(this)">Front Yard <div id="content">
+                      <div id="soil_temperature" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="soil_moisture" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="sprinkler_status" data-type="2"></div>
+                    </div>
+                  </div>
+                  <div class="room driveway" data-location="outside" data-floor="first_floor" data-room="driveway" onclick="entryClicked(this)">Driveway <div id="content">
+                      <div id="car_presence" data-type="2"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="second" role="tabpanel" aria-labelledby="second-tab">
+              <div class="floor-map">
+                <h4></h4>
+                <div class="floorplan">
+                  <div class="room backend-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area <div id="content">
+
+                      <div id="temperature" data-tab="1" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="relative_humidity" data-tab="1" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="dew_point" data-tab="1" data-type="1" data-min="-20" data-max="35"></div>
+                      <div id="pressure" data-tab="1" data-type="1" data-min="500" data-max="1500"></div>
+                      <div id="cloud_cover" data-tab="1" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="visibility" data-tab="1" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="wind_speed" data-tab="1" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="wind_direction" data-tab="1" data-type="2" data-values="N,NE,E,SE,S,SW,W,NW"></div>
+                      <div id="wind_gusts" data-tab="1" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="precipitation" data-tab="1" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="precipitation_probability" data-tab="1" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="weather_code" data-type="2" data-tab="1" data-values="0,1,2,3,..."></div>
+
+                      <div id="pm10" data-tab="2" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="pm2_5" data-tab="2" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="carbon_monoxide" data-tab="2" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="carbon_dioxide" data-tab="2" data-type="1" data-min="0" data-max="5000"></div>
+                      <div id="nitrogen_dioxide" data-tab="2" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="sulphur_dioxide" data-tab="2" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="ozone" data-tab="2" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="ammonia" data-tab="2" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="methane" data-tab="2" data-type="1" data-min="0" data-max="5000"></div>
+                      <div id="aerosol_optical_depth" data-tab="2" data-type="1" data-min="0" data-max="2"></div>
+                      <div id="dust" data-type="1" data-tab="2" data-min="0" data-max="1000"></div>
+                      <div id="uv_index" data-type="1" data-tab="2" data-min="0" data-max="11"></div>
+
+                      <div id="alder_pollen" data-tab="3" data-type="1" data-min="0" data-max="1000"></div>
+                      <div id="birch_pollen" data-tab="3" data-type="1" data-min="0" data-max="1000"></div>
+                      <div id="grass_pollen" data-tab="3" data-type="1" data-min="0" data-max="1000"></div>
+                      <div id="mugwort_pollen" data-tab="3" data-type="1" data-min="0" data-max="1000"></div>
+                      <div id="olive_pollen" data-tab="3" data-type="1" data-min="0" data-max="1000"></div>
+                      <div id="ragweed_pollen" data-tab="3" data-type="1" data-min="0" data-max="1000"></div>
+                      <div id="soil_temperature" data-tab="3" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="soil_moisture" data-tab="3" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="wave_height" data-tab="3" data-type="1" data-min="0" data-max="20"></div>
+                      <div id="wave_direction" data-tab="3" data-type="1" data-min="0" data-max="360"></div>
+                      <div id="wave_period" data-tab="3" data-type="1" data-min="1" data-max="20"></div>
+                      <div id="wind_wave_height" data-tab="3" data-type="1" data-min="0" data-max="20"></div>
+                      <div id="wind_wave_direction" data-tab="3" data-type="2" data-values="N,NE,E,SE,S,SW,W,NW"></div>
+                      <div id="wind_wave_period" data-tab="3" data-type="1" data-min="1" data-max="20"></div>
+                      <div id="swell_wave_direction" data-tab="3" data-type="2" data-values="N,NE,E,SE,S,SW,W,NW"></div>
+                      <div id="swell_wave_height" data-tab="3" data-type="1" data-min="0" data-max="20"></div>
+                      <div id="swell_wave_period" data-tab="3" data-type="1" data-min="1" data-max="20"></div>
+                      <div id="sea_level_height_msl" data-tab="3" data-type="1" data-min="-10" data-max="10"></div>
+                      <div id="sea_surface_temperature" data-tab="3" data-type="1" data-min="-2" data-max="35"></div>
+                      <div id="ocean_current_velocity" data-tab="3" data-type="1" data-min="0" data-max="3"></div>
+                      <div id="ocean_current_direction" data-tab="3" data-type="2" data-values="N,NE,E,SE,S,SW,W,NW"></div>
+                    </div>
+                  </div>
+                  <div class="room area-left" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area</div>
+                  <div class="room master-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="master-bedroom-2f" onclick="entryClicked(this)">Master Bedroom <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-actions="open, close, lock, unlock" data-type="2" data-values="open, closed, locked"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
+                    </div>
+                  </div>
+                  <div class="room master-bathroom-2f" data-location="inside" data-floor="second_floor" data-room="master-bathroom-2f" onclick="entryClicked(this)">Master Bathroom <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                    </div>
+                  </div>
+                  <div class="room master-closet-2f" data-location="inside" data-floor="second_floor" data-room="master-closet-2f" onclick="entryClicked(this)">Master Closet <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                    </div>
+                  </div>
+                  <div class="room stairs-2f" data-location="inside" data-floor="second_floor" data-room="stairs-2f" onclick="entryClicked(this)">Stairs <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                    </div>
+                  </div>
+                  <div class="room bathroom-2f" data-location="inside" data-floor="second_floor" data-room="bathroom-2f" onclick="entryClicked(this)">Bathroom 2F <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                    </div>
+                  </div>
+                  <div class="room hall-2f" data-location="inside" data-floor="second_floor" data-room="hall-2f" onclick="entryClicked(this)">Area <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                    </div>
+                  </div>
+                  <div class="room daria-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="daria-bedroom-2f" onclick="entryClicked(this)">Daria Bedroom <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
+                    </div>
+                  </div>
+                  <div class="room ivan-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="ivan-bedroom-2f" onclick="entryClicked(this)">Ivan Bedroom <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
+                    </div>
+                  </div>
+                  <div class="room den-2f" data-location="inside" data-floor="second_floor" data-room="den-2f" onclick="entryClicked(this)">Den <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                    </div>
+                  </div>
+                  <div class="room conditioner-2f" data-location="inside" data-floor="second_floor" data-room="conditioner-2f" onclick="entryClicked(this)">Cond <div id="content">
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
+                      <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="motion_detected" data-type="2"></div>
+                      <div id="smoke_detected" data-type="2"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                      <div id="ac_status" data-type="2" ></div>
+                      <div id="ac_target_temperature" data-actions="set" data-type="1" data-min="-10" data-max="50"></div>
+                    </div>
+                  </div>
+                  <div class="room frontyard-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area</div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="roof" role="tabpanel" aria-labelledby="roof-tab">
+              <div class="floor-map">
+                <h4></h4>
+                <div class="floorplan">
+                  <div class="room backend-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area </div>
+                  <div class="room area-left" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area </div>
+
+                  <div class="room house" data-location="inside" data-floor="house" data-room="nas" onclick="entryClicked(this)">House <div id="content">
+                      <div id="emails" data-actions="notify" data-type="1" data-min="0" data-max="100"></div>
+                    </div>
+                  </div>
+
+                  <div class="room frontyard-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUT -->
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true" style="width:700px">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="dataModalLabel">Room Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div id="modalContent"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          // Update current time
+          function updateTime() {
+              const now = new Date(); const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };  document.getElementById('current-time').textContent = now.toLocaleDateString('en-US', options);
+          }
+
+          // LOG
+          //setTimeout(() => { fetch(LOG_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ msg: `UI App started` }), }); }, 0);
+
+          // Update time every second
+          updateTime();
+          setInterval(updateTime, 1000);
+          showSection('map');
+
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="mqtt.js"></script>
+  </body>
+</html>

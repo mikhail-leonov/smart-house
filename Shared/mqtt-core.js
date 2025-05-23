@@ -3,7 +3,8 @@
  * MQTT JS Library for any HTML App 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.5.0
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.5.2
  * @license MIT
  */
 

@@ -1,9 +1,11 @@
 /**
  * SmartHub - Gmail-to-MQTT Notification (Async MQTT)
  * Scans unread Gmail messages for subject and sends MQTT notice asynchronously
+ * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov
- * @version 0.5.1
+ * @version 0.5.2
+ * @license MIT
  */
 
 const Imap = require('imap');

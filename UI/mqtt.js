@@ -1,3 +1,12 @@
+/**
+ * SmartHub - AI powered Smart Home
+ * Browser mqtt client
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @version 0.5.0
+ * @license MIT
+ */
+
         const mqttPath = "#";
         const mqttUrl = "ws://localhost:9001";
 

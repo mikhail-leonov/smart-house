@@ -4,19 +4,16 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
 function loadConfig(filePath) {
     alert("Cannot be implemented");
+    return null;
 }
 
 configContent = { loadConfig };
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = configContent;
-} else {
-    window.Jarvis = window.Jarvis || {};
-    window.Jarvis.config = configContent;
-}
+window.Jarvis = window.Jarvis || {};
+window.Jarvis.config = configContent;

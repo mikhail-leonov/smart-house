@@ -11,8 +11,11 @@
 const lib = require('./sensor-lib'); 
 const path = require('path');
 const fs = require('fs');
-const config = require('../Shared/config.js');
-const mqttReady = require('../Shared/mqtt-node');
+const config = require('../Shared/config-node');
+const mqtt = require('../Shared/mqtt-node');
+const web = require('../Shared/web-node');
+const cache = require('../Shared/cache-node');
+
 
 const CONFIG = {
   scanInterval: 5 * 60 * 1000,
@@ -26,7 +29,7 @@ function pause(seconds) {
   }
 }
 
-function scan(mqtt) {
+function scan() {
 
     console.log("Scan started");
 
@@ -72,12 +75,4 @@ function scan(mqtt) {
 }
 
 
-(async () => {
-    try {
-        const mqtt = await mqttReady;
-        scan(mqtt);
-        setInterval(() => scan(mqtt), CONFIG.scanInterval);
-    } catch (err) {
-        //console.error("Failed to connect to MQTT:", err.message);
-    }
-})();
+(async () => { scan(); })();

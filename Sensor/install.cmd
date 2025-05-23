@@ -1,1 +1,1 @@
-npm install mqtt ping sync-request
+npm install mqtt ping sync-request imap mailparser

@@ -3,20 +3,17 @@
  * Web Node.js Wrapper 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
+function pause(seconds) {
+  const start = Date.now();
+  while (Date.now() - start < 1000 * seconds) {
+    // Do nothing, just block
+  }
+}
 
+const webContent = { pause };
 
-
-
-const webCore = require('./web-core');
-
-const webReady = new Promise((resolve) => {
-    // If there's async logic to run before it's ready, put it here.
-    // For now, just resolve immediately with the module
-    resolve(webCore);
-});
-
-module.exports = webReady;
+module.exports = webContent;

@@ -1,69 +1,92 @@
 /**
  * SmartHub - AI powered Smart Home
- * Cache Library for any App 
+ * Browser Cache Library (localStorage)
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-const CACHED_PERIOD = 1000 * 60 * 10; // 10 minutes
+// Cache expiration constants
+const CACHED_PERIOD_01 = 1000 * 60 * 60;      // 1 hour
+const CACHED_PERIOD_24 = 1000 * 60 * 60 * 24; // 24 hours
 
+// Generate a unique cache key based on input
 function getCachedKey(name, lat, lon) {
-    return `webCache:${name}:${lat},${lon}`;
+  return `webCache:${name}:${lat},${lon}`;
 }
 
+// Convert cache key to a safe "filename-like" string (not needed in localStorage but included for symmetry)
+function getCacheFileName(cacheKey) {
+  return cacheKey.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+}
+
+// Set a value in the cache
 function setCachedValue(value, name, lat, lon) {
-    const cacheKey = getCachedKey(name, lat, lon);
-    try {
-        const objValue = { value: value, timestamp: Date.now() };
-        const jsonValue = JSON.stringify(objValue);
+  const cacheKey = getCachedKey(name, lat, lon);
+  const objValue = {
+    value: value,
+    timestamp: Date.now()
+  };
 
-        if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(cacheKey, jsonValue);
-        } else if (typeof global !== 'undefined' && global._jarvisCache) {
-            global._jarvisCache[cacheKey] = jsonValue;
-        }
-    } catch (err) {
-        console.error('Failed to set cache:', err);
-    }
-}
-
-function getCachedValue(name, lat, lon) {
-    let result;
-    const cacheKey = getCachedKey(name, lat, lon);
-    const now = Date.now();
-    let cachedStr = null;
-
+  try {
     if (typeof localStorage !== 'undefined') {
-        cachedStr = localStorage.getItem(cacheKey);
-    } else if (typeof global !== 'undefined' && global._jarvisCache) {
-        cachedStr = global._jarvisCache[cacheKey];
+      localStorage.setItem(cacheKey, JSON.stringify(objValue));
+    } else {
+      console.warn('localStorage not available. Cache not set.');
     }
-
-    if (cachedStr) {
-        try {
-            const cached = JSON.parse(cachedStr);
-            if (now - cached.timestamp < CACHED_PERIOD) {
-                result = cached.value;
-            }
-        } catch (err) {
-            console.error('Failed to parse cached value:', err);
-        }
-    }
-    return result;
+  } catch (err) {
+    console.error('Failed to set cache:', err);
+  }
 }
 
-const cacheContent = {
-    getCachedKey,
-    setCachedValue,
-    getCachedValue
+// Get a cached value (ignores age/expiration)
+function getCachedValue(name, lat, lon) {
+  const cacheKey = getCachedKey(name, lat, lon);
+
+  try {
+    if (typeof localStorage === 'undefined') {
+      console.warn('localStorage not available. Cache cannot be read.');
+      return null;
+    }
+
+    const cachedStr = localStorage.getItem(cacheKey);
+    if (!cachedStr) return null;
+
+    const cached = JSON.parse(cachedStr);
+    return cached.value;
+  } catch (err) {
+    console.error('Failed to read or parse cached value:', err);
+    return null;
+  }
+}
+
+// Check if value exists and is still valid based on age
+function valueCached(name, lat, lon, period = CACHED_PERIOD_24) {
+  const cacheKey = getCachedKey(name, lat, lon);
+
+  try {
+    if (typeof localStorage === 'undefined') return false;
+
+    const cachedStr = localStorage.getItem(cacheKey);
+    if (!cachedStr) return false;
+
+    const cached = JSON.parse(cachedStr);
+    const age = Date.now() - cached.timestamp;
+    return age < period;
+  } catch (err) {
+    console.error('Failed to validate cached value:', err);
+    return false;
+  }
+}
+
+// Expose the cache API
+const cache = {
+  CACHED_PERIOD_01,
+  CACHED_PERIOD_24,
+  getCachedKey,
+  getCacheFileName,
+  setCachedValue,
+  getCachedValue,
+  valueCached
 };
-
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = cacheContent;
-} else {
-    window.Jarvis = window.Jarvis || {};
-    window.Jarvis.cache = cacheContent;
-}

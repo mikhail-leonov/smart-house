@@ -4,18 +4,12 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-const sensorContent = {
-};
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    // Node.js
-    module.exports = sensorContent;
-} else {
-    // Browser
-    window.Jarvis = window.Jarvis || {};
-    window.Jarvis.sensor = sensorContent;
-}
+
+window.Jarvis = window.Jarvis || {};
+window.Jarvis.sensor = sensorContent;
+

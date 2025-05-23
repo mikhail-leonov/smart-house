@@ -3,15 +3,15 @@
  * Log Node.js Wrapper 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-const logCore = require('./log-core');
+// Log messages to browser console area (if available) or just the console
+function logToConsole(message, type = 'info') {   
+   console.log(message);
+}
 
-const logReady = new Promise((resolve) => {
-    // Log module is sync — nothing async to wait for
-    resolve(logCore);
-});
+const logContent = { logToConsole }; 
 
-module.exports = logReady;
+module.exports = logContent;

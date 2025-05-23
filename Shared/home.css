@@ -84,7 +84,7 @@
 .water-area         { grid-area: 2  / 15 /  3 / 16; }
 .sprinkler-area     { grid-area: 2  / 13 /  3 / 14; }
 
-.roof               { grid-area: 3  / 6  / 16 / 18; }
+.house              { grid-area: 3  / 6  / 16 / 18; }
 
 .front-yard         { grid-area: 3  / 18 / 7  / 23; }
 .frontyard-area     { grid-area: 3  / 18 / 15 / 23; }

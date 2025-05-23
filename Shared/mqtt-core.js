@@ -3,24 +3,11 @@
  * MQTT JS Library for any HTML App 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-let mqtt = null;
-let mqttBrokerUrl = null;
-
-if (typeof window !== 'undefined') {
-    mqtt = window.mqtt;
-    mqttBrokerUrl = "ws://localhost:9001";
-} else {
-    try {
-        mqttBrokerUrl = "mqtt://localhost:1883";
-        mqtt = require('mqtt');
-    } catch (e) {
-        console.error("MQTT module not found. Please run 'npm install mqtt'");
-    }
-}
+let mqttBrokerUrl = "ws://localhost:9001";
 
 const mqttTopic = "home";
 let mqttClient = null;
@@ -38,7 +25,7 @@ function connectToMqtt() {
     if (mqttClient && mqttClient.connected) return mqttClient;
     if (!mqttBrokerUrl) { return null; }
 
-    mqttClient = mqtt.connect(mqttBrokerUrl);
+    mqttClient = connect(mqttBrokerUrl);
 
     mqttClient.on('connect', () => {
         console.log("MQTT connected");
@@ -79,12 +66,9 @@ const mqttContent = {
     publishToMQTT
 };
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = mqttContent;
-} else {
-    window.Jarvis = window.Jarvis || {};
-    window.Jarvis.mqtt = mqttContent;
-    connectToMqtt();
-    window.addEventListener('load', connectToMqtt);
-    window.addEventListener('beforeunload', disconnectFromMQTT);
-}
+window.Jarvis = window.Jarvis || {};
+window.Jarvis.mqtt = mqttContent;
+connectToMqtt();
+window.addEventListener('load', connectToMqtt);
+window.addEventListener('beforeunload', disconnectFromMQTT);
+

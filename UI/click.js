@@ -1,3 +1,12 @@
+/**
+ * SmartHub - AI powered Smart Home
+ * Browser click on room handler
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @version 0.5.0
+ * @license MIT
+ */
+
 function showSection(sectionId) {
   document.querySelectorAll('.section').forEach(section => { section.style.display = 'none'; });
   document.getElementById(sectionId).style.display = 'block';

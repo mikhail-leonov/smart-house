@@ -6,7 +6,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 -->
@@ -45,7 +45,8 @@
             <div class="card-header d-flex justify-content-between align-items-center">
               <h5 class="mb-0">Config</h5>
               <button id="getConfigBtn" class="btn btn-sm btn-outline-secondary" onclick="generateConfig();">Get Config</button>
-              <button id="copyConfigBtn" class="btn btn-sm btn-outline-secondary" onclick="selectTextAndCopy('config_text')">Copy</button>
+              <button id="getActionsgBtn" class="btn btn-sm btn-outline-secondary" onclick="generateActions();">Get Action</button>
+              <button id="copyConfigBtn" class="btn btn-sm btn-outline-secondary" onclick="selectTextAndCopy('config_text');">Copy</button>
             </div>
             <div class="card-body">
               <pre style="height: 600px" id="config_text">
@@ -65,9 +66,10 @@
               <button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#second" type="button" role="tab" aria-controls="second" aria-selected="false"> Second Floor </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="roof-tab" data-bs-toggle="tab" data-bs-target="#roof" type="button" role="tab" aria-controls="roof" aria-selected="false"> Roof </button>
+              <button class="nav-link" id="roof-tab" data-bs-toggle="tab" data-bs-target="#roof" type="button" role="tab" aria-controls="roof" aria-selected="false"> House </button>
             </li>
           </ul>
+
 
 
           <!-- CUT -->
@@ -102,63 +104,63 @@
                   <div class="room ac-area" data-location="outside" data-floor="first_floor" data-room="ac-area" onclick="entryClicked(this)">AC</div>
                   <div class="room water-area" data-location="outside" data-floor="first_floor" data-room="water-area" onclick="entryClicked(this)">Water in</div>
                   <div class="room sprinkler-area" data-location="outside" data-floor="first_floor" data-room="sprinkler-area" onclick="entryClicked(this)">Sprinkler <div id="content">
-                      <div id="sprinkler_controller_status" data-type="2"></div>
+                      <div id="sprinkler_controller_status" data-actions="on, off" data-type="2"></div>
                     </div>
                   </div>
                   <div class="room office-1f" data-location="inside" data-floor="first_floor" data-room="office-1f" onclick="entryClicked(this)">Office <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
-                      <div id="fan_speed" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="fan_status" data-actions="start, stop" data-type="1" data-min="0" data-max="1000"></div>
                     </div>
                   </div>
                   <div class="room bathroom-1f" data-location="inside" data-floor="first_floor" data-room="bathroom-1f" onclick="entryClicked(this)">Bathroom <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="water_leak" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                     </div>
                   </div>
                   <div class="room living-room-1f" data-location="inside" data-floor="first_floor" data-room="living-room-1f" onclick="entryClicked(this)">Living Room <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
-                      <div id="tv_status" data-type="2" data-values="on, off"></div>
-                      <div id="fan_speed" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
+                      <div id="fan_status" data-actions="start, stop" data-type="1" data-min="0" data-max="1000"></div>
                     </div>
                   </div>
                   <div class="room dining-area-1f" data-location="inside" data-floor="first_floor" data-room="dining-area-1f" onclick="entryClicked(this)">Dining Area <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
-                      <div id="fan_speed" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="fan_status" data-actions="start, stop" data-type="1" data-min="0" data-max="1000"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                     </div>
                   </div>
                   <div class="room kitchen-1f" data-location="inside" data-floor="first_floor" data-room="kitchen-1f" onclick="entryClicked(this)">Kitchen <div id="content">
                       <div id="stove_status" data-type="2"></div>
                       <div id="microwave_status" data-type="2"></div>
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
@@ -167,61 +169,61 @@
                       <div id="water_leak" data-type="2"></div>
                       <div id="kettle_status" data-type="2" data-values="empty, heating, hot, warm, cold"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                     </div>
                   </div>
                   <div class="room corridor-1f" data-location="inside" data-floor="first_floor" data-room="corridor-1f" onclick="entryClicked(this)">Corridor <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                     </div>
                   </div>
                   <div class="room stairs-1f" data-location="inside" data-floor="first_floor" data-room="stairs-1f" onclick="entryClicked(this)">Stairs <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                     </div>
                   </div>
                   <div class="room laundry-1f" data-location="inside" data-floor="first_floor" data-room="laundry-1f" onclick="entryClicked(this)">Laundry <div id="content">
                       <div id="washer_status" data-type="2"></div>
                       <div id="dryer_status" data-type="2"></div>
                       <div id="water_leak" data-type="2"></div>
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                     </div>
                   </div>
                   <div class="room closet-1f" data-location="inside" data-floor="first_floor" data-room="closet-1f" onclick="entryClicked(this)">Closet <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                     </div>
                   </div>
                   <div class="room garage-1f" data-location="inside" data-floor="first_floor" data-room="garage-1f" onclick="entryClicked(this)">Garage <div id="content">
                       <div id="car_presence" data-type="2"></div>
-                      <div id="door_status" data-type="2" data-values="open, opening, closed, closing"></div>
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="door_status" data-actions="open, close" data-type="2" data-values="open, opening, closed, closing"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
@@ -231,15 +233,15 @@
                     </div>
                   </div>
                   <div class="room hall-1f" data-location="inside" data-floor="first_floor" data-room="hall-1f" onclick="entryClicked(this)">Hall <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
-                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-actions="open, close, lock, unlock" data-type="2" data-values="open, closed, locked"></div>
                     </div>
                   </div>
                   <div class="room front-yard" data-location="outside" data-floor="first_floor" data-room="frontyard" onclick="entryClicked(this)">Front Yard <div id="content">
@@ -312,128 +314,128 @@
                   </div>
                   <div class="room area-left" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area</div>
                   <div class="room master-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="master-bedroom-2f" onclick="entryClicked(this)">Master Bedroom <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
-                      <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="tv_status" data-type="2" data-values="on, off"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+                      <div id="door_status" data-actions="open, close, lock, unlock" data-type="2" data-values="open, closed, locked"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
                     </div>
                   </div>
                   <div class="room master-bathroom-2f" data-location="inside" data-floor="second_floor" data-room="master-bathroom-2f" onclick="entryClicked(this)">Master Bathroom <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="water_leak" data-type="2"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                     </div>
                   </div>
                   <div class="room master-closet-2f" data-location="inside" data-floor="second_floor" data-room="master-closet-2f" onclick="entryClicked(this)">Master Closet <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                     </div>
                   </div>
                   <div class="room stairs-2f" data-location="inside" data-floor="second_floor" data-room="stairs-2f" onclick="entryClicked(this)">Stairs <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                     </div>
                   </div>
                   <div class="room bathroom-2f" data-location="inside" data-floor="second_floor" data-room="bathroom-2f" onclick="entryClicked(this)">Bathroom 2F <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                     </div>
                   </div>
                   <div class="room hall-2f" data-location="inside" data-floor="second_floor" data-room="hall-2f" onclick="entryClicked(this)">Area <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                     </div>
                   </div>
                   <div class="room daria-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="daria-bedroom-2f" onclick="entryClicked(this)">Daria Bedroom <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="tv_status" data-type="2" data-values="on, off"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
                     </div>
                   </div>
                   <div class="room ivan-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="ivan-bedroom-2f" onclick="entryClicked(this)">Ivan Bedroom <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="tv_status" data-type="2" data-values="on, off"></div>
+                      <div id="tv_status" data-actions="on, off" data-type="2" data-values="on, off"></div>
                     </div>
                   </div>
                   <div class="room den-2f" data-location="inside" data-floor="second_floor" data-room="den-2f" onclick="entryClicked(this)">Den <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                     </div>
                   </div>
                   <div class="room conditioner-2f" data-location="inside" data-floor="second_floor" data-room="conditioner-2f" onclick="entryClicked(this)">Cond <div id="content">
-                      <div id="light_level" data-type="1" data-min="0" data-max="500"></div>
+                      <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
                       <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
-                      <div id="window_status" data-type="2" data-values="open, closed, locked"></div>
-                      <div id="shatter_status" data-type="2" data-values="open, closed, opening, closing"></div>
+                      <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
+                      <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                       <div id="ac_status" data-type="2" ></div>
-                      <div id="ac_target_temperature" data-type="1" data-min="-10" data-max="50"></div>
+                      <div id="ac_target_temperature" data-actions="set" data-type="1" data-min="-10" data-max="50"></div>
                     </div>
                   </div>
                   <div class="room frontyard-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area</div>
@@ -446,7 +448,12 @@
                 <div class="floorplan">
                   <div class="room backend-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area </div>
                   <div class="room area-left" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area </div>
-                  <div class="room roof" data-location="outside" data-floor="first_floor" data-room="roof" onclick="entryClicked(this)">Roof </div>
+
+                  <div class="room house" data-location="inside" data-floor="house" data-room="nas" onclick="entryClicked(this)">House <div id="content">
+                      <div id="emails" data-actions="notify" data-type="1" data-min="0" data-max="100"></div>
+                    </div>
+                  </div>
+
                   <div class="room frontyard-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area </div>
                 </div>
               </div>

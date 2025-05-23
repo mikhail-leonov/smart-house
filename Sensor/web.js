@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
@@ -12,8 +12,9 @@ const lib = require('./web-lib');
 const path = require('path');
 const fs = require('fs');
 const config = require('../Shared/config-node');
-const mqttReady = require('../Shared/mqtt-node');
+const mqtt = require('../Shared/mqtt-node');
 const web = require('../Shared/web-node');
+const cache = require('../Shared/cache-node');
 
 const CONFIG = {
   scanInterval: 5 * 60 * 1000,
@@ -27,7 +28,7 @@ function pause(seconds) {
   }
 }
 
-function scan(mqtt) {
+function scan() {
     console.log("Scan started");
 
     const cfg = config.loadConfig(CONFIG.configPath);
@@ -53,7 +54,10 @@ function scan(mqtt) {
                                     topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
                                 }
                                 topics.forEach(topic => {
-                                    mqtt.publishToMQTT(varName, topic, varValue, "web");
+                                    (async () => {
+                                        await mqtt.publishToMQTT(varName, topic, varValue, "web");
+ 
+                                    })();
         			    console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "web")`);
                                     pause(1);
                                 });
@@ -73,12 +77,4 @@ function scan(mqtt) {
 }
 
 
-(async () => {
-    try {
-        const mqtt = await mqttReady;
-        scan(mqtt);
-        setInterval(() => scan(mqtt), CONFIG.scanInterval);
-    } catch (err) {
-        //console.error("Failed to connect to MQTT:", err.message);
-    }
-})();
+(async () => { scan(); })();

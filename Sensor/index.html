@@ -293,9 +293,9 @@
         // Start random simulation
         async function startRandomSimulation() {
             if (isSimulating) return;
-            
-            const connected = await connectToMqtt();
-            if (!connected) return;
+
+            const connected = mqtt.connect(mqttUrl);
+            if (!connected) { return; }
             
             if (allVariables.length === 0) {
                 logToConsole('No variables available. Please upload a configuration file first.', 'error');
@@ -334,8 +334,7 @@
         
         // Send a single random message
         async function sendSingleRandomMessage() {
-            const connected = await connectToMqtt();
-            if (!connected) return;
+
             
             if (allVariables.length === 0) {
                 logToConsole('No variables available. Please upload a configuration file first.', 'error');
@@ -345,8 +344,19 @@
             sendRandomMessage();
         }
         
+function buildMqttTopic(l, f, r, v) {
+    let topic = l;
+    if (f) {
+        topic += `/${f}`;
+    }
+    topic += `/${r}/${v}`;
+    return "home/" + topic;
+}
+
         // Send a random message
         function sendRandomMessage() {
+            const connected = mqtt.connect(mqttUrl);
+            if (!connected) { return; }
 
             const randomVar = getRandomVariable();
             if (!randomVar) {
@@ -363,17 +373,13 @@
             const topic = buildMqttTopic(randomVar.locationType, randomVar.floor, randomVar.room, randomVar.variable);
 
             // Create payload
-            const payload = {
-                value: value,
-                type: "Random",
-                timestamp: new Date().toISOString()
-            };
+            const payload = { value: value, type: "Random", timestamp: new Date().toISOString() };
 
             // LOG
             //setTimeout(() => { fetch(LOG_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ msg: `UI App started` }), }); }, 0);
             
             // Publish message
-            mqttClient.publish(topic, JSON.stringify(payload), { retain: true, qos: 1 }, (err) => {
+            connected.publish(topic, JSON.stringify(payload), { retain: true, qos: 1 }, (err) => {
                 if (err) {
                     logToConsole(`Error publishing to ${topic}: ${err.message}`, 'error');
                 } else if (logEachMessageCheckbox.checked) {
@@ -401,9 +407,9 @@
             }
         });
     </script>
-    <script src="../shared/constants-core.js"></script>
+    <script src="../shared/constants.js"></script>
     <script src="../shared/log-core.js"></script>
-    <script src="../shared/mqtt-core.js"></script>
+    <script src="../UI/mqtt.js"></script>
     <script src="../shared/cache-core.js"></script>
     <script src="../shared/web-core.js"></script>
     <script src="../shared/sensor-core.js"></script>

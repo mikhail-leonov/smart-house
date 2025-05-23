@@ -1,19 +1,61 @@
+/**
+ * SmartHub - AI powered Smart Home
+ * Browser generate config file
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @version 0.5.0
+ * @license MIT
+ */
+
           function generateConfigSection(location, floor) {
             let elements = document.querySelectorAll(`div[data-location="${location}"][data-floor="${floor}"]`);
             let section = {};
             elements.forEach(el => {
               sectionName = el.getAttribute('data-room');
               if (!section[sectionName]) { section[sectionName] = {}; }
-              Object.assign(section[sectionName], generateSectionVariables(el) );
+              const actions = generateSectionVariables(el);
+              Object.assign(section[sectionName], actions );
             });
             return section;
+          }
+function generateActionsSection(location, floor) {
+  let elements = document.querySelectorAll(`div[data-location="${location}"][data-floor="${floor}"]`);
+  let section = {};
+
+  elements.forEach(el => {
+    const roomName = el.getAttribute('data-room');
+    const actions = generateActionsVariables(el);
+
+    if (actions && Object.keys(actions).length > 0) {
+      if (!section[roomName]) {
+        section[roomName] = {};
+      }
+      Object.assign(section[roomName], actions);
+    }
+  });
+
+  // Return section only if it has rooms
+  return Object.keys(section).length > 0 ? section : null;
+}
+
+          function generateActions() {
+            let config = {};
+            config.home = {};
+            config.home.inside = {};
+            config.home.inside.house = generateActionsSection("inside", "house");
+            config.home.inside.first_floor = generateActionsSection("inside", "first_floor");
+            config.home.inside.second_floor = generateActionsSection("inside", "second_floor");
+            config.home.outside = {};
+            config.home.outside.first_floor = generateActionsSection("outside", "first_floor");
+            const configText = document.getElementById('config_text');
+            configText.innerText = formatJSON(config);
           }
 
           function generateConfig() {
             let config = {};
             config.home = {};
             config.home.inside = {};
-            config.home.inside.house = {};
+            config.home.inside.house = generateConfigSection("inside", "house");
             config.home.inside.first_floor = generateConfigSection("inside", "first_floor");
             config.home.inside.second_floor = generateConfigSection("inside", "second_floor");
             config.home.outside = {};
@@ -61,6 +103,26 @@
             return result;
           }
 
+function generateActionsVariables(element) {
+  let result = {};
+  let contentNodes = element.querySelectorAll('div#content');
+  
+  if (contentNodes) {
+    contentNodes.forEach(div => {
+      Array.from(div.children).forEach(child => {
+        if (child.id) {
+          const action = getActionsObject(child);
+          if (action && action.actions) { // Only include if actions exist and are not empty
+            result[child.id] = action;
+          }
+        }
+      });
+    });
+  }
+
+  // Return result only if it has keys
+  return Object.keys(result).length > 0 ? result : null;
+}
           function convertStringsToNumbers(arr) {
             return arr.map(item => {
               if (typeof item === 'string') {
@@ -75,16 +137,20 @@
               return item;
             });
           }
-
+          function getActionsObject(el) {
+            let result = { };
+            const actions = el.getAttribute('data-actions');
+            if (actions) {
+               result["actions" ] = actions; 
+            }
+            return result;
+          }
           function getSettingsObject(el) {
-            let result = {
-              value: "",
-              description: "",
-              min_value: "",
-              max_value: ""
-            };
+            let result = { value: "", min_value: "", max_value: "" };
+
             childType = el.getAttribute('data-type');
             if (childType) {
+
               if (childType === "1") {
                 let min = el.getAttribute('data-min');
                 let max = el.getAttribute('data-max');
@@ -93,16 +159,7 @@
                     min = Number(min);
                     max = Number(max);
                     let value = Math.round(Math.random() * (max - min) + min);
-                    let descr = "";
-                    if (el.getAttribute('data-descr')) {
-                      descr = el.getAttribute('data-descr');
-                    }
-                    result = {
-                      value: value,
-                      description: descr,
-                      min_value: min,
-                      max_value: max
-                    };
+                    result = { value: value, min_value: min, max_value: max };
                   }
                 }
               }
@@ -115,19 +172,16 @@
                   values = convertStringsToNumbers(values);
                 }
                 let value = values[Math.floor(Math.random() * values.length)];
-                let descr = "";
-                if (el.getAttribute('data-descr')) {
-                  descr = el.getAttribute('data-descr');
-                }
-                result = {
-                  value: value,
-                  description: descr,
-                  values: values
-                };
+                result = { value: value, values: values };
               }
+            }
+	    const actions = el.getAttribute('data-actions');
+            if (actions) {
+              result["actions" ] = actions; 
             }
             return result;
           }
+
 
           function selectTextAndCopy(elementId) {
             const element = document.getElementById(elementId);
@@ -139,7 +193,6 @@
             selection.addRange(range);
             try {
               document.execCommand('copy');
-              alert('Copied to clipboard!');
             } catch (err) {
               alert('Failed to copy text.');
             }

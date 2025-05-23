@@ -1,14 +1,30 @@
+/**
+ * SmartHub - AI powered Smart Home
+ * App which is running and read rules and try to validate them with AI and send command to a Controller 
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.4.0
+ * @license MIT
+ */
+
 const fs = require('fs');
 const path = require('path');
 const mqtt = require('mqtt');
 const axios = require('axios');
 const ini = require('ini');
+const cmd = require('../Shared/command-node');
 
+const OUTPUT_DIR = path.join(__dirname, 'output');
+if (!fs.existsSync(OUTPUT_DIR)) {
+    fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+}
 // === LOAD CONFIG ===
 const config = ini.parse(fs.readFileSync('./index.cfg', 'utf-8'));
 
 const RULES_DIR = config.general.rules_dir;
 const SETTINGS_FILE = config.general.settings_file;
+ACTIONS_FILE = config.general.actions_file;
 const LOG_URL = config.general.log_url;
 //const DEBUG = config.general.debug === 'true';
 let DEBUG = true;
@@ -46,12 +62,6 @@ const MODEL_NAMES = {
     gemini: config.gemini.model || LLM_MODEL,
 };
 
-const mqttState = {
-    home: {
-        inside: {},
-        outside: {}
-    }
-};
 let receivedFirstMessage = false;
 
 // === MQTT CONNECTION ===
@@ -59,26 +69,15 @@ const client = mqtt.connect(MQTT_URL);
 
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
-    client.subscribe('home/#', {
-        qos: 0
-    });
+    client.subscribe('#', { qos: 0 });
 });
 
+const mqttState = { };
+
 client.on('message', (topic, message) => {
-    const parts = topic.split('/');
-
-    const section = parts[1];
-    const room = parts[2];
-    const variable = parts[3];
-
     try {
         const value = JSON.parse(message.toString()).value;
-
-        mqttState.home ??= {};
-        mqttState.home[section] ??= {};
-        mqttState.home[section][room] ??= {};
-        mqttState.home[section][room][variable] = value;
-
+        mqttState[topic] = value;
         receivedFirstMessage = true;
     } catch (err) {
         console.error(`MQTT parse error on ${topic}:`, err.message);
@@ -129,20 +128,30 @@ async function callClaude({ url, model, prompt, apiKey }) {
 }
 
 async function callDeepseek({ url, model, prompt, apiKey }) {
-    const response = await axios.post(url, {
-        model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 4096,
-        stream: false
-    }, {
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-        }
-    });
+    try {
+        const response = await axios.post(url, {
+            model: model || 'deepseek-chat',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.7,
+            max_tokens: 4096,
+            stream: false
+        }, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            timeout: 30000 // 30 seconds timeout
+        });
 
-    return response.data?.choices?.[0]?.message?.content?.trim();
+        if (!response.data?.choices?.[0]?.message?.content) {
+            throw new Error('No content in response');
+        }
+
+        return response.data.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('DeepSeek API Error:', error.response?.data || error.message);
+        throw new Error(`API request failed: ${error.response?.data?.message || error.message}`);
+    }
 }
 
 async function callGemini({ url, model, prompt, apiKey }) {
@@ -247,23 +256,28 @@ async function processRulesWithState() {
     for (const file of files) {
         const ruleText = fs.readFileSync(path.join(RULES_DIR, file), 'utf-8').trim();
         const settingsText = fs.readFileSync(SETTINGS_FILE, 'utf-8').trim();
+        const actions = fs.readFileSync(ACTIONS_FILE, 'utf-8').trim();
         const timeStamp = formatDate(new Date()).trim();
         const shState = JSON.stringify(mqttState, null, 2).trim();
 
-        console.log(`Правило:\n  ${ruleText}\nОграничения:\n  ${settingsText}`);
+        console.log(`Правило:\n  ${ruleText}\n`);
 
-        let prompt = `Состояние умного дома: ${shState}\nСейчас: ${timeStamp}\nПравило: ${ruleText}\nОграничения: ${settingsText}`;
+        let prompt = `Состояние умного дома: ${shState}\nСейчас: ${timeStamp}\nПравило: ${ruleText}\nОграничения: ${settingsText}\nДоступные функции: ${actions}`;
         if (DEBUG) {
             prompt += ' Подробно объясни почему ты так решила?. Вывести значение всех переменных учавствоваших в принятии решения.';
         } else {
             prompt += ' Не выводить никаких размышлений. Только конечный результат.';
         }
 
-        //fs.writeFile('output/' + file + '.log', prompt, (err) => { });
-
         try {
+
+            const fullPath = path.join(OUTPUT_DIR, file + ".json");
+            fs.writeFileSync(fullPath, prompt + '\n', 'utf-8');
+            
+
             const output = await queryLLM(prompt);
             console.log(output);
+            cmd.execCommand(output);
         } catch (err) {
             console.error(`Failed to query LLM for ${file}:`, err.message);
         }

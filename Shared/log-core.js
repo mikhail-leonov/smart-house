@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
@@ -13,7 +13,6 @@ function logToConsole(message, type = 'info') {
     try {
         const now = new Date();
         const timeString = now.toLocaleTimeString();
-
         const logEntry = `[${timeString}] ${message}`;
 
         // Browser UI console div logging
@@ -39,7 +38,7 @@ function logToConsole(message, type = 'info') {
         }
 
     } catch (error) {
-        console.error('Error logging to console:', error);
+        console.log(message);
     }
 }
 
@@ -47,11 +46,5 @@ const logContent = {
     logToConsole
 };
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    // Node.js
-    module.exports = logContent;
-} else {
-    // Browser
-    window.Jarvis = window.Jarvis || {};
-    window.Jarvis.log = logContent;
-}
+window.Jarvis = window.Jarvis || {};
+window.Jarvis.log = logContent;

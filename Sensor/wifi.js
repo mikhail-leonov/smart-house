@@ -139,7 +139,6 @@ async function scan() {
 
 async function main() {
   await scan();
-  setInterval(() => scan(), CONFIG.scanInterval);
 }
 
 

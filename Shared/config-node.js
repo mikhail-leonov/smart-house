@@ -3,7 +3,7 @@
  * Config Node.js Wrapper
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 

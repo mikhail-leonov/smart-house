@@ -14,6 +14,7 @@ const location = require('../Shared/location.js');
 const constants = require('../Shared/constants.js');
 
 
+/*
 function parseData(data) {
   return {
     temperature: data.outTemp,                // Celsius
@@ -24,9 +25,10 @@ function parseData(data) {
     precipitation: data.hourlyRain            // mm or inches depending on config
   };
 }
-function getStationData(ipAddress) {
+function getStationData2() {
   console.log("getStationData");
 
+  const ipAddress = "";
   const baseUrl = `http://${ipAddress}/data.json`; // Assumed WS-5000 endpoint
   const res = request('GET', baseUrl);
   const data = JSON.parse(res.getBody('utf8'));
@@ -34,6 +36,11 @@ function getStationData(ipAddress) {
   let result = parseData(data);
   return result;
 }
+
+*/
+function getStationData() {
+  return { temperature: 21, humidity: 50, windSpeed: 0,  windDirection: 10, weatherCode: 3, precipitation: 0 };
+} 
 
 module.exports = {
     getStationData

@@ -60,13 +60,13 @@ mqttClient.on('error', (err) => {
 const app = express();
 app.use(bodyParser.json());
 
-// Log just the question
-app.post('/log', (req, res) => {
-  const { msg } = req.body;
+// Log just the question via GET
+app.get('/log', (req, res) => {
+  const msg = req.query.msg;
   const time = getFormattedTime();
 
   if (!msg) {
-    return res.status(400).send('Missing "msg".');
+    return res.status(400).send('Missing "msg" query parameter.');
   }
 
   const logEntry = `[${time}] [LLM] Q: ${msg}`;
@@ -74,7 +74,6 @@ app.post('/log', (req, res) => {
   logToFile(logEntry);
   res.send('Question logged');
 });
-
 
 // Optional: serve the log viewer
 app.get('/', (req, res) => {

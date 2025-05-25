@@ -84,11 +84,48 @@ async function publishToMQTT(variable, topic, value, type = 'text') {
     });
 }
 
+async function subscribeToMQTT(topic, variableName = null) {
+    const mqttClient = mqtt.connect(mqttBrokerUrl);
+
+    return new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+            mqttClient.end();
+            resolve(null);
+        }, 5000);
+
+        mqttClient.on('connect', () => {
+            mqttClient.subscribe(topic, { qos: 0 }, (err) => {
+                if (err) {
+                    clearTimeout(timeout);
+                    mqttClient.end();
+                    resolve(null);
+                }
+            });
+        });
+
+        mqttClient.on('message', (_, msg) => {
+            clearTimeout(timeout);
+            mqttClient.end();
+            try {
+                const payload = JSON.parse(msg.toString());
+                if (!variableName || payload.variable === variableName) {
+                    resolve(payload.value);
+                } else {
+                    resolve(null);
+                }
+            } catch {
+                resolve(null);
+            }
+        });
+    });
+}
+
 // Export async API
 module.exports = {
     mqttTopic,
     buildMqttTopic,
     connectToMqtt,
     disconnectFromMQTT,
+    subscribeToMQTT,
     publishToMQTT
 };

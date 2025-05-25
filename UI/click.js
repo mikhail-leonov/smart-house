@@ -42,7 +42,7 @@ function entryClicked(roomDiv) {
     const tabGroups = {};
     nestedDivs.forEach(div => {
         const tab = div.getAttribute('data-tab') || '0'; // fallback to "0" if not present
-        if (!tabGroups[tab]) tabGroups[tab] = [];
+        if (!tabGroups[tab]) { tabGroups[tab] = []; }
         tabGroups[tab].push(div);
     });
 
@@ -54,11 +54,7 @@ function entryClicked(roomDiv) {
         let tableRows = '';
         group.forEach(div => {
             const id = div.id;
-            let payload = {
-                value: "",
-                type: "",
-                timestamp: ""
-            };
+            let payload = { value: "", type: "", timestamp: "" };
             const value = div.getAttribute('data-value');
             if (value) {
                 try {
@@ -68,21 +64,21 @@ function entryClicked(roomDiv) {
                 }
             }
 
-            let valueText = String(payload.value ? ? "");
+            let valueText = String(payload.value ?? "");
 
-            if (payload.type ? .toLowerCase() === "random") {
+            if (payload.type?.toLowerCase() === "random") {
                 valueText = `<b style="color: #d3d3d3;">${valueText}</b>`;
             }
-            if (payload.type ? .toLowerCase() === "web") {
+            if (payload.type?.toLowerCase() === "web") {
                 valueText = `<b class="text-success">${valueText}</b>`;
             }
-            if (payload.type ? .toLowerCase() === "sensor") {
+            if (payload.type?.toLowerCase() === "sensor") {
                 valueText = `<b class="text-primary">${valueText}</b>`;
             }
 
-            if (valueText !== "") {
+            //if (valueText !== "") {
                 tableRows += `<tr><td>${id}</td><td>${valueText}</td></tr>`;
-            }
+            //}
         });
 
         modalContent.innerHTML = `
@@ -125,15 +121,15 @@ function entryClicked(roomDiv) {
                     }
                 }
 
-                let valueText = String(payload.value ? ? "");
+                let valueText = String(payload.value ?? "");
 
-                if (payload.type ? .toLowerCase() === "random") {
+                if (payload.type?.toLowerCase() === "random") {
                     valueText = `<b style="color: #d3d3d3;">${valueText}</b>`;
                 }
-                if (payload.type ? .toLowerCase() === "web") {
+                if (payload.type?.toLowerCase() === "web") {
                     valueText = `<b class="text-success">${valueText}</b>`;
                 }
-                if (payload.type ? .toLowerCase() === "sensor") {
+                if (payload.type?.toLowerCase() === "sensor") {
                     valueText = `<b class="text-primary">${valueText}</b>`;
                 }
 

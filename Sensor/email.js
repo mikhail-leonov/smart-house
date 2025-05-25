@@ -40,7 +40,7 @@ function scan() {
   console.log("Scan started");
 
   imap.once('ready', function () {
-    openInbox(async function (err, box) {
+    openInbox(function (err, box) {
       if (err) {
         console.error('[IMAP] Inbox error:', err);
         imap.end();
@@ -55,12 +55,16 @@ function scan() {
         }
 
         const varValue = results ? results.length : 0;
-
-        // Send the count first
         const varName = 'emails';
-        await mqtt.publishToMQTT(varName, topic, varValue, 'sensor');
-        console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "web")`);
 
+        try {
+          await mqtt.publishToMQTT(varName, topic, varValue, 'sensor');
+          console.log(`Published ${varName} = ${varValue} to MQTT topic ${topic}`);
+        } catch (publishErr) {
+          console.error('[MQTT] Publish error:', publishErr);
+        } finally {
+          imap.end(); // Close connection after publishing
+        }
       });
     });
   });
@@ -71,11 +75,11 @@ function scan() {
 
   imap.once('end', function () {
     console.log('[IMAP] Connection closed');
+    process.exit(0); // Exit process cleanly after done
   });
 
   imap.connect();
-  console.log("Scan done");
 }
 
-// Launch scan
+// Launch scan once
 scan();

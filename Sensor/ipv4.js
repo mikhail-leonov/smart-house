@@ -1,6 +1,6 @@
 /**
  * SmartHub - AI powered Smart Home
- * App which is reads values from local network and send them to MQTT to update a home state
+ * App which reads values from local network and sends them to MQTT to update home state
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
@@ -16,20 +16,22 @@ const execAsync = util.promisify(exec);
 
 // IPs to ignore completely
 const IGNORED_IPS = {
-  "192.168.1.75" : "media",
-  "192.168.1.82" : "Brother-BW-printer",
-  "192.168.1.92" : "NAS",
-  "192.168.1.93" : "NAS",
+  "192.168.1.75": "media",
+  "192.168.1.82": "Brother-BW-printer",
+  "192.168.1.92": "NAS",
+  "192.168.1.93": "NAS",
   "192.168.1.103": "DESKTOP-BHA979S",
   "192.168.1.141": "Samsung",
   "192.168.1.154": "unknown30b4b802c067",
+  "192.168.1.190": "Air ties Extender",
   "192.168.1.211": "unknownacccfcc5733f",
   "192.168.1.254": "ATT-Router"
 };
 
 const TRACKED_IPS = {
-  "192.168.1.78" : "INNA-phone",
+  "192.168.1.78": "INNA-phone",
   "192.168.1.102": "INNA-tablet",
+  "192.168.1.108": "Lawn Watering controller",
   "192.168.1.172": "Galaxy-Tab-S6-Lite",
   "192.168.1.174": "MIKE-desktop",
   "192.168.1.184": "INNA-laptop",
@@ -45,22 +47,20 @@ const KNOWN_GUESTS = {
 
 const CONFIG = {
   networkPrefix: '192.168.1',
-  mqttBroker: 'mqtt://localhost:1883',
-  scanInterval: 5 * 60 * 1000
+  mqttBroker: 'mqtt://localhost:1883'
 };
 
 const mqttClient = mqtt.connect(CONFIG.mqttBroker);
-mqttClient.on('connect', () => {
-  console.log('Connected to MQTT broker');
-  main();
-});
-
 let lastSeen = {};
 let lastGuests = new Set();
 
-function sanitizeTopic(text) {
-  return "Unknown guest " + text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
-}
+mqttClient.on('connect', () => {
+  console.log('Connected to MQTT broker');
+  main().then(() => {
+    mqttClient.end();
+    process.exit(0);
+  });
+});
 
 function publish2MQTT(topic, value) {
   mqttClient.publish(topic, JSON.stringify({
@@ -78,14 +78,14 @@ async function pingIP(ip) {
     return false;
   }
 }
+
 function getTopic(desc) {
-    return `home/inside/house/${desc}/status`;
+  return `home/inside/house/${desc}/status`;
 }
 
 async function scan() {
-  console.log('\nStarting async IP scan...');
+  console.log('\nScan - started');
   const foundNow = [];
-
   const ipPromises = [];
 
   for (let i = 1; i <= 254; i++) {
@@ -122,7 +122,7 @@ async function scan() {
           if (TRACKED_IPS[ip] && lastSeen[ip]) {
             const desc = TRACKED_IPS[ip];
             const topic = getTopic(desc);
-            console.log(`${ip} - Offline: (${desc})`);
+            console.log(`${ip} - Offline (${desc})`);
             publish2MQTT(topic, "Offline");
             lastSeen[ip] = false;
           }
@@ -132,13 +132,10 @@ async function scan() {
   }
 
   await Promise.all(ipPromises);
-  console.log('Waiting to scan for changes...');
-
   lastGuests = new Set(foundNow.filter(ip => !TRACKED_IPS[ip] && !IGNORED_IPS[ip]));
+  console.log('\nScan - done');
 }
 
 async function main() {
   await scan();
 }
-
-

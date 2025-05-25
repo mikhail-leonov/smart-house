@@ -76,5 +76,4 @@ function scan() {
     console.log("Scan done");
 }
 
-
-(async () => { scan(); })();
+scan();

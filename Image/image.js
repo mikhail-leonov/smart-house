@@ -7,7 +7,6 @@
  * @license MIT
  */
 
-const lib = require('./image-lib'); 
 const path = require('path');
 const fs = require('fs/promises');
 const config = require('../Shared/config-node');
@@ -20,7 +19,6 @@ const CONFIG = {
 };
 
 async function scan() {
-  console.log("Scan started");
   const cfg = config.loadConfig(CONFIG.configPath);
 
   try {
@@ -31,6 +29,8 @@ async function scan() {
       console.log("No images to process.");
       return; // Exit early
     }
+
+    const lib = require('./image-lib'); 
 
     for (const filename of imageFiles) {
       const filePath = path.join(CONFIG.imageDir, filename);
@@ -77,6 +77,7 @@ async function scan() {
 }
 
 async function main() {
+  console.log("Scan started");
   await scan();
   console.log("Scan done");
 }

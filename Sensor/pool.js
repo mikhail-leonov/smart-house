@@ -25,9 +25,9 @@ try {
 const LOCATION = "outside";
 const FLOOR = "first_floor";
 const ROOM = "pool";
-const VARIABLE = "vac_status";
+const varName = "vac_status";
 
-const FULL_TOPIC = mqtt.buildMqttTopic(LOCATION, FLOOR, ROOM, VARIABLE);
+const topic = mqtt.buildMqttTopic(LOCATION, FLOOR, ROOM, varName);
 
 function getTargetValue() {
     const now = new Date();
@@ -52,23 +52,26 @@ function getTargetValue() {
 }
 
 async function run() {
-    const desiredValue = getTargetValue();
+    await mqtt.connectToMqtt();
 
-    if (!desiredValue) {
-        console.log(`[${new Date().toISOString()}] Not time to send.`);
+    const varValue = getTargetValue();
+
+    if (!varValue) {
+        console.log(`[${new Date().toISOString()}] Out of time frame borders.`);
         return;
     }
 
     try {
-        const currentValue = await mqtt.subscribeToMQTT(FULL_TOPIC, VARIABLE);
+        const currentValue = await mqtt.subscribeToMQTT(topic, varName);
 
-        if (currentValue === desiredValue) {
-            console.log(`[${new Date().toISOString()}] Already '${desiredValue}', skipping publish.`);
+        if (currentValue === varValue) {
+            console.log(`[${new Date().toISOString()}] Already '${varValue}', skipping publish.`);
             return;
         }
 
-        await mqtt.publishToMQTT(VARIABLE, FULL_TOPIC, desiredValue);
-        console.log(`[${new Date().toISOString()}] Published '${desiredValue}' to '${FULL_TOPIC}'`);
+        await mqtt.publishToMQTT(varName, topic, varValue, "Random");
+
+        console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "sensor")`);
     } catch (err) {
         console.error(`[${new Date().toISOString()}] Error:`, err.message);
     } finally {

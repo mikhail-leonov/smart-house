@@ -23,7 +23,7 @@ const IGNORED_IPS = {
   "192.168.1.103": "DESKTOP-BHA979S",
   "192.168.1.141": "Samsung",
   "192.168.1.154": "unknown30b4b802c067",
-  "192.168.1.190": "Air ties Extender",
+  "192.168.1.190": "Air-Ties-Extender",
   "192.168.1.211": "unknownacccfcc5733f",
   "192.168.1.254": "ATT-Router"
 };
@@ -31,7 +31,7 @@ const IGNORED_IPS = {
 const TRACKED_IPS = {
   "192.168.1.78": "INNA-phone",
   "192.168.1.102": "INNA-tablet",
-  "192.168.1.108": "Lawn Watering controller",
+  "192.168.1.108": "Lawn-Watering-controller",
   "192.168.1.172": "Galaxy-Tab-S6-Lite",
   "192.168.1.174": "MIKE-desktop",
   "192.168.1.184": "INNA-laptop",

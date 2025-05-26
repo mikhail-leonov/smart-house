@@ -3,7 +3,7 @@
  * Cache Node.js Wrapper 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.5.2
+ * @version 0.6.0
  * @license MIT
  */
 

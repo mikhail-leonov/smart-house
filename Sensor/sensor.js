@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.5.2
+ * @version 0.6.0
  * @license MIT
  */
 
@@ -29,7 +29,7 @@ function pause(seconds) {
   }
 }
 
-// Main scan function — runs once
+// Main scan function ï¿½ runs once
 function scan() {
   console.log("Scan started");
 

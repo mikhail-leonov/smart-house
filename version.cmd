@@ -1,0 +1,1 @@
+node F:/Home/Shared/version.js

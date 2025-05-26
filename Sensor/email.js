@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov
- * @version 0.5.2
+ * @version 0.6.0
  * @license MIT
  */
 

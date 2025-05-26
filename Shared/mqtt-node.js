@@ -18,6 +18,7 @@ let connectionPromise = null;
 
 // Build a hierarchical MQTT topic
 function buildMqttTopic(location, floor, room, variable) {
+    console.log(` - mqtt.buildMqttTopic(${location}, ${floor}, ${room}, ${variable})`);
     let topic = location;
     if (floor) topic += `/${floor}`;
     topic += `/${room}/${variable}`;
@@ -26,6 +27,7 @@ function buildMqttTopic(location, floor, room, variable) {
 
 // Connect asynchronously (returns a promise you can await)
 function connectToMqtt() {
+    console.log(` - mqtt.connectToMqtt()`);
     if (mqttConnected) { return Promise.resolve(); }
     if (connectionPromise) { return connectionPromise; }
 
@@ -34,18 +36,18 @@ function connectToMqtt() {
 
         mqttClient.on('connect', () => {
             mqttConnected = true;
-            console.log("MQTT connected");
+            console.log(" - mqtt.connected == true");
             resolve();
         });
 
         mqttClient.on('error', (err) => {
-            console.error("MQTT error:", err.message);
+            console.log(" - mqtt.error == " + err.message);
             reject(err);
         });
 
         mqttClient.on('close', () => {
             mqttConnected = false;
-            console.warn("MQTT disconnected");
+            console.log(" - mqtt.close == true");
         });
     });
 
@@ -54,6 +56,7 @@ function connectToMqtt() {
 
 // Gracefully disconnect
 async function disconnectFromMQTT() {
+    console.log(` - mqtt.disconnectFromMQTT()`);
     if (mqttClient && mqttConnected) {
         await new Promise(resolve => mqttClient.end(true, resolve));
         mqttConnected = false;
@@ -62,6 +65,7 @@ async function disconnectFromMQTT() {
 
 // Async publish method
 async function publishToMQTT(variable, topic, value, type) {
+    console.log(` - mqtt.publishToMQTT(${variable}, ${topic}, ${value}, ${type})`);
     if (!mqttConnected) {
         try {
             await connectToMqtt();
@@ -75,9 +79,10 @@ async function publishToMQTT(variable, topic, value, type) {
     return new Promise((resolve, reject) => {
         mqttClient.publish(topic, payload, { retain: true }, (err) => {
             if (err) {
-                console.error("MQTT publish failed:", err.message);
+                console.error(" - - mqtt publish failed:", err.message);
                 reject(err);
             } else {
+                console.error(" - - mqtt published succesfully");
                 resolve();
             }
         });
@@ -85,6 +90,8 @@ async function publishToMQTT(variable, topic, value, type) {
 }
 
 async function subscribeToMQTT(topic, variableName = null) {
+    console.log(` - mqtt.Subscribe(${topic}, ${variableName})`);
+
     if (!mqttConnected) {
         try {
             await connectToMqtt();
@@ -94,24 +101,16 @@ async function subscribeToMQTT(topic, variableName = null) {
         }
     }
     return new Promise((resolve) => {
-        const timeout = setTimeout(() => {
-            mqttClient.end();
-            resolve(null);
-        }, 5000);
 
         mqttClient.on('connect', () => {
             mqttClient.subscribe(topic, { qos: 0 }, (err) => {
                 if (err) {
-                    clearTimeout(timeout);
-                    mqttClient.end();
                     resolve(null);
                 }
             });
         });
 
         mqttClient.on('message', (_, msg) => {
-            clearTimeout(timeout);
-            mqttClient.end();
             try {
                 const payload = JSON.parse(msg.toString());
                 if (!variableName || payload.variable === variableName) {

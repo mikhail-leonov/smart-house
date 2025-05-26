@@ -9,8 +9,8 @@
  */
 
 const path = require('path');
-const mqtt = require('../Shared/mqtt-node');
 const configNode = require('../Shared/config-node');
+const mqtt = require('../Shared/mqtt-node');
 
 const CONFIG_PATH = path.join(__dirname, 'pool.cfg');
 
@@ -22,12 +22,19 @@ try {
     process.exit(1);
 }
 
-const LOCATION = "outside";
-const FLOOR = "first_floor";
-const ROOM = "pool";
-const varName = "vac_status";
+const {
+    location,
+    floor,
+    room,
+    var_name: varName,
+    on_time: onTime,
+    off_time: offTime
+} = config.pool || {};
 
-const topic = mqtt.buildMqttTopic(LOCATION, FLOOR, ROOM, varName);
+if (!location || !room || !varName) {
+    console.error("Missing required pool config values: location, room, or var_name.");
+    process.exit(1);
+}
 
 function getTargetValue() {
     const now = new Date();
@@ -51,32 +58,35 @@ function getTargetValue() {
     return null;
 }
 
-async function run() {
-    await mqtt.connectToMqtt();
-
-    const varValue = getTargetValue();
-
-    if (!varValue) {
-        console.log(`[${new Date().toISOString()}] Out of time frame borders.`);
-        return;
-    }
-
-    try {
-        const currentValue = await mqtt.subscribeToMQTT(topic, varName);
-
-        if (currentValue === varValue) {
-            console.log(`[${new Date().toISOString()}] Already '${varValue}', skipping publish.`);
-            return;
-        }
-
-        await mqtt.publishToMQTT(varName, topic, varValue, "Random");
-
-        console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "sensor")`);
-    } catch (err) {
-        console.error(`[${new Date().toISOString()}] Error:`, err.message);
-    } finally {
-        await mqtt.disconnectFromMQTT();
-    }
+// Blocking pause function (seconds)
+function pause(seconds) {
+  const start = Date.now();
+  while (Date.now() - start < 1000 * seconds) {
+    // Busy wait
+  }
 }
 
-run();
+async function scan() {
+    console.log("Scan started");
+    const varValue = getTargetValue();
+    if (varValue) {
+      try {
+          const topic = mqtt.buildMqttTopic(location, floor, room, varName);
+          await mqtt.connectToMqtt();
+          await mqtt.publishToMQTT(varName, topic, varValue, "Sensor");
+          pause(5);
+          await mqtt.disconnectFromMQTT();
+  
+      } catch (err) {
+          console.error(`[${new Date().toISOString()}] Error:`, err.message);
+      }
+    } else {
+      console.log(` - Outside of time frame`);
+    }
+    console.log("Scan done");
+}
+
+(async () => {
+  await scan();
+})();
+

@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.0
+ * @version 0.6.1
  * @license MIT
  */
 
@@ -30,11 +30,13 @@ function pause(seconds) {
 }
 
 // Main scan function � runs once
-function scan() {
+async function scan() {
   console.log("Scan started");
 
   const cfg = config.loadConfig(CONFIG.configPath);
   try {
+    await mqtt.connectToMqtt();
+
     const entry = cfg['entry'];
     for (const [key, value] of Object.entries(entry)) {
       if (String(value).trim() === "1") {
@@ -54,11 +56,12 @@ function scan() {
                   topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
                 }
 
-                topics.forEach(topic => {
-                  mqtt.publishToMQTT(varName, topic, varValue, "sensor");
+                for (const topic of topics) {
+                  await mqtt.publishToMQTT(varName, topic, varValue, "sensor");
                   console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "sensor")`);
-                  pause(1);  // pause 1 second between publishes
-                });
+                  pause(1);
+                }
+
               } else {
                 console.log(` - ${varName} = 0 (disabled)`);
               }
@@ -67,6 +70,9 @@ function scan() {
         }
       }
     }
+
+    await mqtt.disconnectFromMQTT();
+  
   } catch (err) {
     console.error('Error during scan:', err);
   }
@@ -75,4 +81,6 @@ function scan() {
 }
 
 // Run once on script start
-scan();
+(async function main() {
+  await scan();
+})();

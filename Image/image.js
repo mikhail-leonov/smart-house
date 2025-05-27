@@ -3,7 +3,7 @@
  * App which reads images from a folder, detects objects, and sends MQTT messages
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.6.0
+ * @version 0.6.1
  * @license MIT
  */
 

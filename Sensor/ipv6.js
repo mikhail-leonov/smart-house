@@ -1,23 +1,25 @@
 /**
- * SmartHub - AI powered Smart Home
- * App that reads values from the local network and sends them to MQTT to update the home state.
- * 
+ * SmartHub - Full Network IPv6 Tracker
+ * App which scans IPv6 devices from config, tracks selected IPs, reports guests, and sends MQTT status
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * Author: Mikhail Leonov <mikecommon@gmail.com>
- * Version: 0.5.2
- * License: MIT
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.1
+ * @license MIT
  */
 
-const fs = require('fs');
-const path = require('path');
-const ini = require('ini');
 const { execSync } = require('child_process');
+const path = require('path');
+const config = require('../Shared/config-node');
+const mqtt = require('../Shared/mqtt-node');
 
-const node = require('../Shared/mqtt-node');
+const CONFIG = {
+  configPath: path.join(__dirname, 'ipv6.cfg'),
+  mqttBaseTopic: '/home/internal/house/network'
+};
 
-const CONFIG_PATH = path.join(__dirname, 'ipv6.cfg');
-const MQTT_TOPIC = '/home/internal/house/network/lawn_water_controller';
+const lastSeen = {};
+let lastGuests = new Set();
 
 /**
  * Synchronously ping an IPv6 address
@@ -25,47 +27,81 @@ const MQTT_TOPIC = '/home/internal/house/network/lawn_water_controller';
  * @returns {boolean} - true if device is alive, false otherwise
  */
 function isIPv6Alive(ip) {
-    try {
-        const output = execSync(`ping -6 -c 1 -w 2 ${ip}`, { encoding: 'utf-8' });
-        return output.includes('1 packets transmitted, 1 received');
-    } catch {
-        return false;
-    }
+  try {
+    const output = execSync(`ping -6 -c 1 -w 2 ${ip}`, { encoding: 'utf-8' });
+    return output.includes('1 packets transmitted, 1 received');
+  } catch {
+    return false;
+  }
 }
 
-/**
- * Main function to scan IPv6 devices and publish their state
- */
-function scanIPv6Devices() {
-    const configContent = fs.readFileSync(CONFIG_PATH, 'utf-8');
-    const config = ini.parse(configContent);
-    const entry = config.entry || {};
+function getTopic(desc) {
+  return `${CONFIG.mqttBaseTopic}/${desc}/status`;
+}
 
-    node.connectToMqtt().then(() => {
-        for (const ip in entry) {
-            const shouldScan = entry[ip] === '1' || entry[ip] === 1;
-            if (!shouldScan) continue;
+async function scan() {
+  console.log('scan started');
 
-            const deviceConfig = config[ip] || {};
-            const expectedLive = deviceConfig.live !== undefined ? String(deviceConfig.live) === '1' : true;
+  try {
+    const cfg = config.loadConfig(CONFIG.configPath);
+    const ignored = cfg['ignored'] || {};
+    const tracked = cfg['tracked'] || {};
+    const guests = cfg['guests'] || {};
 
-            const actualLive = isIPv6Alive(ip);
-            const result = actualLive ? 1 : 0;
+    const foundNow = [];
+    const ipList = Object.keys(cfg['entry'] || {});
 
-            console.log(`Checking ${ip} - expected live: ${expectedLive}, actual: ${result}`);
+    await mqtt.connectToMqtt();
 
-            node.publishToMQTT(
-                'status',
-                MQTT_TOPIC,
-                result
-            ).catch(err => {
-                console.error(`Failed to publish MQTT message for ${ip}: ${err.message}`);
-            });
+    for (const ip of ipList) {
+      if (!String(cfg['entry'][ip]).trim() === '1') continue; // skip if disabled
+
+      if (ignored[ip]) {
+        console.log(`${ip} - Skipped (ignored)`);
+        continue;
+      }
+
+      const isAlive = isIPv6Alive(ip);
+      if (isAlive) {
+        foundNow.push(ip);
+
+        if (tracked[ip]) {
+          const desc = tracked[ip];
+          const topic = getTopic(desc);
+          if (!lastSeen[ip]) {
+            await mqtt.publishToMQTT(desc, topic, 'Online', 'Sensor');
+            console.log(`${ip} - Online (tracked: ${desc})`);
+          }
+          lastSeen[ip] = true;
+        } else {
+          if (!lastGuests.has(ip)) {
+            const desc = guests[ip] || ip;
+            const topic = getTopic(desc);
+            await mqtt.publishToMQTT(desc, topic, 'Online', 'Sensor');
+            console.log(`${ip} - Online (guest: ${desc})`);
+          }
         }
-    }).catch(err => {
-        console.error(`MQTT connection failed: ${err.message}`);
-    });
+      } else {
+        if (tracked[ip] && lastSeen[ip]) {
+          const desc = tracked[ip];
+          const topic = getTopic(desc);
+          await mqtt.publishToMQTT(desc, topic, 'Offline', 'Sensor');
+          lastSeen[ip] = false;
+          console.log(`${ip} - Offline (tracked: ${desc})`);
+        }
+      }
+    }
+
+    lastGuests = new Set(foundNow.filter(ip => !tracked[ip] && !ignored[ip]));
+
+    await mqtt.disconnectFromMQTT();
+
+    console.log('Scan done');
+  } catch (err) {
+    console.error('Error during scan:', err);
+  }
 }
 
-// Run once
-scanIPv6Devices();
+(async function main() {
+  await scan();
+})();

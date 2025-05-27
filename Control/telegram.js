@@ -3,7 +3,7 @@
  * Web server which is waiting messages via /message endpoint and send it to telegram
  * GitHub: https://github.com/mikhail-leonov/smart-house
  *
- * @version 0.6.1
+ * @version 0.6.2
  * @license MIT
  */
 

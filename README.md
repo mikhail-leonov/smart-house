@@ -25,3 +25,25 @@ Core Concepts
 - Rules are executed with full context from the current smart house state
 - Example rule:
 
+## .env file, located at the root dir, content 
+
+<pre>
+
+[mail]
+name=name@mail.com
+checker=aaaa bbbb cccc dddd 
+sender=eeee ffff gggg hhhh
+
+[ai]
+openai_api_key = 
+ollama_api_key = 
+claude_api_key = 
+deepseek_api_key = 
+gemini_api_key = 
+grok_api_key = 
+
+[telegram]
+apiUrl = https://api.telegram.org/bot xxxx:aaaa-key/sendMessage
+chatid = 00000
+
+</pre>

@@ -3,7 +3,7 @@
  * Browser Cache Library (localStorage)
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.6.1
+ * @version 0.6.2
  * @license MIT
  */
 

@@ -14,7 +14,7 @@ const mqtt = require('../Shared/mqtt-node');
 
 // CONFIGURATION
 const GMAIL_USER = 'mikecommon@gmail.com';
-const GMAIL_PASSWORD = 'srmr texe zkfu nhtn'; // Use App Password if 2FA is enabled
+const GMAIL_PASSWORD = 'aaaa bbbb cccc dddd';
 const SUBJECT_MATCH = 'NAS';
 
 // Build the topic via helper

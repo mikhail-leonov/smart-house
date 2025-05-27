@@ -1,1 +1,1 @@
-npm install mqtt express axios ini
+npm install mqtt express axios ini nodemailer

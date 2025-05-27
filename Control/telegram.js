@@ -10,10 +10,12 @@
 const http = require('http');
 const axios = require('axios');
 const url = require('url');
-const { loadConfig } = require('../Shared/config-node');
 
-const config = loadConfig('./telegram.cfg');
-const { url: apiUrl, chatid } = config.entry;
+const environment = require('../Shared/env-node');
+
+const env = environment.load();
+const apiUrl = env.telegram.apiUrl;
+const chatid = env.telegram.chatid; 
 
 const PORT = 8080;
 

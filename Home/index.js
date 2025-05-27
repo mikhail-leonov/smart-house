@@ -15,6 +15,9 @@ const axios = require('axios');
 const ini = require('ini');
 const cmd = require('../Shared/command-node');
 
+const environment = require('../Shared/env-node');
+const env = environment.load();
+
 const OUTPUT_DIR = path.join(__dirname, 'output');
 if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -34,15 +37,6 @@ const MQTT_URL = config.mqtt.url;
 const LLM_PROVIDER = config.llm.provider.toLowerCase();
 const LLM_MODEL = config.llm.model;
 
-const API_KEYS = {
-    openai: config.openai.api_key,
-    ollama: config.ollama.api_key,
-    claude: config.claude.api_key,
-    deepseek: config.deepseek.api_key,
-    openai: config.openai.api_key,
-    grok: config.grok.api_key,
-    gemini: config.gemini.api_key,
-};
 
 const LLM_URLS = {
     openai: config.openai.url,
@@ -208,7 +202,7 @@ async function queryLLM(prompt) {
 
     const model = MODEL_NAMES[LLM_PROVIDER];
     const url = LLM_URLS[LLM_PROVIDER];
-    const apiKey = API_KEYS[LLM_PROVIDER];
+    const apiKey = env.ai[LLM_PROVIDER + "_api_key"];
 
     if (false) {
         console.log(model);

@@ -163,10 +163,24 @@
 
             // Publish each variable as a separate message to its own topic
             for (const key in outObj) {
-              const individualTopic = dstTopic.endsWith('/') ? dstTopic + key : dstTopic + '/' + key;
-              const valuePayload = String(outObj[key]);
-              dstClient.publish(individualTopic, valuePayload);
-              log(`Forwarded from ${topic} to ${individualTopic}: ${valuePayload}`);
+              const newTopic = dstTopic.endsWith('/') ? dstTopic + key : dstTopic + '/' + key;
+
+              // Create payload
+              const payload = {
+                value: String(outObj[key]),
+                type: "Random",
+                timestamp: new Date().toISOString()
+              };
+
+              dstClient.publish(newTopic, JSON.stringify(payload), { retain: true, qos: 1 }, (err) => {
+                if (err) {
+                    logToConsole(`Error publishing to ${newTopic}: ${err.message}`, 'error');
+                } else {
+                    logToConsole(`Published to ${newTopic}: ${JSON.stringify(payload)}`);
+                }
+            });
+
+              log(`Forwarded from ${topic} to ${newTopic}: ${payload}`);
             }
           }
         } catch (e) {

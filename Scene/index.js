@@ -52,12 +52,18 @@ function extractSceneValues(config, sceneName = null) {
 
 function publishToMQTT(values) {
   values.forEach(({ topic, value }) => {
-    console.log(topic, value);
-    mqttClient.publish(topic, String(value), { qos: 1, retain: true }, (err) => {
+   // Create payload
+   const payload = {
+       value: isNaN(value) ? value : parseFloat(value),
+       type: "Random",
+       timestamp: new Date().toISOString()
+   };
+
+    mqttClient.publish(topic, JSON.stringify(payload), { retain: true, qos: 1 }, (err) => {
       if (err) {
         console.error(`Publish error for ${topic}:`, err.message);
       } else {
-        console.log(`Published: ${topic} = ${value}`);
+        console.log(`Published: ${topic} = ${payload}`);
       }
     });
   });

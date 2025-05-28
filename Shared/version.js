@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 // === CONFIGURATION ===
-const targetVersion = '0.6.3'; // <-- Change to your new version
+const targetVersion = '0.6.4'; // <-- Change to your new version
 const rootDir = 'F:/Home/'; // Starting directory
 const forbiddenDirs = ['Install', 'LLM', 'Mqtt', 'node_modules', '.git', 'backup']; // <-- Forbidden directory names
 

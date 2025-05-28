@@ -3,7 +3,8 @@
  * Web server which is waiting commands via /command endpoint and executes them
  * GitHub: https://github.com/mikhail-leonov/smart-house
  *
- * @version 0.6.2
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.3
  * @license MIT
  */
 

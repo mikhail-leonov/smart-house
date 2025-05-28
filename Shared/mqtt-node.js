@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.2
+ * @version 0.6.3
  * @license MIT
  */
 
@@ -26,13 +26,13 @@ function buildMqttTopic(location, floor, room, variable) {
 }
 
 // Connect asynchronously (returns a promise you can await)
-function connectToMqtt() {
+function connectToMqtt(mqttUrl = "") {
     console.log(` - mqtt.connectToMqtt()`);
     if (mqttConnected) { return Promise.resolve(); }
     if (connectionPromise) { return connectionPromise; }
 
     connectionPromise = new Promise((resolve, reject) => {
-        mqttClient = mqtt.connect(mqttBrokerUrl);
+        mqttClient = mqtt.connect(mqttUrl || mqttBrokerUrl);
 
         mqttClient.on('connect', () => {
             mqttConnected = true;
@@ -125,10 +125,15 @@ async function subscribeToMQTT(topic, variableName = null) {
     });
 }
 
+function getClient() {
+    return mqttClient;
+}
+
 // Export async API
 module.exports = {
     mqttTopic,
     buildMqttTopic,
+    getClient,
     connectToMqtt,
     disconnectFromMQTT,
     subscribeToMQTT,

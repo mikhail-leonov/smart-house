@@ -3,7 +3,8 @@
  * Web server which is waiting messages via /message endpoint and send it as gmail
  * GitHub: https://github.com/mikhail-leonov/smart-house
  *
- * @version 0.6.2
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.3
  * @license MIT
  */
 

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!-- 
+/**
+ * SmartHub - AI powered Smart Home
+ * UI App which is map mqtt to anothr mqtt 
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.3
+ * @license MIT
+ */
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Simulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@4.3.7/dist/mqtt.min.js"></script>
+    <!-- Local -->
+    <link href="../shared/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">MQTT Simulator</h1>
+        <!-- Configuration and Controls go here (same as above) -->
+    </div>
+
+    <script>
+        // ... All JavaScript from previous messages goes here ...
+
+        // MQTT Connection and Logging Logic
+        let mqttClient = null;
+
+        function connectToMqtt() {
+            return new Promise((resolve) => {
+                if (mqttClient && mqttClient.connected) {
+                    updateConnectionStatus(true);
+                    resolve(true);
+                    return;
+                }
+
+                const brokerUrl = 'ws://localhost:9001';
+                mqttClient = mqtt.connect(brokerUrl);
+
+                mqttClient.on('connect', () => {
+                    updateConnectionStatus(true);
+                    logToConsole('Connected to MQTT broker');
+                    resolve(true);
+                });
+
+                mqttClient.on('error', (err) => {
+                    updateConnectionStatus(false);
+                    logToConsole('MQTT Connection Error: ' + err.message, 'error');
+                    resolve(false);
+                });
+
+                mqttClient.on('close', () => {
+                    updateConnectionStatus(false);
+                    logToConsole('MQTT Connection Closed', 'error');
+                });
+            });
+        }
+
+        function buildMqttTopic(locationType, floor, room, variable) {
+            if (locationType === 'inside') {
+                return `home/inside/${floor}/${room}/${variable}`;
+            } else {
+                return `home/outside/${room}/${variable}`;
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connectionStatus');
+            const textEl = document.getElementById('connectionStatusText');
+
+            if (connected) {
+                statusEl.classList.remove('status-offline');
+                statusEl.classList.add('status-online');
+                textEl.textContent = 'Connected';
+            } else {
+                statusEl.classList.remove('status-online');
+                statusEl.classList.add('status-offline');
+                textEl.textContent = 'Disconnected';
+            }
+        }
+
+        function logToConsole(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEntry.className = `log-entry log-${type}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+    </script>
+
+    <style>
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-offline {
+            background-color: red;
+        }
+        .status-online {
+            background-color: green;
+        }
+        .description-box {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .log-entry {
+            margin-bottom: 3px;
+        }
+        .log-info {
+            color: #333;
+        }
+        .log-error {
+            color: red;
+        }
+    </style>
+</body>
+</html>

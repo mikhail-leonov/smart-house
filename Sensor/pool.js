@@ -3,8 +3,8 @@
  * Pools working status EMULATOR send MQTT notice asynchronously
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @author Mikhail Leonov
- * @version 0.6.2
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.3
  * @license MIT
  */
 

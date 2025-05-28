@@ -2,7 +2,7 @@
 <!-- 
 /**
  * SmartHub - AI powered Smart Home
- * UI App which is map mqtt to anothr mqtt 
+ * UI App which is map mqtt to another mqtt 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
@@ -10,118 +10,193 @@
  * @license MIT
  */
 -->
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MQTT Simulator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/mqtt@4.3.7/dist/mqtt.min.js"></script>
-    <!-- Local -->
-    <link href="../shared/styles.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>MQTT Config Processor</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #log {
+      white-space: pre-wrap;
+      background: #ffffff;
+      padding: 1em;
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: scroll;
+    }
+  </style>
 </head>
-<body>
-    <div class="container mt-4">
-        <h1 class="mb-4">MQTT Simulator</h1>
-        <!-- Configuration and Controls go here (same as above) -->
+<body class="bg-light p-4">
+  <div class="container">
+    <h1 class="mb-4">MQTT Config Processor</h1>
+    <div class="mb-3">
+      <label for="configFile" class="form-label">Upload Config File (.cfg)</label>
+      <input type="file" class="form-control" id="configFile" accept=".cfg">
     </div>
+    <div class="mb-3">
+      <label for="delay" class="form-label">Message Interval (ms)</label>
+      <input type="number" class="form-control" id="delay" value="5000">
+    </div>
+    <div class="mb-3">
+      <button class="btn btn-primary" onclick="startProcessing()">Start</button>
+      <button class="btn btn-danger" onclick="stopSimulation()">Stop</button>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Log</label>
+      <div id="log" class="form-control"></div>
+    </div>
+  </div>
 
-    <script>
-        // ... All JavaScript from previous messages goes here ...
+  <script>
+    let config = {};
+    let srcClient, dstClient;
+    let simulationIntervals = [];
 
-        // MQTT Connection and Logging Logic
-        let mqttClient = null;
+    function log(message) {
+      const logDiv = document.getElementById("log");
+      logDiv.textContent += message + "\n";
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
 
-        function connectToMqtt() {
-            return new Promise((resolve) => {
-                if (mqttClient && mqttClient.connected) {
-                    updateConnectionStatus(true);
-                    resolve(true);
-                    return;
-                }
+    function parseINIString(data) {
+      const result = {};
+      let currentSection = null;
 
-                const brokerUrl = 'ws://localhost:9001';
-                mqttClient = mqtt.connect(brokerUrl);
+      const lines = data.split(/\r?\n/);
+      for (let line of lines) {
+        line = line.trim();
+        if (!line || line.startsWith(";") || line.startsWith("#")) continue;
 
-                mqttClient.on('connect', () => {
-                    updateConnectionStatus(true);
-                    logToConsole('Connected to MQTT broker');
-                    resolve(true);
-                });
-
-                mqttClient.on('error', (err) => {
-                    updateConnectionStatus(false);
-                    logToConsole('MQTT Connection Error: ' + err.message, 'error');
-                    resolve(false);
-                });
-
-                mqttClient.on('close', () => {
-                    updateConnectionStatus(false);
-                    logToConsole('MQTT Connection Closed', 'error');
-                });
-            });
+        const sectionMatch = line.match(/^\[([^\]]+)\]$/);
+        if (sectionMatch) {
+          currentSection = sectionMatch[1];
+          result[currentSection] = {};
+        } else if (currentSection) {
+          const kvMatch = line.match(/^([^=]+)=(.*)$/);
+          if (kvMatch) {
+            const key = kvMatch[1].trim();
+            const value = kvMatch[2].trim();
+            result[currentSection][key] = value;
+          }
         }
+      }
 
-        function buildMqttTopic(locationType, floor, room, variable) {
-            if (locationType === 'inside') {
-                return `home/inside/${floor}/${room}/${variable}`;
+      return result;
+    }
+
+    document.getElementById("configFile").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      document.getElementById("configFile").labels[0].textContent = `Selected: ${file.name}`;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        config = parseINIString(e.target.result);
+        log("Config loaded successfully.");
+      };
+      reader.readAsText(file);
+    });
+
+    // Helper: get nested value by path string like "value.battery"
+    function getValueByPath(obj, path) {
+      return path.split(".").reduce((o, key) => (o ? o[key] : undefined), obj);
+    }
+
+    function startProcessing() {
+      if (!config.entry || !config.topics) {
+        log("Missing [entry] or [topics] section in config.");
+        return;
+      }
+
+      const delay = parseInt(document.getElementById("delay").value, 10) || 5000;
+      const srcUrl = config["entry"]["source"];
+      const dstUrl = config["entry"]["destination"];
+
+      log(`Connecting to source: ${srcUrl}`);
+      log(`Connecting to destination: ${dstUrl}`);
+
+      srcClient = mqtt.connect(srcUrl);
+      dstClient = mqtt.connect(dstUrl);
+
+      srcClient.on("connect", () => {
+        log("Connected to source MQTT");
+
+        for (const topic in config.topics) {
+          const shouldProcess = config.topics[topic].trim() === "1";
+          if (!shouldProcess) {
+            log("Skipping topic (disabled): " + topic);
+            continue;
+          }
+
+          srcClient.subscribe(topic, (err) => {
+            if (err) {
+              log("Failed to subscribe to: " + topic);
             } else {
-                return `home/outside/${room}/${variable}`;
+              log("Subscribed to: " + topic);
+              simulateZigbeeMessages(topic, delay);
             }
+          });
         }
+      });
 
-        function updateConnectionStatus(connected) {
-            const statusEl = document.getElementById('connectionStatus');
-            const textEl = document.getElementById('connectionStatusText');
+      dstClient.on("connect", () => {
+        log("Connected to destination MQTT");
+      });
 
-            if (connected) {
-                statusEl.classList.remove('status-offline');
-                statusEl.classList.add('status-online');
-                textEl.textContent = 'Connected';
-            } else {
-                statusEl.classList.remove('status-online');
-                statusEl.classList.add('status-offline');
-                textEl.textContent = 'Disconnected';
+      srcClient.on("message", (topic, message) => {
+        try {
+          const msg = JSON.parse(message.toString());
+          const rule = config[topic];
+          if (rule) {
+            const dstTopic = rule.topic;
+            const outObj = {};
+
+            for (const key in rule) {
+              if (key === "topic") continue;
+              const path = rule[key];
+              const val = getValueByPath(msg, path);
+              if (val !== undefined) {
+                outObj[key] = val;
+              }
             }
-        }
 
-        function logToConsole(message, type = 'info') {
-            const logEntry = document.createElement('div');
-            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logEntry.className = `log-entry log-${type}`;
-            logDiv.appendChild(logEntry);
-            logDiv.scrollTop = logDiv.scrollHeight;
+            // Publish each variable as a separate message to its own topic
+            for (const key in outObj) {
+              const individualTopic = dstTopic.endsWith('/') ? dstTopic + key : dstTopic + '/' + key;
+              const valuePayload = String(outObj[key]);
+              dstClient.publish(individualTopic, valuePayload);
+              log(`Forwarded from ${topic} to ${individualTopic}: ${valuePayload}`);
+            }
+          }
+        } catch (e) {
+          log("Error processing message: " + e);
         }
-    </script>
+      });
+    }
 
-    <style>
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        .status-offline {
-            background-color: red;
-        }
-        .status-online {
-            background-color: green;
-        }
-        .description-box {
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .log-entry {
-            margin-bottom: 3px;
-        }
-        .log-info {
-            color: #333;
-        }
-        .log-error {
-            color: red;
-        }
-    </style>
+    function simulateZigbeeMessages(topic, delay) {
+      const intervalId = setInterval(() => {
+        const simulatedPayload = {
+          value: {
+            leak: (Math.random() < 0.1) ? 1 : 0,
+            humidity: (40 + Math.random() * 20).toFixed(1),
+            battery: 100,
+            linkquality: Math.floor(Math.random() * 100)
+          }
+        };
+        srcClient.publish(topic, JSON.stringify(simulatedPayload));
+        log(`Simulated message published to ${topic}: ${JSON.stringify(simulatedPayload)}`);
+      }, delay);
+
+      simulationIntervals.push(intervalId);
+    }
+
+    function stopSimulation() {
+      simulationIntervals.forEach(clearInterval);
+      simulationIntervals = [];
+      log("Simulation stopped.");
+    }
+  </script>
 </body>
 </html>

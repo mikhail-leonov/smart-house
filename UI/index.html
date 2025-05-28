@@ -123,12 +123,15 @@
                       <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
-                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
-                      <div id="water_leak" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
                       <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
                       <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_battery" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_linkquality" data-type="1" data-min="0" data-max="100"></div>
                     </div>
                   </div>
                   <div class="room living-room-1f" data-location="inside" data-floor="first_floor" data-room="living-room-1f" onclick="entryClicked(this)">Living Room <div id="content">
@@ -163,14 +166,17 @@
                       <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
-                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="fridge_temp" data-type="1" data-min="-10" data-max="10"></div>
-                      <div id="water_leak" data-type="2"></div>
                       <div id="kettle_status" data-type="2" data-values="empty, heating, hot, warm, cold"></div>
                       <div id="smoke_detected" data-type="2"></div>
                       <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
                       <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_battery" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_linkquality" data-type="1" data-min="0" data-max="100"></div>
                     </div>
                   </div>
                   <div class="room corridor-1f" data-location="inside" data-floor="first_floor" data-room="corridor-1f" onclick="entryClicked(this)">Corridor <div id="content">
@@ -198,7 +204,6 @@
                   <div class="room laundry-1f" data-location="inside" data-floor="first_floor" data-room="laundry-1f" onclick="entryClicked(this)">Laundry <div id="content">
                       <div id="washer_status" data-type="2"></div>
                       <div id="dryer_status" data-type="2"></div>
-                      <div id="water_leak" data-type="2"></div>
                       <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
@@ -207,6 +212,11 @@
                       <div id="smoke_detected" data-type="2"></div>
                       <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
                       <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
+
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_battery" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_linkquality" data-type="1" data-min="0" data-max="100"></div>
                     </div>
                   </div>
                   <div class="room closet-1f" data-location="inside" data-floor="first_floor" data-room="closet-1f" onclick="entryClicked(this)">Closet <div id="content">
@@ -226,10 +236,13 @@
                       <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
-                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
-                      <div id="water_leak" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
+
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_battery" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_linkquality" data-type="1" data-min="0" data-max="100"></div>
                     </div>
                   </div>
                   <div class="room hall-1f" data-location="inside" data-floor="first_floor" data-room="hall-1f" onclick="entryClicked(this)">Hall <div id="content">
@@ -328,15 +341,18 @@
                   </div>
                   <div class="room master-bathroom-2f" data-location="inside" data-floor="second_floor" data-room="master-bathroom-2f" onclick="entryClicked(this)">Master Bathroom <div id="content">
                       <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
-                      <div id="water_leak" data-type="2"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
-                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
                       <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
                       <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_battery" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_linkquality" data-type="1" data-min="0" data-max="100"></div>
                     </div>
                   </div>
                   <div class="room master-closet-2f" data-location="inside" data-floor="second_floor" data-room="master-closet-2f" onclick="entryClicked(this)">Master Closet <div id="content">
@@ -373,6 +389,11 @@
                       <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
                       <div id="shatter_status" data-actions="open, close" data-type="2" data-values="opened, closed, opening, closing"></div>
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
+
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_battery" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_linkquality" data-type="1" data-min="0" data-max="100"></div>
                     </div>
                   </div>
                   <div class="room hall-2f" data-location="inside" data-floor="second_floor" data-room="hall-2f" onclick="entryClicked(this)">Area <div id="content">
@@ -428,7 +449,6 @@
                       <div id="light_level" data-actions="on, dim, off" data-type="1" data-min="0" data-max="500"></div>
                       <div id="occupancy" data-type="2" data-values="0,1,2,3,4,5,6,7,8,9"></div>
                       <div id="temperature" data-type="1" data-min="-10" data-max="50"></div>
-                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
                       <div id="motion_detected" data-type="2"></div>
                       <div id="smoke_detected" data-type="2"></div>
                       <div id="window_status" data-actions="open, close, lock, unlock" data-type="2" data-values="opened, closed, locked, opening, closing"></div>
@@ -436,6 +456,11 @@
                       <div id="door_status" data-type="2" data-values="open, closed, locked"></div>
                       <div id="ac_status" data-type="2" ></div>
                       <div id="ac_target_temperature" data-actions="set" data-type="1" data-min="-10" data-max="50"></div>
+
+                      <div id="water_leak" data-type="2"></div>
+                      <div id="humidity" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_battery" data-type="1" data-min="0" data-max="100"></div>
+                      <div id="water_leak_sensor_linkquality" data-type="1" data-min="0" data-max="100"></div>
                     </div>
                   </div>
                   <div class="room frontyard-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">Area</div>

@@ -216,3 +216,34 @@ function selectTextAndCopy(elementId) {
     }
     selection.removeAllRanges();
 }
+
+function generateLeakWidget(id) {
+
+let htmlFragment = 
+`<div class="card text-white bg-success mb-3" style="max-width: 20rem;">
+  <div class="card-header">Master Bathroom</div>
+  <div class="card-body">
+    <h5 class="card-title">No Leaks</h5>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item bg-transparent text-white d-flex justify-content-between">
+        <span>Temperature:</span> <span>22.4</span>
+      </li>
+      <li class="list-group-item bg-transparent text-white d-flex justify-content-between">
+        <span>Humidity:</span> <span>55%</span>
+      </li>
+      <li class="list-group-item bg-transparent text-white d-flex justify-content-between">
+        <span>Battery:</span>
+        <span class="d-flex align-items-center">
+          <span style="display: inline-block; width: 30px; height: 8px; border: 1px solid #fff; margin-right: 5px;">
+            <span style="display: block; height: 100%; width: 81%; background-color: #00bfff;"></span>
+          </span>
+          <span>81%</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</div>`;
+
+document.getElementById(id).innerHTML = htmlFragment;
+
+}

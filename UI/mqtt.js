@@ -46,7 +46,13 @@ client.on('message', (topic, message) => {
                 setTimeout(() => {
                     roomDiv.classList.remove('room-flash');
                 }, 1000);
+            } else {
+                //console.log( `For ${location}/${floor}/${room}/${sensor} we got the same value` );
             }
+        } else {
+            console.log( `${sensor} is not found` );
         }
+    } else {
+        console.log( `Room not found ${location}/${floor}/${room}` );
     }
 });

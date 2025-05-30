@@ -63,16 +63,6 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="includeInside" checked>
-                            <label class="form-check-label" for="includeInside">Include Inside Locations</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="includeOutside" checked>
-                            <label class="form-check-label" for="includeOutside">Include Outside Locations</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="randomInterval" checked>
                             <label class="form-check-label" for="randomInterval">Use Random Interval</label>
                         </div>
@@ -185,65 +175,44 @@
         }
         
         // Parse all variables from config into a flat array
-        function parseAllVariables() {
-            allVariables = [];
-            
-            if (!configData) {
-                logToConsole('No configuration data available', 'error');
-                return;
-            }
-            
-            try {
-                // Inside locations
-                if (configData.home.inside) {
-                    for (const floor in configData.home.inside) {
-                        if (!configData.home.inside[floor]) continue;
-                        
-                        for (const room in configData.home.inside[floor]) {
-                            if (!configData.home.inside[floor][room]) continue;
-                            
-                            for (const variable in configData.home.inside[floor][room]) {
-                                const varData = configData.home.inside[floor][room][variable];
-                                if (varData) {
-                                    allVariables.push({
-                                        locationType: 'inside',
-                                        floor,
-                                        room,
-                                        variable,
-                                        data: varData
-                                    });
-                                }
-                            }
+function parseAllVariables() {
+    allVariables = [];
+
+    if (!configData) {
+        logToConsole('No configuration data available', 'error');
+        return;
+    }
+
+    try {
+        for (const locationType of ['inside', 'outside']) {
+            const locationData = configData.home[locationType];
+            if (!locationData) continue;
+
+            for (const floor in locationData) {
+                const floorData = locationData[floor];
+                if (!floorData) continue;
+
+                for (const room in floorData) {
+                    const roomData = floorData[room];
+                    if (!roomData) continue;
+
+                    for (const variable in roomData) {
+                        const data = roomData[variable];
+                        if (data) {
+                            const topic = "home/" + locationType + "/" + floor + "/" + room + "/" + variable;
+                            allVariables.push({ topic, data });
                         }
                     }
                 }
-                
-                // Outside locations
-                if (configData.home.outside) {
-                    for (const area in configData.home.outside) {
-                        if (!configData.home.outside[area]) continue;
-                        
-                        for (const variable in configData.home.outside[area]) {
-                            const varData = configData.home.outside[area][variable];
-                            if (varData) {
-                                allVariables.push({
-                                    locationType: 'outside',
-                                    area,
-                                    variable,
-                                    data: varData
-                                });
-                            }
-                        }
-                    }
-                }
-                
-                logToConsole(`Parsed ${allVariables.length} variables from configuration`);
-            } catch (error) {
-                logToConsole('Error parsing variables: ' + error.message, 'error');
-                console.error('Detailed parsing error:', error);
             }
         }
-        
+
+        logToConsole(`Parsed ${allVariables.length} variables from configuration`);
+    } catch (error) {
+        logToConsole('Error parsing variables: ' + error.message, 'error');
+        console.error('Detailed parsing error:', error);
+    }
+}        
         // Get a random variable based on current filters
         function getRandomVariable() {
             try {
@@ -251,21 +220,8 @@
                     logToConsole('No variables available', 'error');
                     return null;
                 }
-                
-                // Filter variables based on checkboxes
-                let filteredVars = allVariables.filter(variable => {
-                    if (variable.locationType === 'inside' && !includeInsideCheckbox.checked) return false;
-                    if (variable.locationType === 'outside' && !includeOutsideCheckbox.checked) return false;
-                    return true;
-                });
-                
-                if (filteredVars.length === 0) {
-                    logToConsole('No variables match current filters', 'error');
-                    return null;
-                }
-                
-                const randomIndex = Math.floor(Math.random() * filteredVars.length);
-                return filteredVars[randomIndex];
+                const randomIndex = Math.floor(Math.random() * allVariables.length);
+                return allVariables[randomIndex];
             } catch (error) {
                 logToConsole('Error getting random variable: ' + error.message, 'error');
                 return null;
@@ -381,7 +337,7 @@ function buildMqttTopic(l, f, r, v) {
                 return;
             }
             
-            const topic = buildMqttTopic(randomVar.locationType, randomVar.floor, randomVar.room, randomVar.variable);
+            const topic = randomVar.topic;
 
             // Create payload
             const payload = { value: value, type: "Random", timestamp: new Date().toISOString() };
@@ -394,7 +350,7 @@ function buildMqttTopic(l, f, r, v) {
                 if (err) {
                     logToConsole(`Error publishing to ${topic}: ${err.message}`, 'error');
                 } else if (logEachMessageCheckbox.checked) {
-                    logToConsole(`Published to ${topic}: ${JSON.stringify(payload)}`);
+                    logToConsole(`${topic}: ${JSON.stringify(payload)}`);
                 }
             });
         }

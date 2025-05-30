@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MQTT Multi-Bind Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+  <h1 class="mb-4">MQTT Dashboard</h1>
+
+<div class="container mt-4">
+  <div class="row">
+    <!-- First Widget -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          Map View
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">Living Room</h5>
+          <p class="card-text">Temperature: <span data-topic="home/inside/first_floor/living-room-1f/temperature">--</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Widget -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          All Temperatures
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">Living Room</h5>
+          <p class="card-text">Temperature: <span data-topic="home/inside/first_floor/living-room-1f/temperature">--</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<script>
+  const topicStore = {};
+  const client = mqtt.connect("ws://localhost:9001");
+
+  client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+    client.subscribe('#', (err) => {
+      if (err) {
+        console.error('Subscription error:', err);
+      } else {
+        console.log('Subscribed to all topics');
+      }
+    });
+  });
+
+  client.on('message', (topic, message) => {
+    const value = message.toString();
+    const obj = JSON.parse(value);
+    topicStore[topic] = obj.value;
+
+    // Find all elements bound to this topic and update them
+    const targets = document.querySelectorAll(`[data-topic="${topic}"]`);
+    targets.forEach(el => { el.textContent = obj.value; });
+
+    console.log(`Updated ${targets.length} element(s) for ${topic}: ${value}`);
+  });
+</script>
+
+</body>
+</html>

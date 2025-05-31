@@ -1,0 +1,154 @@
+{
+  "home": {
+    "inside": {
+      "house": {
+        "warnings": {
+          "water_leak": { "value": 0, "values": [0,1], "description": "Indicates if any water leaks are detected. 0 means no leak, 1 means leak detected." },
+          "battery_level": { "value": 0, "values": [0,1], "description": "Represents the battery status. 0 means normal level, 1 means low battery warning." },
+          "nas": { "value": 0, "values": [0,1], "description": "Shows the status of the NAS device. 0 means it is offline or unreachable, 1 means it is online and functioning." }
+        }
+      },
+      "first_floor": {
+        "office-1f": {
+          "light_level": { "value": 281, "min_value": 0, "max_value": 500, "actions": "on, dim, off", "description": "Represents the ambient light level. Higher values mean brighter environments." },
+          "occupancy": { "value": 2, "values": [0,1,2,3,4,5,6,7,8,9], "description": "Indicates the number of detected occupants in the room, from 0 up to 9." },
+          "temperature": { "value": 15, "min_value": -10, "max_value": 50, "description": "Current temperature reading in degrees Celsius." },
+          "humidity": { "value": 48, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." },
+          "motion_detected": { "value": 0, "values": [0,1], "description": "Indicates if motion has been detected. 0 means no motion, 1 means motion detected." },
+          "smoke_detected": { "value": 1, "values": [0,1], "description": "Indicates presence of smoke. 0 means normal, 1 means smoke detected." },
+          "window_status": { "value": "locked", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock", "description": "Shows the current status of the window. Can be opened, closed, locked, or in transition." },
+          "shatter_status": { "value": "closed", "values": ["opened","closed","opening","closing"], "actions": "open, close", "description": "Represents the state of a shatter-sensitive surface such as glass. Can be opened, closed, or transitioning." },
+          "fan_status": { "value": 865, "min_value": 0, "max_value": 1000, "actions": "start, stop", "description": "Current speed or load of the fan device. Actions can start or stop it." }
+        },
+        "bathroom-1f": {
+          "light_level": { "value": 277, "min_value": 0, "max_value": 500, "actions": "on, dim, off", "description": "Represents the ambient light level. Higher values mean brighter environments." },
+          "occupancy": { "value": 7, "values": [0,1,2,3,4,5,6,7,8,9], "description": "Indicates the number of detected occupants in the room, from 0 up to 9." },
+          "motion_detected": { "value": 1, "values": [0,1], "description": "Indicates if motion has been detected. 0 means no motion, 1 means motion detected." },
+          "smoke_detected": { "value": 1, "values": [0,1], "description": "Indicates presence of smoke. 0 means normal, 1 means smoke detected." },
+          "window_status": { "value": "closed", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock", "description": "Shows the current status of the window. Can be opened, closed, locked, or in transition." },
+          "shatter_status": { "value": "opening", "values": ["opened","closed","opening","closing"], "actions": "open, close", "description": "Represents the state of a shatter-sensitive surface such as glass. Can be opened, closed, or transitioning." },
+          "water_leak": { "value": 1, "values": [0,1], "description": "Indicates if any water leaks are detected. 0 means no leak, 1 means leak detected." },
+          "humidity": { "value": 91, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." },
+          "water_leak_sensor_battery": { "value": 51, "min_value": 0, "max_value": 100, "description": "Battery level of the water leak sensor expressed as a percentage." },
+          "temperature": { "value": 12, "min_value": -10, "max_value": 50, "description": "Current temperature reading in degrees Celsius." }
+        },
+        "kitchen-1f": {
+          "light_level": { "value": 11, "min_value": 0, "max_value": 500, "actions": "on, dim, off", "description": "Represents the ambient light level. Higher values mean brighter environments." },
+          "stove_status": { "value": 0, "values": [0,1], "description": "Indicates whether the stove is off (0) or on (1)." },
+          "microwave_status": { "value": 1, "values": [0,1], "description": "Indicates whether the microwave is off (0) or on (1)." },
+          "occupancy": { "value": 0, "values": [0,1,2,3,4,5,6,7,8,9], "description": "Indicates the number of detected occupants in the room, from 0 up to 9." },
+          "motion_detected": { "value": 1, "values": [0,1], "description": "Indicates if motion has been detected. 0 means no motion, 1 means motion detected." },
+          "fridge_temp": { "value": 1, "min_value": -10, "max_value": 10, "description": "Represents the current temperature inside the fridge in degrees Celsius." },
+          "kettle_status": { "value": "hot", "values": ["empty","heating","hot","warm","cold"], "description": "Describes the current status of the kettle based on temperature and water level." },
+          "smoke_detected": { "value": 1, "values": [0,1], "description": "Indicates presence of smoke. 0 means normal, 1 means smoke detected." },
+          "window_status": { "value": "opening", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock", "description": "Shows the current status of the window. Can be opened, closed, locked, or in transition." },
+          "shatter_status": { "value": "opened", "values": ["opened","closed","opening","closing"], "actions": "open, close", "description": "Represents the state of a shatter-sensitive surface such as glass. Can be opened, closed, or transitioning." },
+          "water_leak": { "value": 0, "values": [0,1], "description": "Indicates whether a water leak has been detected. 0 means dry, 1 means leak present." },
+          "humidity": { "value": 42, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." },
+          "water_leak_sensor_battery": { "value": 23, "min_value": 0, "max_value": 100, "description": "Battery level of the water leak sensor as a percentage." },
+          "temperature": { "value": 48, "min_value": -10, "max_value": 50, "description": "Current temperature reading in degrees Celsius." }
+        },
+        "corridor-1f": {
+          "light_level": { "value": 249, "min_value": 0, "max_value": 500, "actions": "on, dim, off", "description": "Represents the ambient light level. Higher values mean brighter environments." },
+          "occupancy": { "value": 9, "values": [0,1,2,3,4,5,6,7,8,9], "description": "Indicates the number of detected occupants in the room, from 0 up to 9." },
+          "motion_detected": { "value": 0, "values": [0,1], "description": "Indicates if motion has been detected. 0 means no motion, 1 means motion detected." },
+          "smoke_detected": { "value": 0, "values": [0,1], "description": "Indicates presence of smoke. 0 means normal, 1 means smoke detected." },
+          "window_status": { "value": "opening", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock", "description": "Shows the current status of the window. Can be opened, closed, locked, or in transition." },
+          "shatter_status": { "value": "closing", "values": ["opened","closed","opening","closing"], "actions": "open, close", "description": "Represents the state of a shatter-sensitive surface such as glass. Can be opened, closed, or transitioning." },
+          "temperature": { "value": 45, "min_value": -10, "max_value": 50, "description": "Current temperature reading in degrees Celsius." },
+          "humidity": { "value": 91, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." }
+        },
+      },
+      "second_floor": {
+        "master-bedroom-2f": {
+          "light_level": { "value": 281, "min_value": 0, "max_value": 500, "actions": "on, dim, off", "description": "Represents the ambient light level. Higher values mean brighter environments." },
+          "occupancy": { "value": 0, "values": [0,1,2,3,4,5,6,7,8,9], "description": "Indicates the number of detected occupants in the room, from 0 up to 9." },
+          "motion_detected": { "value": 0, "values": [0,1], "description": "Indicates if motion has been detected. 0 means no motion, 1 means motion detected." },
+          "smoke_detected": { "value": 1, "values": [0,1], "description": "Indicates presence of smoke. 0 means normal, 1 means smoke detected." },
+          "window_status": { "value": "closing", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock" },
+          "shatter_status": { "value": "opening", "values": ["opened","closed","opening","closing"], "actions": "open, close" },
+          "door_status": { "value": "closed", "values": ["open","opening","closed","closing"], "actions": "open, close, lock, unlock", "description": "Current state of the door. Can be open, closed, or locked." },
+          "tv_status": { "value": "on", "values": ["on","off"], "actions": "on, off", "description": "Indicates whether the TV is currently turned on or off." },
+          "humidity": { "value": 78, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." },
+          "temperature": { "value": 3, "min_value": -10, "max_value": 50, "description": "Current temperature reading in degrees Celsius." }
+        },
+        "master-bathroom-2f": {
+          "light_level": { "value": 281, "min_value": 0, "max_value": 500, "actions": "on, dim, off", "description": "Represents the ambient light level. Higher values mean brighter environments." },
+          "occupancy": { "value": 0, "values": [0,1,2,3,4,5,6,7,8,9], "description": "Indicates the number of detected occupants in the room, from 0 up to 9." },
+          "motion_detected": { "value": 0, "values": [0,1], "description": "Indicates if motion has been detected. 0 means no motion, 1 means motion detected." },
+          "smoke_detected": { "value": 1, "values": [0,1], "description": "Indicates presence of smoke. 0 means normal, 1 means smoke detected." },
+          "window_status": { "value": "opening", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock" },
+          "shatter_status": { "value": "opened", "values": ["opened","closed","opening","closing"], "actions": "open, close" },
+          "door_status": { "value": "closed", "values": ["open","opening","closed","closing"], "actions": "open, close, lock, unlock", "description": "Current state of the door. Can be open, closed, or locked." },
+          "water_leak": { "value": 0, "values": [0,1], "description": "Indicates presence of water leak. 0 means no leak, 1 means leak detected." },
+          "humidity": { "value": 78, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." },
+          "water_leak_sensor_battery": { "value": 51, "min_value": 0, "max_value": 100, "description": "Battery level of the water leak sensor as a percentage." },
+          "temperature": { "value": 3, "min_value": -10, "max_value": 50, "description": "Current temperature reading in degrees Celsius." }
+        },
+        "master-closet-2f": {
+          "light_level": { "value": 281, "min_value": 0, "max_value": 500, "actions": "on, dim, off", "description": "Represents the ambient light level. Higher values mean brighter environments." },
+          "occupancy": { "value": 0, "values": [0,1,2,3,4,5,6,7,8,9], "description": "Indicates the number of detected occupants in the room, from 0 up to 9." },
+          "motion_detected": { "value": 0, "values": [0,1], "description": "Indicates if motion has been detected. 0 means no motion, 1 means motion detected." },
+          "smoke_detected": { "value": 1, "values": [0,1], "description": "Indicates presence of smoke. 0 means normal, 1 means smoke detected." },
+          "window_status": { "value": "closed", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock" },
+          "shatter_status": { "value": "closing", "values": ["opened","closed","opening","closing"], "actions": "open, close" },
+          "door_status": { "value": "closed", "values": ["open","opening","closed","closing"], "actions": "open, close, lock, unlock", "description": "Current state of the door. Can be open, closed, or locked." },
+          "humidity": { "value": 78, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." },
+          "temperature": { "value": 3, "min_value": -10, "max_value": 50, "description": "Current temperature reading in degrees Celsius." }
+        }
+      }
+    },
+    "outside": {
+      "first_floor": {
+        "backyard": {
+          "soil_temperature": { "value": 26, "min_value": -10, "max_value": 50, "description": "Soil temperature in degrees Celsius" },
+          "soil_moisture": { "value": 48, "min_value": 0, "max_value": 100, "description": "Soil moisture level in percentage" },
+          "sprinkler_status": { "value": 1, "values": [0,1], "description": "Represents the operational state of the sprinkler: 1 for active/on, 0 for inactive/off" }
+        },
+        "pool": {
+          "water_temperature": { "value": 5, "min_value": 0, "max_value": 40, "description": "Temperature of water in degrees Celsius, typically measured in pipes or tanks" },
+          "vac_status": { "value": "off", "values": ["on","off"], "description": "Status of the vacuum system: 'on' when active, 'off' when idle or disabled" }
+        },
+        "home-left": {
+          "soil_temperature": { "value": 26, "min_value": -10, "max_value": 50, "description": "Soil temperature in degrees Celsius" },
+          "soil_moisture": { "value": 48, "min_value": 0, "max_value": 100, "description": "Soil moisture level in percentage" },
+          "sprinkler_status": { "value": 1, "values": [0,1], "description": "Represents the operational state of the sprinkler: 1 for active/on, 0 for inactive/off" }
+        },
+        "pool-area": {  
+          "status": { "value": 0, "values": [0,1], "actions": "on, off", "description": "Indicates the current status : 1 for on, 0 for off" }
+        },
+        "ac-area": {   
+          "status": { "value": 0, "values": [0,1], "actions": "on, off", "description": "Indicates the current status : 1 for on, 0 for off" }
+        },
+        "water-area": {  
+          "status": { "value": 0, "values": [0,1], "actions": "on, off", "description": "Indicates the current status : 1 for on, 0 for off" }
+        },
+        "sprinkler-area": {
+          "sprinkler_controller_status": { "value": 0, "values": [0,1], "actions": "on, off", "description": "Indicates the current status of the sprinkler controller: 1 for on, 0 for off" }
+        },
+        "frontyard": {
+          "soil_temperature": { "value": 26, "min_value": -10, "max_value": 50, "description": "Soil temperature in degrees Celsius" },
+          "soil_moisture": { "value": 48, "min_value": 0, "max_value": 100, "description": "Soil moisture level in percentage" },
+          "sprinkler_status": { "value": 1, "values": [0,1], "description": "Represents the operational state of the sprinkler: 1 for active/on, 0 for inactive/off" }
+        },
+        "driveway": {
+          "car_presence": { "value": 1, "values": [0, 1], "description": "Indicates whether a car is present (1) or not (0)" }
+        },
+        "weather": {
+          "temperature": { "value": 37, "min_value": -10, "max_value": 50, "description": "Air temperature in degrees Celsius" },
+          "relative_humidity": { "value": 45, "min_value": 0, "max_value": 100, "description": "Relative humidity in percentage" },
+          "pressure": { "value": 1271, "min_value": 500, "max_value": 1500, "description": "Atmospheric pressure in hPa" },
+          "wind_speed": { "value": 306, "min_value": 0, "max_value": 500, "description": "Wind speed in cm/s" },
+          "wind_direction": { "value": "N", "values": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"], "description": "Cardinal wind direction" },
+          "precipitation": { "value": 343, "min_value": 0, "max_value": 500, "description": "Precipitation in mm" },
+          "weather_code": { "value": 2, "values": [0, 1, 2, 3, "..."], "description": "Weather condition code" },
+          "dust": { "value": 167, "min_value": 0, "max_value": 1000, "description": "Dust particle concentration in µg/m³" },
+          "uv_index": { "value": 6, "min_value": 0, "max_value": 11, "description": "UV radiation index" },
+          "soil_temperature": { "value": 26, "min_value": -10, "max_value": 50, "description": "Soil temperature in degrees Celsius" },
+          "soil_moisture": { "value": 48, "min_value": 0, "max_value": 100, "description": "Soil moisture level in percentage" },
+          "wave_height": { "value": 4, "min_value": 0, "max_value": 20, "description": "Wave height in meters" }
+       }
+      }
+    }
+  }
+}

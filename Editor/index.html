@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<!-- 
+/**
+ * SmartHub - AI powered Smart Home
+ * UI App which is reads values from MQTT and show them to user
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.4
+ * @license MIT
+ */
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Nested JSON Editor with Move - Plain JS</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  .nested {
+    border-left: 2px solid #ccc;
+    margin-left: 20px;
+    padding-left: 10px;
+    margin-bottom: 10px;
+  }
+  .item-row {
+    margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 200px;
+  }
+  button {
+    margin-left: 6px;
+  }
+  select {
+    margin-left: 6px;
+  }
+  pre {
+    background: #f8f8f8;
+    padding: 10px;
+    border: 1px solid #ddd;
+    max-height: 400px;
+    overflow: auto;
+  }
+  label {
+    display: inline-block;
+    min-width: 90px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Nested JSON Editor with Move (Plain JavaScript)</h1>
+
+<div id="editor"></div>
+
+<h2>Current JSON Data</h2>
+<pre id="jsonOutput"></pre>
+
+<script>
+(() => {
+  let data = {
+    livingRoom: {
+      temperature: 22,
+      devices: ["lamp", "tv"]
+    },
+    kitchen: {
+      temperature: 20,
+      devices: ["fridge", "oven"]
+    }
+  };
+
+  const editorEl = document.getElementById("editor");
+  const outputEl = document.getElementById("jsonOutput");
+
+  function deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  function renderEditor(container, obj, path = []) {
+    container.innerHTML = "";
+
+    if (typeof obj !== "object" || obj === null) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = obj;
+      input.addEventListener("change", (e) => {
+        updateDataAtPath(path, e.target.value);
+      });
+      container.appendChild(input);
+      return;
+    }
+
+    const isArray = Array.isArray(obj);
+
+    for (let key in obj) {
+      if (!obj.hasOwnProperty(key)) continue;
+
+      const val = obj[key];
+
+      const row = document.createElement("div");
+      row.className = "item-row";
+
+      const label = document.createElement("label");
+      label.textContent = isArray ? `[${key}]` : key;
+      row.appendChild(label);
+
+      if (typeof val === "object" && val !== null) {
+        const nestedDiv = document.createElement("div");
+        nestedDiv.className = "nested";
+        renderEditor(nestedDiv, val, path.concat(key));
+        row.appendChild(nestedDiv);
+      } else {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = val;
+        input.addEventListener("change", (e) => {
+          updateDataAtPath(path.concat(key), e.target.value);
+        });
+        row.appendChild(input);
+      }
+
+      if (isArray) {
+        const btnUp = document.createElement("button");
+        btnUp.textContent = "Up";
+        btnUp.disabled = key == 0;
+        btnUp.addEventListener("click", () => {
+          moveArrayItem(path, parseInt(key), parseInt(key) - 1);
+        });
+        row.appendChild(btnUp);
+
+        const btnDown = document.createElement("button");
+        btnDown.textContent = "Down";
+        btnDown.disabled = key == obj.length - 1;
+        btnDown.addEventListener("click", () => {
+          moveArrayItem(path, parseInt(key), parseInt(key) + 1);
+        });
+        row.appendChild(btnDown);
+
+        const moveSelect = createMoveTargetSelector(path.concat(key));
+        row.appendChild(moveSelect);
+      } else {
+        const btnDelete = document.createElement("button");
+        btnDelete.textContent = "Delete";
+        btnDelete.addEventListener("click", () => {
+          deleteObjectKey(path, key);
+        });
+        row.appendChild(btnDelete);
+
+        const moveSelect = createMoveTargetSelector(path.concat(key));
+        row.appendChild(moveSelect);
+      }
+
+      container.appendChild(row);
+    }
+
+    if (isArray) {
+      const addBtn = document.createElement("button");
+      addBtn.textContent = "Add Item";
+      addBtn.addEventListener("click", () => {
+        console.log("Add Item clicked at path", path);
+        addArrayItem(path);
+      });
+      container.appendChild(addBtn);
+    } else {
+      const addKeyDiv = document.createElement("div");
+      addKeyDiv.style.marginTop = "8px";
+
+      const inputKey = document.createElement("input");
+      inputKey.type = "text";
+      inputKey.placeholder = "New key";
+
+      const addKeyBtn = document.createElement("button");
+      addKeyBtn.textContent = "Add Key";
+      addKeyBtn.addEventListener("click", () => {
+        const keyName = inputKey.value.trim();
+        console.log("Add Key clicked at path", path, "key:", keyName);
+        if (keyName === "") {
+          alert("Key name cannot be empty");
+          return;
+        }
+        addObjectKey(path, keyName);
+        inputKey.value = "";
+      });
+
+      addKeyDiv.appendChild(inputKey);
+      addKeyDiv.appendChild(addKeyBtn);
+      container.appendChild(addKeyDiv);
+    }
+  }
+
+  function updateDataAtPath(path, value) {
+    console.log("Updating path", path, "to value:", value);
+    data = setAtPath(data, path, value);
+    refresh();
+  }
+
+  function deleteObjectKey(parentPath, keyToDelete) {
+    console.log("Deleting key", keyToDelete, "at path", parentPath);
+    const parentObj = getAtPath(data, parentPath);
+    if (parentObj && typeof parentObj === "object" && !Array.isArray(parentObj)) {
+      delete parentObj[keyToDelete];
+      refresh();
+    }
+  }
+
+  function addObjectKey(path, newKey) {
+    const obj = getAtPath(data, path);
+    if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+      if (newKey in obj) {
+        alert("Key already exists");
+        return;
+      }
+      obj[newKey] = "";
+      refresh();
+    } else {
+      alert("Cannot add key here");
+    }
+  }
+
+  function addArrayItem(path) {
+    const arr = getAtPath(data, path);
+    if (Array.isArray(arr)) {
+      arr.push("");
+      refresh();
+    } else {
+      alert("Target is not an array");
+    }
+  }
+
+  function moveArrayItem(arrayPath, fromIdx, toIdx) {
+    const arr = getAtPath(data, arrayPath);
+    if (!Array.isArray(arr)) return;
+
+    const newArr = [...arr];
+    const [item] = newArr.splice(fromIdx, 1);
+    newArr.splice(toIdx, 0, item);
+
+    data = setAtPath(data, arrayPath, newArr);
+    refresh();
+  }
+
+  function createMoveTargetSelector(sourcePath) {
+    const select = document.createElement("select");
+    const defaultOption = document.createElement("option");
+    defaultOption.text = "Move to...";
+    defaultOption.value = "";
+    select.appendChild(defaultOption);
+
+    const parents = [];
+    collectParentPaths(data, [], parents, sourcePath);
+
+    parents.forEach((p) => {
+      const option = document.createElement("option");
+      option.value = p.join(".");
+      option.text = p.length === 0 ? "(root)" : p.join(".");
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", () => {
+      if (select.value) {
+        const targetPath = select.value === "" ? [] : select.value.split(".");
+        moveItem(sourcePath, targetPath);
+        select.value = "";
+      }
+    });
+
+    return select;
+  }
+
+  function collectParentPaths(obj, currentPath, result, sourcePath) {
+    if (isDescendantOrEqual(currentPath, sourcePath)) return;
+
+    if (typeof obj === "object" && obj !== null) {
+      result.push(currentPath);
+
+      if (Array.isArray(obj)) {
+        obj.forEach((el, i) => {
+          collectParentPaths(el, currentPath.concat(i), result, sourcePath);
+        });
+      } else {
+        for (const key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            collectParentPaths(obj[key], currentPath.concat(key), result, sourcePath);
+          }
+        }
+      }
+    }
+  }
+
+  function isDescendantOrEqual(a, b) {
+    if (b.length > a.length) return false;
+    for (let i = 0; i < b.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+
+  function moveItem(sourcePath, targetParentPath) {
+    if (isDescendantOrEqual(targetParentPath, sourcePath)) {
+      alert("Cannot move item into itself or its descendant");
+      return;
+    }
+
+    const item = getAtPath(data, sourcePath);
+
+    data = removeAtPath(data, sourcePath);
+
+    let targetParent = getAtPath(data, targetParentPath);
+
+    if (Array.isArray(targetParent)) {
+      targetParent.push(item);
+      data = setAtPath(data, targetParentPath, targetParent);
+    } else if (typeof targetParent === "object" && targetParent !== null) {
+      let newKey = "newKey";
+      let i = 1;
+      while (newKey in targetParent) {
+        newKey = `newKey${i++}`;
+      }
+      targetParent[newKey] = item;
+      data = setAtPath(data, targetParentPath, targetParent);
+    } else {
+      alert("Target parent is not an object or array");
+    }
+    refresh();
+  }
+
+  function getAtPath(obj, path) {
+    let cur = obj;
+    for (let p of path) {
+      if (cur == null) return undefined;
+      cur = cur[p];
+    }
+    return cur;
+  }
+
+  function setAtPath(obj, path, value) {
+    if (path.length === 0) return value;
+
+    let newObj;
+    if (Array.isArray(obj)) {
+      newObj = [...obj];
+    } else if (typeof obj === "object" && obj !== null) {
+      newObj = { ...obj };
+    } else {
+      return obj;
+    }
+
+    const key = path[0];
+    newObj[key] = setAtPath(newObj[key], path.slice(1), value);
+    return newObj;
+  }
+
+  function removeAtPath(obj, path) {
+    if (path.length === 0) return obj;
+
+    if (path.length === 1) {
+      if (Array.isArray(obj)) {
+        const newArr = [...obj];
+        newArr.splice(path[0], 1);
+        return newArr;
+      } else if (typeof obj === "object" && obj !== null) {
+        const newObj = { ...obj };
+        delete newObj[path[0]];
+        return newObj;
+      }
+    } else {
+      let newObj;
+      if (Array.isArray(obj)) {
+        newObj = [...obj];
+      } else if (typeof obj === "object" && obj !== null) {
+        newObj = { ...obj };
+      } else {
+        return obj;
+      }
+      const key = path[0];
+      newObj[key] = removeAtPath(newObj[key], path.slice(1));
+      return newObj;
+    }
+    return obj;
+  }
+
+  function refresh() {
+    renderEditor(editorEl, data, []);
+    outputEl.textContent = JSON.stringify(data, null, 2);
+  }
+
+  refresh();
+})();
+</script>
+
+</body>
+</html>

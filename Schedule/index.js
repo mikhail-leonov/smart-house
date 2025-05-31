@@ -9,44 +9,53 @@
  */
 
 const fs = require('fs');
-const { execSync } = require('child_process');
 const path = require('path');
+const ini = require('ini');
+const { execSync } = require('child_process');
 
 // Load config
-const configPath = path.join(__dirname, 'cron-config.json');
-let entries;
+const configPath = path.join(__dirname, 'cron-config.ini');
 
+let config;
 try {
-  const raw = fs.readFileSync(configPath);
-  entries = JSON.parse(raw);
+  const raw = fs.readFileSync(configPath, 'utf-8');
+  config = ini.parse(raw);
 } catch (err) {
-  console.error('Failed to load or parse cron-config.json:', err);
+  console.error('Failed to load or parse cron-config.ini:', err);
   process.exit(1);
 }
+
+// Convert config sections into cron entries
+const newEntries = Object.values(config).map(entry => {
+  if (!entry.schedule || !entry.command) {
+    console.warn('Skipping invalid entry (missing schedule or command):', entry);
+    return null;
+  }
+  return `${entry.schedule} ${entry.command}`;
+}).filter(Boolean);
 
 // Read current crontab
 let currentCrontab = '';
 try {
   currentCrontab = execSync('crontab -l', { encoding: 'utf8' });
 } catch (err) {
-  if (err.status !== 1) { // 1 means "no crontab for this user", that's fine
+  if (err.status !== 1) {
     console.error('Error reading crontab:', err);
     process.exit(1);
   }
 }
 
-const newEntries = entries.map(e => `${e.schedule} ${e.command}`);
-const lines = currentCrontab.split('\n').filter(Boolean);
+const currentLines = currentCrontab.split('\n').filter(Boolean);
 
-// Filter out existing lines that match any of the new commands
-const filtered = lines.filter(line => {
+// Filter out lines that match new commands to avoid duplicates
+const filtered = currentLines.filter(line => {
   return !newEntries.some(entry => line.includes(entry.split(' ')[5]));
 });
 
-// Combine and deduplicate
+// Combine old and new entries
 const combined = [...filtered, ...newEntries];
 
-// Write back to crontab
+// Write updated crontab to system
 try {
   const finalCrontab = combined.join('\n') + '\n';
   const tempFile = path.join(__dirname, 'temp.crontab');
@@ -55,7 +64,7 @@ try {
   execSync(`crontab ${tempFile}`);
   fs.unlinkSync(tempFile);
 
-  console.log('Crontab updated successfully.');
+  console.log('Crontab updated successfully!');
 } catch (err) {
   console.error('Failed to update crontab:', err);
   process.exit(1);

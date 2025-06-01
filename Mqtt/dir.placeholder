@@ -1,1 +1,10 @@
-Here should be a dir
+Add to moscuitton config file t the very end
+
+# MQTT over TCP (normal)
+listener 1883
+
+# MQTT over WebSockets
+listener 9001
+protocol websockets
+
+allow_anonymous true

@@ -9,7 +9,7 @@
  */
 
 const mqttPath = "#";
-const mqttUrl = "ws://localhost:9001";
+const mqttUrl = "ws://192.168.1.244:9001";
 
 const client = mqtt.connect(mqttUrl);
 

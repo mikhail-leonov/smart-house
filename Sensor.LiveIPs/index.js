@@ -3,7 +3,7 @@
  * Wakes up subnet using `nmap -sn`, then checks ARP table for live IPs
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.6.6
+ * @version 0.6.7
  * @license MIT
  */
 

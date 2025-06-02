@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.6
+ * @version 0.6.7
  * @license MIT
  */
 
@@ -15,7 +15,7 @@ const mqtt = require('../Shared/mqtt-node');
 
 const CONFIG = {
   scanInterval: 5 * 60 * 1000,
-  configPath: path.join(__dirname, 'image.cfg'),
+  configPath: path.join(__dirname, 'config.cfg'),
   imageDir: path.join(__dirname, 'images')
 };
 
@@ -31,7 +31,7 @@ async function scan() {
       return; // Exit early
     }
 
-    const lib = require('./image-lib'); 
+    const lib = require('./lib'); 
 
     for (const filename of imageFiles) {
       const filePath = path.join(CONFIG.imageDir, filename);

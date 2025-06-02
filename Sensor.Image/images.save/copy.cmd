@@ -1,0 +1,4 @@
+cp /home/admin/smart-house/Sensor.Image/images.save/driveway-2025-05-24-10-04-00.jpg  /home/admin/smart-house/Sensor.Image/images/driveway-2025-05-24-10-04-00.jpg 
+cp /home/admin/smart-house/Sensor.Image/images.save/driveway-2025-05-24-10-04-10.jpg  /home/admin/smart-house/Sensor.Image/images/driveway-2025-05-24-10-04-10.jpg 
+cp /home/admin/smart-house/Sensor.Image/images.save/driveway-2025-05-24-10-04-20.jpg  /home/admin/smart-house/Sensor.Image/images/driveway-2025-05-24-10-04-20.jpg 
+cp /home/admin/smart-house/Sensor.Image/images.save/driveway-2025-05-24-10-04-30.jpg  /home/admin/smart-house/Sensor.Image/images/driveway-2025-05-24-10-04-30.jpg 

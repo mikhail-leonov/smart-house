@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.6
+ * @version 0.6.7
  * @license MIT
  */
 
@@ -12,7 +12,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 8081;
+const PORT = 8082;
 
 http.createServer((req, res) => {
   let filePath = '.' + req.url;
@@ -41,5 +41,5 @@ http.createServer((req, res) => {
     }
   });
 }).listen(PORT, () => {
-  console.log(`Server running at http://192.168.1.253:${PORT}/`);
+  console.log(`Server running at http://test.jarvis.home:${PORT}/`);
 });

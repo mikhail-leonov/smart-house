@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.6
+ * @version 0.6.7
  * @license MIT
  */
 
@@ -13,72 +13,37 @@ const path = require('path');
 const ini = require('ini');
 const { execSync } = require('child_process');
 
+function updateCrontab(cfgFilePath, isRoot = false) {
+  const raw = fs.readFileSync(cfgFilePath, 'utf-8');
+  const config = ini.parse(raw);
 
-// Load config
-const CONFIG_PATH = path.join(__dirname, 'config.cfg');
+  const newEntries = Object.values(config)
+    .filter(entry => entry.schedule && entry.command)
+    .map(entry => `${entry.schedule} ${entry.command}`);
 
-let config;
-try {
-  const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
-  config = ini.parse(raw);
-} catch (err) {
-  console.error("Failed to read config file:", err.message);
-  process.exit(1);
-}
-
-// Convert config sections into cron entries
-const newEntries = Object.values(config).map(entry => {
-  if (!entry.schedule || !entry.command) {
-    console.warn('Skipping invalid entry (missing schedule or command):', entry);
-    return null;
+  let currentCrontab = '';
+  try {
+    currentCrontab = execSync(isRoot ? 'sudo crontab -l' : 'crontab -l', { encoding: 'utf8' });
+  } catch (err) {
+    if (err.status !== 1) { throw err; }
   }
-  return `${entry.schedule} ${entry.command}`;
-}).filter(Boolean);
 
-// Read current crontab
-let currentCrontab = '';
-try {
-  currentCrontab = execSync('crontab -l', { encoding: 'utf8' });
-} catch (err) {
-  if (err.status !== 1) {
-    console.error('Error reading crontab:', err);
-    process.exit(1);
-  }
-}
+  const currentLines = currentCrontab.split('\n').filter(Boolean);
+  const filtered = currentLines.filter(line =>
+    !newEntries.some(entry => line.includes(entry.split(' ')[5]))
+  );
 
-const currentLines = currentCrontab.split('\n').filter(Boolean);
-
-// Filter out lines that match new commands to avoid duplicates
-const filtered = currentLines.filter(line => {
-  return !newEntries.some(entry => line.includes(entry.split(' ')[5]));
-});
-
-// Combine old and new entries
-const combined = [...filtered, ...newEntries];
-
-// Write updated crontab to system
-try {
+  const combined = [...filtered, ...newEntries];
   const finalCrontab = combined.join('\n') + '\n';
-  const tempFile = path.join(__dirname, 'temp.crontab');
+  const tempFile = path.join(__dirname, `temp.${isRoot ? 'root' : 'user'}.crontab`);
 
   fs.writeFileSync(tempFile, finalCrontab);
-  execSync(`crontab ${tempFile}`);
+  execSync(`${isRoot ? 'sudo ' : ''}crontab ${tempFile}`);
   fs.unlinkSync(tempFile);
-
-
-try {
-  currentCrontab = execSync('crontab -l', { encoding: 'utf8' });
-  console.log(currentCrontab);
-} catch (err) {
-  if (err.status !== 1) {
-    console.error('Error reading crontab:', err);
-    process.exit(1);
-  }
 }
 
+// Update user crontab
+updateCrontab(path.join(__dirname, 'config.cfg'), false);
 
-  console.log('Crontab updated successfully!');
-} catch (err) {
-  console.error('Failed to update crontab:', err);
-  process.exit(1);
-}
+// Update root crontab
+updateCrontab(path.join(__dirname, 'root.cfg'), true);

@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.7
+ * @version 0.6.8
  * @license MIT
  */
 
@@ -13,13 +13,28 @@ const path = require('path');
 const config = require('../Shared/config-node');
 const mqtt = require('../Shared/mqtt-node');
 
+// ?? Set your actual network interface here (e.g., eth0, enp3s0, wlan0)
+const DEFAULT_INTERFACE = 'eth0';
+
 const CONFIG = {
-  configPath: path.join(__dirname, 'ipv6.cfg'),
+  configPath: path.join(__dirname, 'config.cfg'),
   mqttBaseTopic: '/home/internal/house/network'
 };
 
 const lastSeen = {};
 let lastGuests = new Set();
+
+/**
+ * Format IPv6 address with interface if it's link-local
+ * @param {string} ip - IPv6 address
+ * @returns {string} - formatted IPv6 with %interface if needed
+ */
+function formatIPv6(ip) {
+  if (ip.startsWith('fe80::') && !ip.includes('%')) {
+    return `${ip}%${DEFAULT_INTERFACE}`;
+  }
+  return ip;
+}
 
 /**
  * Synchronously ping an IPv6 address
@@ -28,7 +43,7 @@ let lastGuests = new Set();
  */
 function isIPv6Alive(ip) {
   try {
-    const output = execSync(`ping -6 -c 1 -w 2 ${ip}`, { encoding: 'utf-8' });
+    const output = execSync(`ping -6 -c 1 -w 2 ${formatIPv6(ip)}`, { encoding: 'utf-8' });
     return output.includes('1 packets transmitted, 1 received');
   } catch {
     return false;
@@ -40,7 +55,7 @@ function getTopic(desc) {
 }
 
 async function scan() {
-  console.log('scan started');
+  console.log('Scan started');
 
   try {
     const cfg = config.loadConfig(CONFIG.configPath);
@@ -54,7 +69,7 @@ async function scan() {
     await mqtt.connectToMqtt();
 
     for (const ip of ipList) {
-      if (!String(cfg['entry'][ip]).trim() === '1') continue; // skip if disabled
+      if (!String(cfg['entry'][ip]).trim() === '1') continue;
 
       if (ignored[ip]) {
         console.log(`${ip} - Skipped (ignored)`);

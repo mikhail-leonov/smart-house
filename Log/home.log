@@ -179,3 +179,6 @@
 [2025-06-02 13:00:25] [MQTT] home/outside/first_floor/sprinkler-area: {"variable":"sprinkler_controller_status","value":1,"type":"Sensor","timestamp":"2025-06-02T02:11:48.490Z"}
 [2025-06-02 13:00:25] [MQTT] home/outside/first_floor/driveway/car_presence: {"variable":"car_presence","value":0,"type":"web","timestamp":"2025-06-02T16:36:49.915Z"}
 [2025-06-02 13:00:25] [MQTT] home/inside/house/email/nas: {"variable":"emails","value":1,"type":"sensor","timestamp":"2025-06-02T03:20:07.397Z"}
+[2025-06-02 13:30:10] [MQTT] home/outside/first_floor/sprinkler-area: {"variable":"sprinkler_controller_status","value":1,"type":"Sensor","timestamp":"2025-06-02T02:11:48.490Z"}
+[2025-06-02 13:30:10] [MQTT] home/outside/first_floor/driveway/car_presence: {"variable":"car_presence","value":0,"type":"web","timestamp":"2025-06-02T16:36:49.915Z"}
+[2025-06-02 13:30:10] [MQTT] home/inside/house/email/nas: {"variable":"emails","value":1,"type":"sensor","timestamp":"2025-06-02T03:20:07.397Z"}

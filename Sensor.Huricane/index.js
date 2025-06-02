@@ -1,73 +1,86 @@
-const https = require('https');
+/**
+ * SmartHub - Full Network IP Tracker (ARP Edition)
+ * Check for hurricanes and sends MQTT status
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov
+ * @version 0.6.6
+ * @license MIT
+ */
 
-function haversineDistance(lat1, lon1, lat2, lon2) {
-  function toRad(x) {
-    return x * Math.PI / 180;
+const lib = require('./lib'); 
+const path = require('path');
+const fs = require('fs');
+const config = require('../Shared/config-node');
+const mqtt = require('../Shared/mqtt-node');
+const web = require('../Shared/web-node');
+const cache = require('../Shared/cache-node');
+
+const CONFIG = {
+  scanInterval: 5 * 60 * 1000,  // not used here but kept for config completeness
+  configPath: path.join(__dirname, 'config.cfg')
+};
+
+// Blocking pause function (seconds)
+function pause(seconds) {
+  const start = Date.now();
+  while (Date.now() - start < 1000 * seconds) {
+    // Busy wait
   }
-  
-  const R = 3958.8; // Radius of Earth in miles
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
 }
 
-/**
- * Checks for hurricane near a given lat/lon.
- * Returns a Promise resolving to an object:
- * { hurricane: 0 | 1 | 2 }
- * 
- * 0 - No hurricane near (more than 100 miles away)
- * 1 - Hurricane near (within 100 miles)
- * 2 - Hurricane right here (within 10 miles)
- */
-function checkHurricane(lat, lon) {
-  return new Promise((resolve, reject) => {
-    https.get('https://www.nhc.noaa.gov/CurrentStorms.json', res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          const storms = JSON.parse(data);
-          let status = 0;
-          
-          for (const storm of storms) {
-            if (storm.stormType === "HU") { // Hurricane only
-              const dist = haversineDistance(lat, lon, storm.lat, storm.lon);
-              if (dist <= 10) {
-                // Hurricane right here
-                resolve({ hurricane: 2 });
-                return;
-              } else if (dist <= 100) {
-                // Hurricane near but not right here
-                status = 1;
+// Main scan function ? runs once
+async function scan() {
+  console.log("Scan started");
+
+  const cfg = config.loadConfig(CONFIG.configPath);
+  try {
+    await mqtt.connectToMqtt();
+
+    const entry = cfg['entry'];
+    for (const [key, value] of Object.entries(entry)) {
+      if (String(value).trim() === "1") {
+        if (typeof lib[key] === 'function') {
+          const obj = lib[key]();
+          if (typeof obj === 'object') {
+            for (const [varName, varValue] of Object.entries(obj)) {
+              const section = cfg[varName];
+              const parentSection = cfg[key];
+              const isEnabled = parentSection && String(parentSection[varName]).trim() === '1';
+              if (section && isEnabled) {
+                let topics = [];
+
+                if (typeof section["mqttTopics"] === 'string') {
+                  topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
+                } else if (Array.isArray(section["mqttTopics"])) {
+                  topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
+                }
+
+                for (const topic of topics) {
+                  await mqtt.publishToMQTT(varName, topic, varValue, "sensor");
+                  console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "sensor")`);
+                  pause(1);
+                }
+
+              } else {
+                console.log(` - ${varName} = 0 (disabled)`);
               }
             }
           }
-          resolve({ hurricane: status });
-        } catch (e) {
-          reject('Failed to parse storm data: ' + e.message);
         }
-      });
-    }).on('error', err => reject(err));
-  });
+      }
+    }
+
+    await mqtt.disconnectFromMQTT();
+  
+  } catch (err) {
+    console.error('Error during scan:', err);
+  }
+
+  console.log("Scan done");
 }
 
-// Example usage:
-const myLat = 29.76;  // Houston, TX
-const myLon = -95.37;
-
-checkHurricane(myLat, myLon)
-  .then(result => {
-    if (result.hurricane === 2) {
-      console.log("Hurricane is right here (within 10 miles)!");
-    } else if (result.hurricane === 1) {
-      console.log("Hurricane is near (within 100 miles).");
-    } else {
-      console.log("No hurricane nearby.");
-    }
-  })
-  .catch(console.error);
+// Run once on script start
+(async function main() {
+  await scan();
+})();

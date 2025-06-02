@@ -4,17 +4,20 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.5
+ * @version 0.6.6
  * @license MIT
  */
 
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
 const mqtt = require('../Shared/mqtt-node');
+const environment = require('../Shared/env-node');
+
+const env = environment.load();
 
 // CONFIGURATION
-const GMAIL_USER = 'mikecommon@gmail.com';
-const GMAIL_PASSWORD = 'aaaa bbbb cccc dddd';
+const GMAIL_USER = env.mail.name;
+const GMAIL_PASSWORD = env.mail.checker;
 const SUBJECT_MATCH = 'NAS';
 
 // Build the topic via helper

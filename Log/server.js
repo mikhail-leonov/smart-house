@@ -14,7 +14,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const MQTT_BROKER_URL = 'ws://localhost:9001';
+const MQTT_BROKER_URL = 'ws://mqtt.jarvis.home:9001';
 const MQTT_TOPIC = '#';
 const LOG_FILE_PATH = path.join(__dirname, 'home.log');
 const HTTP_PORT = 3131;
@@ -90,7 +90,7 @@ app.get('/show', (req, res) => {
 
 // Start server
 app.listen(HTTP_PORT, () => {
-  console.log(`[${getFormattedTime()}] LLM log server listening on http://localhost:${HTTP_PORT}`);
+  console.log(`[${getFormattedTime()}] Log server listening on http://log.jarvis.home:${HTTP_PORT}`);
 });
 
 // Graceful shutdown

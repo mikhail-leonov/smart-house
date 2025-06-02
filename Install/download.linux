@@ -1,5 +1,15 @@
 https://ollama.com/download/linux
-snap install mosquitto
+
+
+sudo apt install -y mosquitto mosquitto-clients
+sudo systemctl enable mosquitto
+sudo systemctl start mosquitto
+mosquitto_sub -t "test/topic"
+mosquitto_pub -t "test/topic" -m "Hello MQTT"
+
+
 https://nodejs.org/dist/v22.15.1/node-v22.15.1-linux-x64.tar.xz
+
+
 
 

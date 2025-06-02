@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.4
+ * @version 0.6.5
  * @license MIT
  */
 
@@ -15,6 +15,7 @@ function pause(seconds) {
   }
 }
 
+const webContent = { pause };
 
 window.Jarvis = window.Jarvis || {};
 window.Jarvis.web = webContent;

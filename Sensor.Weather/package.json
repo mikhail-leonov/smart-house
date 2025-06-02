@@ -1,0 +1,16 @@
+{
+  "name": "sensor.weather",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ini": "^5.0.0",
+    "sync-request": "^6.1.0"
+  }
+}

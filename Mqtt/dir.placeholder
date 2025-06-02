@@ -1,5 +1,3 @@
-Add to moscuitton config file t the very end
-
 # MQTT over TCP (normal)
 listener 1883
 

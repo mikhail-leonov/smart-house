@@ -1,0 +1,1 @@
+node /home/admin/smart-house/Shared/permission.js /home/admin/smart-house/

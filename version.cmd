@@ -1,1 +1,1 @@
-node F:/Home/Shared/version.js
+node /home/admin/smart-house/Shared/version.js

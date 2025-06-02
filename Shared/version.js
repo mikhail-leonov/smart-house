@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.4
+ * @version 0.6.5
  * @license MIT
  */
 
@@ -12,8 +12,8 @@ const fs = require('fs');
 const path = require('path');
 
 // === CONFIGURATION ===
-const targetVersion = '0.6.4'; // <-- Change to your new version
-const rootDir = 'F:/Home/'; // Starting directory
+const targetVersion = '0.6.5'; // <-- Change to your new version
+const rootDir = '/home/admin/smart-house/'; // Starting directory
 const forbiddenDirs = ['Install', 'LLM', 'Mqtt', 'node_modules', '.git', 'backup']; // <-- Forbidden directory names
 
 // This regex matches lines like: * @version 0.5.5

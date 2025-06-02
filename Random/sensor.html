@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<!-- 
+/**
+ * SmartHub - AI powered Smart Home
+ * UI App which is generate  mqtt values for random mqtt topic based on loaded config file
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.5
+ * @license MIT
+ */
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Sensor Simulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@4.3.7/dist/mqtt.min.js"></script>
+    <!-- Local -->
+    <link href="/shared/styles.css" rel="stylesheet">
+    <script src="/shared/constants.js"></script>
+    <script src="/mqtt.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">MQTT Sensor Simulator</h1>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="configFile" class="form-label">Upload Configuration JSON</label>
+                        <input class="form-control" type="file" id="configFile" accept=".json">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="interval" class="form-label">Send Interval (seconds)</label>
+                        <input type="number" class="form-control" id="interval" min="1" max="60" value="5">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="randomness" class="form-label">Randomness (seconds)</label>
+                        <input type="number" class="form-control" id="randomness" min="0" max="15" value="2">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div>
+                            <span id="connectionStatus" class="status-indicator status-offline"></span>
+                            <span id="connectionStatusText">Disconnected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Message Parameters</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="locationType" class="form-label">Location Type</label>
+                        <select class="form-select" id="locationType">
+                            <option value="inside">Inside</option>
+                            <option value="outside">Outside</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="floor" class="form-label">Floor</label>
+                        <select class="form-select" id="floor" disabled>
+                            <option value="">Select floor</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="room" class="form-label">Room</label>
+                        <select class="form-select" id="room" disabled>
+                            <option value="">Select room</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="variable" class="form-label">Variable</label>
+                        <select class="form-select" id="variable" disabled>
+                            <option value="">Select variable</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="valueContainer" class="row mb-3" style="display: none;">
+                    <div class="col-md-6">
+                        <label for="value" class="form-label">Value</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="value">
+                            <button class="btn btn-outline-secondary" type="button" id="randomValueBtn">Random</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="variableDescription" class="description-box">
+                            Select a variable to see its description and valid values
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="startBtn" class="btn btn-primary me-2">Start Sending</button>
+                        <button id="stopBtn" class="btn btn-danger me-2" disabled>Stop Sending</button>
+                        <button id="sendNowBtn" class="btn btn-secondary">Send Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5>Log</h5>
+            </div>
+            <div class="card-body">
+                <div id="log" style="height: 200px; overflow-y: scroll; background-color: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let configData = null;
+        let intervalId = null;
+        let isSending = false;
+        
+        // DOM elements
+        const configFileInput = document.getElementById('configFile');
+        const locationTypeSelect = document.getElementById('locationType');
+        const floorSelect = document.getElementById('floor');
+        const roomSelect = document.getElementById('room');
+        const variableSelect = document.getElementById('variable');
+        const valueInput = document.getElementById('value');
+        const randomValueBtn = document.getElementById('randomValueBtn');
+        const variableDescription = document.getElementById('variableDescription');
+        const valueContainer = document.getElementById('valueContainer');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const sendNowBtn = document.getElementById('sendNowBtn');
+        const logDiv = document.getElementById('log');
+        const intervalInput = document.getElementById('interval');
+        const randomnessInput = document.getElementById('randomness');
+        
+        // Event listeners
+        configFileInput.addEventListener('change', handleConfigFileUpload);
+        locationTypeSelect.addEventListener('change', updateFloorOptions);
+        floorSelect.addEventListener('change', updateRoomOptions);
+        roomSelect.addEventListener('change', updateVariableOptions);
+        variableSelect.addEventListener('change', updateValueField);
+        randomValueBtn.addEventListener('click', generateRandomValue);
+        startBtn.addEventListener('click', startSending);
+        stopBtn.addEventListener('click', stopSending);
+        sendNowBtn.addEventListener('click', sendMessageNow);
+		
+        const connected = mqtt.connect(mqttUrl);
+        
+        // Handle config file upload
+        function handleConfigFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    configData = JSON.parse(e.target.result);
+                    logToConsole('Configuration loaded successfully');
+                    updateFloorOptions();
+                } catch (error) {
+                    logToConsole('Error parsing JSON: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Update floor options based on location type
+        function updateFloorOptions() {
+            if (!configData) return;
+            
+            floorSelect.innerHTML = '<option value="">Select floor</option>';
+            roomSelect.innerHTML = '<option value="">Select room</option>';
+            variableSelect.innerHTML = '<option value="">Select variable</option>';
+            valueContainer.style.display = 'none';
+            
+            const locationType = locationTypeSelect.value;
+            const locationData = configData.home[locationType];
+            
+            if (locationType === 'inside') {
+                // Inside has floors
+                for (const floor in locationData) {
+                    const option = document.createElement('option');
+                    option.value = floor;
+                    option.textContent = floor.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    floorSelect.appendChild(option);
+                }
+                floorSelect.disabled = false;
+            } else {
+                // Outside has areas (common, front_yard, etc.)
+                floorSelect.disabled = true;
+                roomSelect.disabled = false;
+                roomSelect.innerHTML = '<option value="">Select area</option>';
+                
+                for (const area in locationData) {
+                    const option = document.createElement('option');
+                    option.value = area;
+                    option.textContent = area.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    roomSelect.appendChild(option);
+                }
+            }
+        }
+        
+        // Update room options based on floor
+        function updateRoomOptions() {
+            if (!configData) return;
+            
+            roomSelect.innerHTML = '<option value="">Select room</option>';
+            variableSelect.innerHTML = '<option value="">Select variable</option>';
+            valueContainer.style.display = 'none';
+            
+            const locationType = locationTypeSelect.value;
+            const floor = floorSelect.value;
+            
+            if (locationType === 'inside') {
+                const floorData = configData.home[locationType][floor];
+                for (const room in floorData) {
+                    const option = document.createElement('option');
+                    option.value = room;
+                    option.textContent = room.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    roomSelect.appendChild(option);
+                }
+            }
+            
+            roomSelect.disabled = false;
+        }
+        
+        // Update variable options based on room
+        function updateVariableOptions() {
+            if (!configData) return;
+            
+            variableSelect.innerHTML = '<option value="">Select variable</option>';
+            valueContainer.style.display = 'none';
+            
+            const locationType = locationTypeSelect.value;
+            const floor = locationType === 'inside' ? floorSelect.value : null;
+            const room = roomSelect.value;
+            
+            let variables;
+            if (locationType === 'inside') {
+                variables = configData.home[locationType][floor][room];
+            } else {
+                variables = configData.home[locationType][room];
+            }
+            
+            for (const variable in variables) {
+                const option = document.createElement('option');
+                option.value = variable;
+                option.textContent = variable.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                variableSelect.appendChild(option);
+            }
+            
+            variableSelect.disabled = false;
+        }
+        
+        // Update value field based on selected variable
+        function updateValueField() {
+            if (!configData || !variableSelect.value) {
+                valueContainer.style.display = 'none';
+                return;
+            }
+            
+            const locationType = locationTypeSelect.value;
+            const floor = locationType === 'inside' ? floorSelect.value : null;
+            const room = roomSelect.value;
+            const variable = variableSelect.value;
+            
+            let varData;
+            if (locationType === 'inside') {
+                varData = configData.home[locationType][floor][room][variable];
+            } else {
+                varData = configData.home[locationType][room][variable];
+            }
+            
+            // Update description
+            let description = `<strong>Description:</strong> ${varData.description}<br>`;
+            
+            if (varData.values) {
+                description += `<strong>Valid values:</strong> ${varData.values.join(', ')}`;
+                valueInput.type = 'text';
+            } else if (varData.min_value !== undefined && varData.max_value !== undefined) {
+                description += `<strong>Range:</strong> ${varData.min_value} to ${varData.max_value}`;
+                valueInput.type = 'number';
+                valueInput.min = varData.min_value;
+                valueInput.max = varData.max_value;
+            }
+            
+            variableDescription.innerHTML = description;
+            
+            // Set initial value
+            valueInput.value = varData.value;
+            valueContainer.style.display = 'block';
+        }
+        
+        // Generate random value based on variable constraints
+        function generateRandomValue() {
+            if (!variableSelect.value) return;
+            
+            const locationType = locationTypeSelect.value;
+            const floor = locationType === 'inside' ? floorSelect.value : null;
+            const room = roomSelect.value;
+            const variable = variableSelect.value;
+            
+            let varData;
+            if (locationType === 'inside') {
+                varData = configData.home[locationType][floor][room][variable];
+            } else {
+                varData = configData.home[locationType][room][variable];
+            }
+            
+            if (varData.values) {
+                // Random value from predefined list
+                const randomIndex = Math.floor(Math.random() * varData.values.length);
+                valueInput.value = varData.values[randomIndex];
+            } else if (varData.min_value !== undefined && varData.max_value !== undefined) {
+                // Random value within range
+                const range = varData.max_value - varData.min_value;
+                const randomValue = varData.min_value + Math.random() * range;
+                
+                if (valueInput.type === 'number') {
+                    valueInput.value = Math.round(randomValue);
+                } else {
+                    // For decimal values
+                    valueInput.value = randomValue.toFixed(2);
+                }
+            }
+        }
+        
+        
+        // Start sending messages at intervals
+        async function startSending() {
+            if (isSending) { return; }
+            
+            if (!connected) {return; }
+            
+            if (!validateSelections()) { return; }
+            
+            isSending = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            const baseInterval = parseInt(intervalInput.value) * 1000;
+            const randomness = parseInt(randomnessInput.value) * 1000;
+            
+            // Send first message immediately
+            sendMessage();
+            
+            // Set up interval with randomness
+            intervalId = setInterval(() => {
+                sendMessage();
+            }, baseInterval + Math.random() * randomness * 2 - randomness);
+            
+            logToConsole('Started sending messages');
+        }
+        
+        // Stop sending messages
+        function stopSending() {
+            if (!isSending) return;
+            
+            clearInterval(intervalId);
+            isSending = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            logToConsole('Stopped sending messages');
+        }
+        
+        // Send message immediately
+        async function sendMessageNow() {
+            if (!validateSelections()) {
+				console.log("MQTT data is not validated.");
+				return;
+			}
+            sendMessage();
+        }
+        
+        // Validate form selections
+        function validateSelections() {
+            if (!configData) {
+                logToConsole('Please upload a configuration file first', 'error');
+                return false;
+            }
+            
+            if (!locationTypeSelect.value) {
+                logToConsole('Please select a location type', 'error');
+                return false;
+            }
+            
+            if (locationTypeSelect.value === 'inside' && !floorSelect.value) {
+                logToConsole('Please select a floor', 'error');
+                return false;
+            }
+            
+            if (!roomSelect.value) {
+                logToConsole('Please select a room/area', 'error');
+                return false;
+            }
+            
+            if (!variableSelect.value) {
+                logToConsole('Please select a variable', 'error');
+                return false;
+            }
+            
+            if (!valueInput.value) {
+                logToConsole('Please enter a value', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+function buildMqttTopic(l, f, r, v) {
+    let topic = l;
+    if (f) {
+        topic += `/${f}`;
+    }
+    topic += `/${r}/${v}`;
+    return "home/" + topic;
+}
+
+        // Send MQTT message
+        function sendMessage() {
+            const locationType = locationTypeSelect.value;
+            const floor = locationType === 'inside' ? floorSelect.value : null;
+            const room = roomSelect.value;
+            const variable = variableSelect.value;
+            const value = valueInput.value;
+            
+            const topic = buildMqttTopic(locationType, floor, room, variable);
+
+            // Create payload
+            const payload = {
+                value: isNaN(value) ? value : parseFloat(value),
+                type: "Random",
+                timestamp: new Date().toISOString()
+            };
+       
+            // LOG
+            //setTimeout(() => { fetch(LOG_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ msg: `UI App started` }), }); }, 0);
+     
+            // Publish message
+            connected.publish(topic, JSON.stringify(payload), { retain: true, qos: 1 }, (err) => {
+                if (err) {
+                    logToConsole(`Error publishing to ${topic}: ${err.message}`, 'error');
+                } else {
+                    logToConsole(`Published to ${topic}: ${JSON.stringify(payload)}`);
+                }
+            });
+        }
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (mqttClient && mqttClient.connected) {
+                mqttClient.end(true);
+            }
+            
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        });
+
+
+    </script>
+    <script src="/shared/log-core.js"></script>
+    <script src="/shared/cache-core.js"></script>
+    <script src="/shared/web-core.js"></script>
+    <script src="/shared/sensor-core.js"></script>
+</body>
+</html>

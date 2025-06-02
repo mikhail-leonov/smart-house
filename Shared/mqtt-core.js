@@ -4,11 +4,11 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.4
+ * @version 0.6.5
  * @license MIT
  */
 
-let mqttBrokerUrl = "ws://localhost:9001";
+let mqttBrokerUrl = "ws://mqtt.jarvis.home:9001";
 
 const mqttTopic = "home";
 let mqttClient = null;

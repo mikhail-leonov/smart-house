@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.4
+ * @version 0.6.5
  * @license MIT
  */
 
@@ -13,15 +13,16 @@ const path = require('path');
 const ini = require('ini');
 const { execSync } = require('child_process');
 
+
 // Load config
-const configPath = path.join(__dirname, 'cron-config.ini');
+const CONFIG_PATH = path.join(__dirname, 'config.cfg');
 
 let config;
 try {
-  const raw = fs.readFileSync(configPath, 'utf-8');
+  const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
   config = ini.parse(raw);
 } catch (err) {
-  console.error('Failed to load or parse cron-config.ini:', err);
+  console.error("Failed to read config file:", err.message);
   process.exit(1);
 }
 
@@ -63,6 +64,18 @@ try {
   fs.writeFileSync(tempFile, finalCrontab);
   execSync(`crontab ${tempFile}`);
   fs.unlinkSync(tempFile);
+
+
+try {
+  currentCrontab = execSync('crontab -l', { encoding: 'utf8' });
+  console.log(currentCrontab);
+} catch (err) {
+  if (err.status !== 1) {
+    console.error('Error reading crontab:', err);
+    process.exit(1);
+  }
+}
+
 
   console.log('Crontab updated successfully!');
 } catch (err) {

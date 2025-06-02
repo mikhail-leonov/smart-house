@@ -4,11 +4,12 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.4
+ * @version 0.6.5
  * @license MIT
  */
 
 
+const sensorContent = { };
 
 window.Jarvis = window.Jarvis || {};
 window.Jarvis.sensor = sensorContent;

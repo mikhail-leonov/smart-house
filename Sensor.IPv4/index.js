@@ -1,107 +1,113 @@
 /**
- * SmartHub - Full Network IP Tracker (ARP Edition)
- * Scans ARP table for active IPs, tracks selected IPs, reports guests, and sends MQTT status
+ * SmartHub - Full Network IP Tracker (Ping Edition)
+ * Pings all IPs in subnet, reports presence via MQTT with named logs
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @author Mikhail Leonov
- * @version 0.6.7
+ * @version 0.6.8
  * @license MIT
  */
 
-const { exec } = require('child_process');
-const util = require('util');
 const path = require('path');
+const ping = require('ping');
 const mqtt = require('../Shared/mqtt-node');
 const config = require('../Shared/config-node');
 
-const execAsync = util.promisify(exec);
-
 const CONFIG = {
   configPath: path.join(__dirname, 'config.cfg'),
-  networkPrefix: '192.168.1',
-  concurrencyLimit: 25
 };
 
 const lastSeen = {};
 let lastGuests = new Set();
 
-// Optional: trigger ARP cache fill by pinging the subnet (skip if unnecessary)
-async function populateARPTable() {
-  const promises = [];
-  for (let i = 1; i <= 254; i++) {
-    const ip = `${CONFIG.networkPrefix}.${i}`;
-    promises.push(execAsync(`ping -c 1 -W 1 ${ip}`).catch(() => {}));
-  }
-  await Promise.all(promises);
-}
-
-// Parses `arp -a` output to extract IPs
-async function getARPDevices() {
-  const { stdout } = await execAsync('arp -a');
-  const devices = [];
-  const lines = stdout.split('\n');
-
-  for (const line of lines) {
-    const match = line.match(/\(([\d.]+)\)\s+at\s+([0-9a-f:]+)/i);
-    if (match) {
-      devices.push({ ip: match[1], mac: match[2] });
-    }
-  }
-  return devices;
-}
-
 function getTopic(desc) {
   return `home/inside/house/${desc}/status`;
 }
 
+// Ping IP and return true/false
+async function isHostAlive(ip) {
+  try {
+    const res = await ping.promise.probe(ip, {
+      timeout: 2,
+      extra: ['-c', '1'],
+    });
+    return res.alive;
+  } catch (err) {
+    // Log: Ping failure (error)
+    console.error(`${ip} - error`, err.message);
+    return false;
+  }
+}
+
+// Helper to get device name from config maps
+function resolveName(ip, tracked, guests, ignored) {
+  return (
+    tracked[ip] ||
+    guests[ip] ||
+    ignored[ip] ||
+    ip // fallback to IP if name not found
+  );
+}
+
 async function scan() {
-  console.log("ARP Scan started");
+  // Log: Start of scan (info)
+  console.log("Scan started");
 
   const cfg = config.loadConfig(CONFIG.configPath);
+  const networkPrefix = cfg['config']?.networkPrefix || '192.168.1';
   const ignored = cfg['ignored'] || {};
   const tracked = cfg['tracked'] || {};
   const guests = cfg['guests'] || {};
 
   await mqtt.connectToMqtt();
 
-  // Optional: uncomment this to populate ARP table before reading it
-  // await populateARPTable();
-  // await new Promise(res => setTimeout(res, 3000)); // wait a bit
+  const allIPs = new Set();
+  for (let i = 1; i <= 254; i++) {
+    allIPs.add(`${networkPrefix}.${i}`);
+  }
 
-  const arpDevices = await getARPDevices();
   const foundNow = [];
 
-  for (const { ip } of arpDevices) {
+  for (const ip of allIPs) {
+    const name = resolveName(ip, tracked, guests, ignored);
+
     if (ignored[ip]) {
-      console.log(`${ip} - Skipped (ignored)`);
+      // Log: IP is ignored (skip)
+      console.log(`${ip} - ${name} (ignored)`);
       continue;
     }
 
-    console.log(`${ip} found in ARP table`);
+    // Log: IP being pinged (action)
+    console.log(`${ip} - ${name}`);
+    const alive = await isHostAlive(ip);
 
-    foundNow.push(ip);
+    if (alive) {
+      foundNow.push(ip);
 
-    if (tracked[ip]) {
-      const desc = tracked[ip];
-      const topic = getTopic(desc);
-      if (!lastSeen[ip]) {
-        await mqtt.publishToMQTT(desc, topic, "Online", "Sensor");
-      }
-      lastSeen[ip] = true;
-    } else {
-      if (!lastGuests.has(ip)) {
+      if (tracked[ip]) {
+        const desc = tracked[ip];
+        const topic = getTopic(desc);
+        if (!lastSeen[ip]) {
+          // Log: Tracked device just came online (status change)
+          await mqtt.publishToMQTT(desc, topic, "Online", "Sensor");
+        }
+        lastSeen[ip] = true;
+      } else {
         const desc = guests[ip] || ip;
         const topic = getTopic(desc);
-        await mqtt.publishToMQTT(desc, topic, "Online", "Sensor");
+        if (!lastGuests.has(ip)) {
+          // Log: Guest device just came online (status change)
+          await mqtt.publishToMQTT(desc, topic, "Online", "Sensor");
+        }
       }
     }
   }
 
-  // Detect offline tracked devices
+  // Check tracked devices that are now offline
   for (const ip in tracked) {
     if (!foundNow.includes(ip) && lastSeen[ip]) {
       const desc = tracked[ip];
       const topic = getTopic(desc);
+      // Log: Tracked device just went offline (status change)
       await mqtt.publishToMQTT(desc, topic, "Offline", "Sensor");
       lastSeen[ip] = false;
     }
@@ -110,7 +116,8 @@ async function scan() {
   lastGuests = new Set(foundNow.filter(ip => !tracked[ip] && !ignored[ip]));
 
   await mqtt.disconnectFromMQTT();
-  console.log("ARP Scan done");
+  // Log: End of scan (info)
+  console.log("Scan done");
 }
 
 (async function main() {

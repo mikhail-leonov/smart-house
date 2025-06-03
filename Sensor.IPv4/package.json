@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "ini": "^5.0.0"
+    "ini": "^5.0.0",
+    "ping": "^0.4.4"
   }
 }

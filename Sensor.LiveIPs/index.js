@@ -1,39 +1,31 @@
 /**
- * SmartHub - ARP-based IP Scanner with Nmap Pre-sweep
- * Wakes up subnet using `nmap -sn`, then checks ARP table for live IPs
- * GitHub: https://github.com/mikhail-leonov/smart-house
+ * SmartHub - Node-based IP Scanner using ping
+ * Uses `ping` npm package instead of relying on ARP table
  * 
  * @version 0.6.7
  * @license MIT
  */
 
-const { exec } = require('child_process');
-const util = require('util');
 const path = require('path');
+const util = require('util');
+const ping = require('ping');
 const mqtt = require('../Shared/mqtt-node');
 const config = require('../Shared/config-node');
-
-const execAsync = util.promisify(exec);
 
 const CONFIG = {
   configPath: path.join(__dirname, 'config.cfg'),
 };
 
-// Ping IP to populate ARP cache
-async function pingIP(ip) {
+// Ping IP and return true/false
+async function isHostAlive(ip) {
   try {
-    await execAsync(`ping -c 1 -W 1 ${ip}`);
-  } catch {
-    // Ignore ping failures � we're just trying to refresh ARP
-  }
-}
-
-// Check ARP cache for the IP
-async function isInARP(ip) {
-  try {
-    const { stdout } = await execAsync(`arp -an`);
-    return stdout.includes(`(${ip})`);
-  } catch {
+    const res = await ping.promise.probe(ip, {
+      timeout: 2,
+      extra: ['-c', '1'],
+    });
+    return res.alive;
+  } catch (err) {
+    console.error(`Ping error for ${ip}:`, err.message);
     return false;
   }
 }
@@ -63,10 +55,9 @@ async function scan() {
         continue;
       }
 
-      console.log(`Checking ${deviceName} at ${ip}...`);
+      console.log(`Pinging ${deviceName} at ${ip}...`);
 
-      await pingIP(ip);
-      const isAlive = await isInARP(ip);
+      const isAlive = await isHostAlive(ip);
       const status = isAlive ? 1 : 0;
 
       await mqtt.publishToMQTT(varName, topic, status, "Sensor");

@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.7
+ * @version 0.6.8
  * @license MIT
  */
 
@@ -18,14 +18,14 @@ const { createCanvas, loadImage } = require('canvas');
 let modelPromise = cocoSsd.load();
 
 function inferRoomFromFilename(filename) {
-  const base = path.basename(filename).toLowerCase();
-  const match = base.match(/^([a-z0-9]+)_/i);
-  return match ? match[1] : 'unknown';
+    const base = path.basename(filename).toLowerCase();
+    const match = base.match(/^([a-z0-9]+)_/i);
+    return match ? match[1] : 'unknown';
 }
 
 function buildMqttResult(predictions, room) {
-  const car = predictions.find(obj => obj.class === 'car');
-  if (!car) { return { car_presence: 0 } } else { return { car_presence: 1 } } 
+    const car = predictions.find(obj => obj.class === 'car');
+    if (!car) { return { car_presence: 0 } } else { return { car_presence: 1 } } 
 }
 
 async function getImageObjects(filePath) {
@@ -34,10 +34,8 @@ async function getImageObjects(filePath) {
     const canvas = createCanvas(image.width, image.height);
     const ctx = canvas.getContext('2d');
     ctx.drawImage(image, 0, 0);
-
     const input = tf.browser.fromPixels(canvas);
     const predictions = await model.detect(input);
-
     const room = inferRoomFromFilename(filePath);
     const result = buildMqttResult(predictions, room);
 /*

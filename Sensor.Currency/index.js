@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.7
+ * @version 0.6.8
  * @license MIT
  */
 
@@ -30,9 +30,7 @@ function pause(seconds) {
 
 async function scan() {
     console.log("Scan started");
-
     const cfg = config.loadConfig(CONFIG.configPath);
-
     try {
         await mqtt.connectToMqtt(); 
         const entry = cfg['entry'];

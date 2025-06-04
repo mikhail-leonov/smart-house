@@ -26,7 +26,7 @@ function cleanOldLogs() {
   fs.readFile(LOG_FILE_PATH, 'utf8', (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') {
-        console.log('No log file found – nothing to clean.');
+        console.log('No log file found ï¿½ nothing to clean.');
         return;
       }
       console.error('Error reading log file:', err);

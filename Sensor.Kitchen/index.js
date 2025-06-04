@@ -1,93 +1,53 @@
 /**
- * SmartHub - Gmail-to-MQTT Notification (Async MQTT)
- * Kitchen water filter replacement working status EMULATOR send MQTT notice asynchronously
- * GitHub: https://github.com/mikhail-leonov/smart-house
+ * SmartHub - Gmail-to-MQTT Notification (Stateless Quarterly Filter)
+ * Fires MQTT "on" only on 1st day of Jan/Apr/Jul/Oct, "off" on the 2nd day. Stateless.
+ * Fixed topic and variable name, no config dependency.
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.7
+ * @version 0.6.8
  * @license MIT
  */
 
 const path = require('path');
-const configNode = require('/shared/config-node');
-const mqtt = require('/shared/mqtt-node');
+const mqtt = require('../Shared/mqtt-node');
 
-const CONFIG_PATH = path.join(__dirname, 'config.cfg');
+const FIXED_TOPIC = 'home/inside/first_floor/kitchen/filter_status';
+const VAR_NAME = 'filter_status';
 
-let config;
-try {
-    config = configNode.loadConfig(CONFIG_PATH);
-} catch (err) {
-    console.error("Failed to read config file:", err.message);
-    process.exit(1);
-}
-
-const {
-    location,
-    floor,
-    room,
-    var_name: varName,
-    on_time: onTime,
-    off_time: offTime
-} = config.pool || {};
-
-if (!location || !room || !varName) {
-    console.error("Missing required pool config values: location, room, or var_name.");
-    process.exit(1);
-}
-
-function getTargetValue() {
+function getActionToday() {
     const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const month = now.getMonth(); // 0-based: Jan = 0
+    const day = now.getDate(); // 1-based
 
-    const parseTime = (timeStr) => {
-        if (!timeStr) return null;
-        const parts = timeStr.split(':');
-        if (parts.length !== 2) return null;
-        const hour = parseInt(parts[0], 10);
-        const minute = parseInt(parts[1], 10);
-        if (isNaN(hour) || isNaN(minute)) return null;
-        return hour * 60 + minute;
-    };
+    // Quarter months hardcoded: Jan(0), Apr(3), Jul(6), Oct(9)
+    const quarterMonths = [0, 3, 6, 9];
 
-    const onTime = parseTime(config.pool?.on_time);
-    const offTime = parseTime(config.pool?.off_time);
+    if (quarterMonths.includes(month)) {
+        if (day === 1) return "on";
+        if (day === 2) return "off";
+    }
 
-    if (onTime !== null && currentMinutes >= onTime && currentMinutes < onTime + 10) return "on";
-    if (offTime !== null && currentMinutes >= offTime && currentMinutes < offTime + 10) return "off";
     return null;
-}
-
-// Blocking pause function (seconds)
-function pause(seconds) {
-  const start = Date.now();
-  while (Date.now() - start < 1000 * seconds) {
-    // Busy wait
-  }
 }
 
 async function scan() {
     console.log("Scan started");
-    const varValue = getTargetValue();
-    if (varValue) {
-      try {
-          const topic = mqtt.buildMqttTopic(location, floor, room, varName);
-          await mqtt.connectToMqtt();
-		  const script = path.basename(path.dirname(__filename));
-          await mqtt.publishToMQTT(varName, topic, varValue, "sensor", script);
-          pause(5);
-          await mqtt.disconnectFromMQTT();
-  
-      } catch (err) {
-          console.error(`[${new Date().toISOString()}] Error:`, err.message);
-      }
-    } else {
-      console.log(` - Outside of time frame`);
-    }
+    const action = getActionToday();
+    if (action) { 
+		try {
+			await mqtt.connectToMqtt();
+			const script = path.basename(path.dirname(__filename));
+			await mqtt.publishToMQTT(VAR_NAME, FIXED_TOPIC, action, "sensor", script);
+			await mqtt.disconnectFromMQTT();
+		} catch (err) {
+			console.error("MQTT Error:", err.message);
+		}
+	} else {
+	    console.log("Nothing to do");
+	}
     console.log("Scan done");
 }
 
 (async () => {
-  await scan();
+    await scan();
 })();
-

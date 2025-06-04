@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.7
+ * @version 0.6.8
  * @license MIT
  */
 
@@ -14,67 +14,55 @@ const config = require('../Shared/config-node');
 const mqtt = require('../Shared/mqtt-node');
 
 const CONFIG = {
-  scanInterval: 5 * 60 * 1000,
-  configPath: path.join(__dirname, 'config.cfg'),
-  imageDir: path.join(__dirname, 'images')
+    scanInterval: 5 * 60 * 1000,
+    configPath: path.join(__dirname, 'config.cfg'),
+    imageDir: path.join(__dirname, 'images')
 };
 
 async function scan() {
-  const cfg = config.loadConfig(CONFIG.configPath);
-
-  try {
-    const files = await fs.readdir(CONFIG.imageDir);
-    const imageFiles = files.filter(f => f.toLowerCase().endsWith('.jpg') || f.toLowerCase().endsWith('.png'));
-
-    if (imageFiles.length === 0) {
-      console.log("No images to process.");
-      return; // Exit early
-    }
-
-    const lib = require('./lib'); 
-
-    for (const filename of imageFiles) {
-      const filePath = path.join(CONFIG.imageDir, filename);
-
-      try {
-        const obj = await lib.getImageObjects(filePath);  // Must return { varName: value }
-
-        if (typeof obj === 'object' && obj !== null) {
-          for (const [varName, varValue] of Object.entries(obj)) {
-            const section = cfg[varName];
-
-            if (!section) {
-              console.log(` - Section ${varName} missing in config.`);
-              continue;
-            }
-
-            let topics = [];
-
-            if (typeof section["mqttTopics"] === 'string') {
-              topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
-            } else if (Array.isArray(section["mqttTopics"])) {
-              topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
-            }
-
-            const script = path.basename(path.dirname(__filename));
-            for (const topic of topics) {
-              await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
-            }
-          }
-        }
-
-        await fs.unlink(filePath).catch(err => {
-          console.warn(`Could not delete ${filePath}: ${err.message}`);
-        });
-
-      } catch (err) {
-        console.error(`Error processing ${filename}:`, err);
-      }
-    }
-
-  } catch (err) {
-    console.error('Error during scan:', err);
-  }
+	const cfg = config.loadConfig(CONFIG.configPath);
+	try {
+		const files = await fs.readdir(CONFIG.imageDir);
+		const imageFiles = files.filter(f => f.toLowerCase().endsWith('.jpg') || f.toLowerCase().endsWith('.png'));
+		if (imageFiles.length > 0) {
+			const lib = require('./lib'); 
+            await mqtt.connectToMqtt(); 
+			for (const filename of imageFiles) {
+				const filePath = path.join(CONFIG.imageDir, filename);
+				try {
+					const obj = await lib.getImageObjects(filePath);  // Must return { varName: value }
+					if (typeof obj === 'object' && obj !== null) {
+						for (const [varName, varValue] of Object.entries(obj)) {
+							const section = cfg[varName];
+							if (!section) {
+								console.log(` - Section ${varName} missing in config.`); continue;
+							}
+							let topics = [];
+							if (typeof section["mqttTopics"] === 'string') {
+								topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
+							} else if (Array.isArray(section["mqttTopics"])) {
+								topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
+							}
+							const script = path.basename(path.dirname(__filename));
+							for (const topic of topics) {
+								await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
+							}
+						}
+					}
+					await fs.unlink(filePath).catch(err => {
+						console.warn(`Could not delete ${filePath}: ${err.message}`);
+					});
+				} catch (err) {
+					console.error(`Error processing ${filename}:`, err);
+				}
+			}
+            await mqtt.disconnectFromMQTT();
+		} else {
+			console.log("No images to process.");
+		}
+	} catch (err) {
+		console.error('Error during scan:', err);
+	}
 }
 
 async function main() {

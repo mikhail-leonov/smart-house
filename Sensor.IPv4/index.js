@@ -7,120 +7,69 @@
  * @license MIT
  */
 
+const lib = require('./lib'); 
 const path = require('path');
-const ping = require('ping');
-const mqtt = require('../Shared/mqtt-node');
+const fs = require('fs');
 const config = require('../Shared/config-node');
+const mqtt = require('../Shared/mqtt-node');
+const web = require('../Shared/web-node');
+const cache = require('../Shared/cache-node');
 
 const CONFIG = {
-  configPath: path.join(__dirname, 'config.cfg'),
+    scanInterval: 5 * 60 * 1000,
+    configPath: path.join(__dirname, 'config.cfg')
 };
 
-const lastSeen = {};
-let lastGuests = new Set();
-
-function getTopic(desc) {
-  return `home/inside/house/status/` + desc;
-}
-
-// Ping IP and return true/false
-async function isHostAlive(ip) {
-  try {
-    const res = await ping.promise.probe(ip, {
-      timeout: 2,
-      extra: ['-c', '1'],
-    });
-    return res.alive;
-  } catch (err) {
-    // Log: Ping failure (error)
-    console.error(`${ip} - error`, err.message);
-    return false;
-  }
-}
-
-// Helper to get device name from config maps
-function resolveName(ip, tracked, guests, ignored) {
-  return (
-    tracked[ip] ||
-    guests[ip] ||
-    ignored[ip] ||
-    ip // fallback to IP if name not found
-  );
+function pause(seconds) {
+    const start = Date.now();
+    while (Date.now() - start < 1000 * seconds) {
+        // Do nothing, just block
+    }
 }
 
 async function scan() {
-  // Log: Start of scan (info)
-  console.log("Scan started");
-
-  const cfg = config.loadConfig(CONFIG.configPath);
-  const networkPrefix = cfg['config']?.networkPrefix || '192.168.1';
-  const ignored = cfg['ignored'] || {};
-  const tracked = cfg['tracked'] || {};
-  const guests = cfg['guests'] || {};
-
-  await mqtt.connectToMqtt();
-
-  const allIPs = new Set();
-  for (let i = 1; i <= 254; i++) {
-    allIPs.add(`${networkPrefix}.${i}`);
-  }
-
-  const foundNow = [];
-  const script = path.basename(path.dirname(__filename));
-
-  for (const ip of allIPs) {
-    const name = resolveName(ip, tracked, guests, ignored);
-
-    if (ignored[ip]) {
-      // Log: IP is ignored (skip)
-      console.log(`${ip} - ${name} (ignored)`);
-      continue;
-    }
-
-    // Log: IP being pinged (action)
-    console.log(`${ip} - ${name}`);
-    const alive = await isHostAlive(ip);
-
-    if (alive) {
-      foundNow.push(ip);
-
-      if (tracked[ip]) {
-        const desc = tracked[ip];
-        const topic = getTopic(desc);
-        if (!lastSeen[ip]) {
-          // Log: Tracked device just came online (status change)
-          await mqtt.publishToMQTT(desc, topic, "Online", "sensor", script);
+    console.log("Scan started");
+    const cfg = config.loadConfig(CONFIG.configPath);
+    try {
+        await mqtt.connectToMqtt(); 
+        const entry = cfg['entry'];
+        for (const [key, value] of Object.entries(entry)) {
+            if (String(value).trim() == "1" ) {
+                if (typeof lib[key] === 'function') {
+                    const obj = lib[key]();
+                    if (typeof obj === 'object') {
+                        for (const [varName, varValue] of Object.entries(obj)) {
+                            const section = cfg[varName];
+                            // Check if variable is enabled = 1 in its parent section (e.g., getAirData)
+                            const parentSection = cfg[key];
+                            const isEnabled = parentSection && String(parentSection[varName]).trim() == '1';
+                            if (section && isEnabled) {
+                                let topics = [];
+                                if (typeof section["mqttTopics"] === 'string') {
+                                    topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
+                                } else if (Array.isArray(section["mqttTopics"])) {
+                                    topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
+                                }
+								const script =	path.basename(path.dirname(__filename));
+                                for (const topic of topics) {
+                                    await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
+                                    pause(1);
+                                }
+                            } else {
+						        console.log(` - ${varName} = 0`);
+                            }
+                        }
+                    }
+                }
+            }
         }
-        lastSeen[ip] = true;
-      } else {
-        const desc = guests[ip] || ip;
-        const topic = getTopic(desc);
-        if (!lastGuests.has(ip)) {
-          // Log: Guest device just came online (status change)
-          await mqtt.publishToMQTT(desc, topic, "Online", "sensor", script);
-        }
-      }
+        await mqtt.disconnectFromMQTT();
+    } catch (err) {
+        console.error('Error during scan:', err);
     }
-  }
-
-  // Check tracked devices that are now offline
-  for (const ip in tracked) {
-    if (!foundNow.includes(ip) && lastSeen[ip]) {
-      const desc = tracked[ip];
-      const topic = getTopic(desc);
-      // Log: Tracked device just went offline (status change)
-      await mqtt.publishToMQTT(desc, topic, "Offline", "sensor", script);
-      lastSeen[ip] = false;
-    }
-  }
-
-  lastGuests = new Set(foundNow.filter(ip => !tracked[ip] && !ignored[ip]));
-
-  await mqtt.disconnectFromMQTT();
-  // Log: End of scan (info)
-  console.log("Scan done");
+    console.log("Scan done");
 }
 
 (async function main() {
-  await scan();
+    await scan();
 })();

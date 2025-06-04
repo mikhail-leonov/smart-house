@@ -2,7 +2,7 @@
  * SmartHub - Node-based IP Scanner using ping
  * Uses `ping` npm package instead of relying on ARP table
  * 
- * @version 0.6.7
+ * @version 0.6.8
  * @license MIT
  */
 

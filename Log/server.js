@@ -26,11 +26,20 @@ function getFormattedTime() {
 }
 
 function logToFile(entry) {
-  fs.appendFile(LOG_FILE_PATH, entry + '\n', (err) => {
-    if (err) console.error('Failed to write to log:', err);
+  fs.open(LOG_FILE_PATH, 'a', (err, fd) => {
+    if (err) {
+      console.error('Failed to open log file:', err);
+      return;
+    }
+    const line = entry + '\n';
+    fs.write(fd, line, (err) => {
+      if (err) console.error('Failed to write to log:', err);
+      fs.close(fd, (err) => {
+        if (err) console.error('Failed to close log file:', err);
+      });
+    });
   });
 }
-
 // === MQTT Logging ===
 const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 
@@ -83,7 +92,7 @@ app.get('/', (req, res) => {
 app.get('/show', (req, res) => {
   fs.readFile(LOG_FILE_PATH, 'utf8', (err, data) => {
     if (err) return res.status(500).send('Error reading log file');
-    const lines = data.trim().split('\n').slice(-1000);
+    const lines = data.trim().split('\n').reverse().slice(-1000);
     res.type('text/plain').send(lines.join('\n'));
   });
 });

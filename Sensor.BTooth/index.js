@@ -11,7 +11,7 @@
 const noble = require('@abandonware/noble');
 const mqtt = require('../Shared/mqtt-node');
 
-const BASE_TOPIC = '/home/inside/house/bluetooth';
+const BASE_TOPIC = 'home/inside/house/bluetooth';
 const DEVICE_TIMEOUT_MS = 60 * 1000; // Mark device OFF if not seen in 60s
 const CHECK_INTERVAL_MS = 30 * 1000; // Every 30s check for expired devices
 const SCAN_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes

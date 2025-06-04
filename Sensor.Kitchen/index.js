@@ -12,7 +12,7 @@ const path = require('path');
 const configNode = require('/shared/config-node');
 const mqtt = require('/shared/mqtt-node');
 
-const CONFIG_PATH = path.join(__dirname, 'pool.cfg');
+const CONFIG_PATH = path.join(__dirname, 'config.cfg');
 
 let config;
 try {

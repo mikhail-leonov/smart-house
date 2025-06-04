@@ -40,10 +40,12 @@ function updateCrontab(cfgFilePath, isRoot = false) {
   fs.writeFileSync(tempFile, finalCrontab);
   execSync(`${isRoot ? 'sudo ' : ''}crontab ${tempFile}`);
   fs.unlinkSync(tempFile);
+  
+  console.log(finalCrontab);  
 }
 
 // Update user crontab
 updateCrontab(path.join(__dirname, 'config.cfg'), false);
 
 // Update root crontab
-updateCrontab(path.join(__dirname, 'root.cfg'), true);
+//updateCrontab(path.join(__dirname, 'root.cfg'), true);

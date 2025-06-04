@@ -14,7 +14,7 @@ const mqtt = require('../Shared/mqtt-node');
 const configLoader = require('../Shared/config-node');  
 
 const CONFIG = {
-  configPath: path.join(__dirname, 'mqtt.cfg')
+  configPath: path.join(__dirname, 'config.cfg')
 };
 
 let topicMappings = {};

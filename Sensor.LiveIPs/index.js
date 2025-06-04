@@ -59,8 +59,9 @@ async function scan() {
 
       const isAlive = await isHostAlive(ip);
       const status = isAlive ? 1 : 0;
-
-      await mqtt.publishToMQTT(varName, topic, status, "Sensor");
+      const script = path.basename(path.dirname(__filename));
+      await mqtt.publishToMQTT(varName, topic, status, "sensor", script);
+	  
       console.log(`${deviceName} (${ip}) status = ${status}`);
     }
 

@@ -77,7 +77,8 @@ async function scan() {
       try {
           const topic = mqtt.buildMqttTopic(location, floor, room, varName);
           await mqtt.connectToMqtt();
-          await mqtt.publishToMQTT(varName, topic, varValue, "Sensor");
+		  const script = path.basename(path.dirname(__filename));
+          await mqtt.publishToMQTT(varName, topic, varValue, "sensor", script);
           pause(5);
           await mqtt.disconnectFromMQTT();
   

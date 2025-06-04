@@ -13,11 +13,38 @@ const mqttUrl = "ws://mqtt.jarvis.home:9001";
 
 const client = mqtt.connect(mqttUrl);
 
+let sHS = {};
+
+function setStateValue(obj, path, value) {
+    const keys = Array.isArray(path) ? path : path.split('/');
+    let current = obj;
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const isLast = i === keys.length - 1;
+        if (isLast) {
+            current[key] = value;
+        } else {
+            if (!(key in current)) {
+                current[key] = {};
+            }
+            current = current[key];
+        }
+    }
+}
+
+function assignVariable(topic, message) {
+    const payload = message.toString();
+    setStateValue(sHS, topic, payload);
+}
+
 client.on('connect', () => {
     client.subscribe(mqttPath);
 });
 
 client.on('message', (topic, message) => {
+    
+	assignVariable(topic, message);
+	
     const payload = message.toString();
     const pathParts = topic.split('/');
 

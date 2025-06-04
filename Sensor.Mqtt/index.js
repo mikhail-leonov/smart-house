@@ -69,8 +69,8 @@ async function startForwarder() {
 
       const destTopic = mapping.topic;
       const varName = topic.split("/").pop(); // crude fallback if variable name not provided
-
-      await mqtt.publishToMQTT(varName, destTopic, value, "sensor");
+      const script = path.basename(path.dirname(__filename));
+      await mqtt.publishToMQTT(varName, destTopic, value, "sensor", script);
 
       console.log(`Forwarded ${value} from ${topic} to ${destTopic}`);
     } catch (err) {

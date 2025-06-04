@@ -17,70 +17,63 @@ const web = require('../Shared/web-node');
 const cache = require('../Shared/cache-node');
 
 const CONFIG = {
-  scanInterval: 5 * 60 * 1000,  // not used here but kept for config completeness
-  configPath: path.join(__dirname, 'config.cfg')
+    scanInterval: 5 * 60 * 1000,  // not used here but kept for config completeness
+    configPath: path.join(__dirname, 'config.cfg')
 };
 
 // Blocking pause function (seconds)
 function pause(seconds) {
-  const start = Date.now();
-  while (Date.now() - start < 1000 * seconds) {
-    // Busy wait
-  }
+    const start = Date.now();
+    while (Date.now() - start < 1000 * seconds) {
+        // Busy wait
+    }
 }
 
 // Main scan function � runs once
 async function scan() {
-  console.log("Scan started");
+    console.log("Scan started");
 
-  const cfg = config.loadConfig(CONFIG.configPath);
-  try {
-    await mqtt.connectToMqtt();
-
-    const entry = cfg['entry'];
-    for (const [key, value] of Object.entries(entry)) {
-      if (String(value).trim() === "1") {
-        if (typeof lib[key] === 'function') {
-          const obj = lib[key]();
-          if (typeof obj === 'object') {
-            for (const [varName, varValue] of Object.entries(obj)) {
-              const section = cfg[varName];
-              const parentSection = cfg[key];
-              const isEnabled = parentSection && String(parentSection[varName]).trim() === '1';
-              if (section && isEnabled) {
-                let topics = [];
-
-                if (typeof section["mqttTopics"] === 'string') {
-                  topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
-                } else if (Array.isArray(section["mqttTopics"])) {
-                  topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
-                }
-
-                for (const topic of topics) {
-                  await mqtt.publishToMQTT(varName, topic, varValue, "sensor");
-                  console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "sensor")`);
-                  pause(1);
-                }
-
-              } else {
-                console.log(` - ${varName} = 0 (disabled)`);
-              }
-            }
-          }
-        }
-      }
+    const cfg = config.loadConfig(CONFIG.configPath);
+    try {
+        await mqtt.connectToMqtt();
+		const entry = cfg['entry'];
+		for (const [key, value] of Object.entries(entry)) {
+		    if (String(value).trim() === "1") {
+			    if (typeof lib[key] === 'function') {
+			        const obj = lib[key]();
+ 			        if (typeof obj === 'object') {
+						for (const [varName, varValue] of Object.entries(obj)) {
+						    const section = cfg[varName];
+						    const parentSection = cfg[key];
+						    const isEnabled = parentSection && String(parentSection[varName]).trim() === '1';
+						    if (section && isEnabled) {
+								let topics = [];
+								if (typeof section["mqttTopics"] === 'string') {
+								    topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
+								} else if (Array.isArray(section["mqttTopics"])) {
+								    topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
+								}
+								for (const topic of topics) {
+								    const script =	path.basename(path.dirname(__filename));
+								    await mqtt.publishToMQTT(varName, topic, varValue, "sensor", script);
+								    pause(1);
+								}
+						    } else {
+							    console.log(` - ${varName} = 0 (disabled)`);
+					        }
+						}
+					}
+				}
+			}
+		}
+		await mqtt.disconnectFromMQTT();
+    } catch (err) {
+        console.error('Error during scan:', err);
     }
-
-    await mqtt.disconnectFromMQTT();
-  
-  } catch (err) {
-    console.error('Error during scan:', err);
-  }
-
-  console.log("Scan done");
+    console.log("Scan done");
 }
 
 // Run once on script start
 (async function main() {
-  await scan();
+    await scan();
 })();

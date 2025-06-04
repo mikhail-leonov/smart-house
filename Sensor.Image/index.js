@@ -56,9 +56,9 @@ async function scan() {
               topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
             }
 
+            const script = path.basename(path.dirname(__filename));
             for (const topic of topics) {
-              await mqtt.publishToMQTT(varName, topic, varValue, "web");
-              console.log(` - publishToMQTT(${varName}, ${topic}, ${varValue}, "web")`);
+              await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
             }
           }
         }

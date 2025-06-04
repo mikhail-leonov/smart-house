@@ -64,8 +64,15 @@ async function disconnectFromMQTT() {
 }
 
 // Async publish method
-async function publishToMQTT(variable, topic, value, type) {
-    console.log(` - mqtt.publishToMQTT(${variable}, ${topic}, ${value}, ${type})`);
+async function publishToMQTT(variable, topic, value, type, script) {
+
+    variable = variable.toLowerCase();
+    topic = topic.toLowerCase();
+    type = type.toLowerCase();
+	if (!script) { script = "Undefined"; } 
+	script = script.toLowerCase();
+		
+    console.log(` - mqtt.publishToMQTT(${variable}, ${topic}, ${value}, ${type}, ${script})`);
     if (!mqttConnected) {
         try {
             await connectToMqtt();
@@ -74,7 +81,13 @@ async function publishToMQTT(variable, topic, value, type) {
             return;
         }
     }
-    const payload = JSON.stringify({ variable, value, type, timestamp: new Date().toISOString() });
+    const payload = JSON.stringify({ 
+		variable, 
+		value, 
+		type, 
+		timestamp: new Date().toISOString(),
+		script
+	});
 
     return new Promise((resolve, reject) => {
         mqttClient.publish(topic, payload, { retain: true }, (err) => {

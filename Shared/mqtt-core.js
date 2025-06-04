@@ -46,10 +46,25 @@ function disconnectFromMQTT() {
     }
 }
 
-function publishToMQTT(variable, topic, value, type) {
+function publishToMQTT(variable, topic, value, type, script) {
     if (mqttClient) {
         if (mqttClient.connected) {
-            mqttClient.publish(topic, JSON.stringify({ value, type, timestamp: new Date().toISOString() }), { retain: true });
+		
+			variable = variable.toLowerCase();
+			topic = topic.toLowerCase();
+			type = type.toLowerCase();
+			if (!script) { script = "Undefined"; } 
+			script = script.toLowerCase();
+			
+		    const payload = JSON.stringify({ 
+				variable,
+				value, 
+				type, 
+				timestamp: new Date().toISOString(),
+				script
+			})
+			console.log(` - mqtt.publishToMQTT(${variable}, ${topic}, ${value}, ${type}, ${script})`);
+            mqttClient.publish(topic, payload, { retain: true });
         } else {
             console.warn(`Cannot publish to MQTT ${mqttClient.connected}.`);
         }

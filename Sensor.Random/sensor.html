@@ -444,9 +444,11 @@ function buildMqttTopic(l, f, r, v) {
 
             // Create payload
             const payload = {
+			    variable,
                 value: isNaN(value) ? value : parseFloat(value),
                 type: "Random",
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(), 
+				"sensor.random"
             };
        
             // LOG

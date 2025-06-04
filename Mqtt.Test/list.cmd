@@ -1,1 +1,1 @@
-mosquitto_sub -h localhost -p 1883 -t "#" -v
+mosquitto_sub -h localhost -p 1883 -t '#' -v -R

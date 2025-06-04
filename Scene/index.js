@@ -51,7 +51,7 @@ function extractSceneValues(config, sceneName = null) {
 }
 
 function publishToMQTT(values) {
-  values.forEach(({ topic, value }) => {
+   values.forEach(({ topic, value }) => {
    // Create payload
    const payload = {
        value: isNaN(value) ? value : parseFloat(value),

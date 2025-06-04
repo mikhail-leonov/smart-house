@@ -17,15 +17,15 @@ const web = require('../Shared/web-node');
 const cache = require('../Shared/cache-node');
 
 const CONFIG = {
-  scanInterval: 5 * 60 * 1000,
-  configPath: path.join(__dirname, 'config.cfg')
+    scanInterval: 5 * 60 * 1000,
+    configPath: path.join(__dirname, 'config.cfg')
 };
 
 function pause(seconds) {
-  const start = Date.now();
-  while (Date.now() - start < 1000 * seconds) {
-    // Do nothing, just block
-  }
+    const start = Date.now();
+    while (Date.now() - start < 1000 * seconds) {
+        // Do nothing, just block
+    }
 }
 
 async function scan() {
@@ -35,7 +35,6 @@ async function scan() {
 
     try {
         await mqtt.connectToMqtt(); 
-
         const entry = cfg['entry'];
         for (const [key, value] of Object.entries(entry)) {
             if (String(value).trim() == "1" ) {
@@ -49,27 +48,25 @@ async function scan() {
                             const isEnabled = parentSection && String(parentSection[varName]).trim() == '1';
                             if (section && isEnabled) {
                                 let topics = [];
-
                                 if (typeof section["mqttTopics"] === 'string') {
                                     topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
                                 } else if (Array.isArray(section["mqttTopics"])) {
                                     topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
                                 }
+								const script =	path.basename(path.dirname(__filename));
                                 for (const topic of topics) {
-                                    await mqtt.publishToMQTT(varName, topic, varValue, "web");
+                                    await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
                                     pause(1);
                                 }
                             } else {
-        			    console.log(` - ${varName} = 0`);
+        			            console.log(` - ${varName} = 0`);
                             }
                         }
                     }
                 }
             }
         }
-
         await mqtt.disconnectFromMQTT();
-
     } catch (err) {
         console.error('Error during scan:', err);
     }

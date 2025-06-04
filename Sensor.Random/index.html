@@ -341,12 +341,15 @@ function buildMqttTopic(l, f, r, v) {
             }
             
             const topic = randomVar.topic;
-
+			const variable = topic.split('/').pop(); // Extract last part of topic
+			
             // Create payload
-            const payload = { value: value, type: "Random", timestamp: new Date().toISOString() };
-
-            // LOG
-            //setTimeout(() => { fetch(LOG_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ msg: `UI App started` }), }); }, 0);
+            const payload = { 
+			    variable,
+				value: value, 
+				type: "Random", 
+				timestamp: new Date().toISOString(), 
+				"sensor.random" };
             
             // Publish message
             connected.publish(topic, JSON.stringify(payload), { retain: true, qos: 1 }, (err) => {

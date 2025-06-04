@@ -254,7 +254,7 @@
           "window_status": { "value": "closed", "values": ["opened","closed","locked","opening","closing"], "actions": "open, close, lock, unlock" },
           "shatter_status": { "value": "opened", "values": ["opened","closed","opening","closing"], "actions": "open, close" },
           "door_status": { "value": "closed", "values": ["open","opening","closed","closing"], "actions": "open, close, lock, unlock", "description": "Current state of the door. Can be open, closed, or locked." },
-          "ac_status": { "value": 0, "values": [0,1], "description": "Indicates the power state of the AC. 0 means off, 1 means on." }
+          "ac_status": { "value": 0, "values": [0,1], "description": "Indicates the power state of the AC. 0 means off, 1 means on." },
           "ac_target_temperature": { "value": -6, "min_value": -10, "max_value": 50, "actions": "set" },
           "water_leak": { "value": 0, "values": [0,1], "description": "Indicates presence of water leak. 0 means no leak, 1 means leak detected." },
           "humidity": { "value": 78, "min_value": 0, "max_value": 100, "description": "Current humidity level as a percentage." },

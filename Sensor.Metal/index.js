@@ -32,10 +32,8 @@ async function scan() {
     console.log("Scan started");
 
     const cfg = config.loadConfig(CONFIG.configPath);
-
     try {
         await mqtt.connectToMqtt(); 
-
         const entry = cfg['entry'];
         for (const [key, value] of Object.entries(entry)) {
             if (String(value).trim() == "1" ) {
@@ -49,27 +47,25 @@ async function scan() {
                             const isEnabled = parentSection && String(parentSection[varName]).trim() == '1';
                             if (section && isEnabled) {
                                 let topics = [];
-
                                 if (typeof section["mqttTopics"] === 'string') {
                                     topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
                                 } else if (Array.isArray(section["mqttTopics"])) {
                                     topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
                                 }
                                 for (const topic of topics) {
-                                    await mqtt.publishToMQTT(varName, topic, varValue, "web");
+								    const script =	path.basename(path.dirname(__filename));
+                                    await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
                                     pause(1);
                                 }
                             } else {
-        			    console.log(` - ${varName} = 0`);
+							    console.log(` - ${varName} = 0`);
                             }
                         }
                     }
                 }
             }
         }
-
         await mqtt.disconnectFromMQTT();
-
     } catch (err) {
         console.error('Error during scan:', err);
     }

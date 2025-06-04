@@ -20,7 +20,7 @@ const lastSeen = {};
 let lastGuests = new Set();
 
 function getTopic(desc) {
-  return `home/inside/house/${desc}/status`;
+  return `home/inside/house/status/` + desc;
 }
 
 // Ping IP and return true/false
@@ -66,6 +66,7 @@ async function scan() {
   }
 
   const foundNow = [];
+  const script = path.basename(path.dirname(__filename));
 
   for (const ip of allIPs) {
     const name = resolveName(ip, tracked, guests, ignored);
@@ -88,7 +89,7 @@ async function scan() {
         const topic = getTopic(desc);
         if (!lastSeen[ip]) {
           // Log: Tracked device just came online (status change)
-          await mqtt.publishToMQTT(desc, topic, "Online", "Sensor");
+          await mqtt.publishToMQTT(desc, topic, "Online", "sensor", script);
         }
         lastSeen[ip] = true;
       } else {
@@ -96,7 +97,7 @@ async function scan() {
         const topic = getTopic(desc);
         if (!lastGuests.has(ip)) {
           // Log: Guest device just came online (status change)
-          await mqtt.publishToMQTT(desc, topic, "Online", "Sensor");
+          await mqtt.publishToMQTT(desc, topic, "Online", "sensor", script);
         }
       }
     }
@@ -108,7 +109,7 @@ async function scan() {
       const desc = tracked[ip];
       const topic = getTopic(desc);
       // Log: Tracked device just went offline (status change)
-      await mqtt.publishToMQTT(desc, topic, "Offline", "Sensor");
+      await mqtt.publishToMQTT(desc, topic, "Offline", "sensor", script);
       lastSeen[ip] = false;
     }
   }

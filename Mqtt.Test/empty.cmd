@@ -1,40 +1,17 @@
-@echo off
-setlocal enabledelayedexpansion
+#!/bin/bash
 
-:: === Configuration ===
-set "HOST=localhost"
-set "TOPIC_BASE=#"
-set "TMPFILE=%TEMP%\mqtt_retained_topics.txt"
+# ----------- CONFIG ------------
+BROKER="mqtt.jarvis.home" # Change to your MQTT broker IP or hostname
+PORT="1883"               # Default Mosquitto port
+TOPIC_PREFIX="#"          # Use # for all topics or narrow down if needed
+# -------------------------------
 
-:: === Clean up previous temp file ===
-if exist "%TMPFILE%" del "%TMPFILE%"
+echo "Fetching retained topics from $BROKER..."
 
-echo Scanning for retained messages under topic [%TOPIC_BASE%]...
+mosquitto_sub -h "$BROKER" -p "$PORT" -t "$TOPIC_PREFIX" -v -R -C 1 \
+  | while read -r topic _; do
+    echo "Clearing retained message on: $topic"
+    mosquitto_pub -h "$BROKER" -p "$PORT" -t "$topic" -r -n 
+  done
 
-:: === Capture retained messages ===
-mosquitto_sub -h %HOST% -t "%TOPIC_BASE%" --retained-only -v > "%TMPFILE%" 2>nul
-
-if not exist "%TMPFILE%" (
-    echo No retained messages found.
-    goto :end
-)
-
-:: === Process and delete each retained topic ===
-for /f "usebackq delims=" %%A in ("%TMPFILE%") do (
-    set "line=%%A"
-    setlocal enabledelayedexpansion
-
-    :: Extract topic (everything before first space)
-    for /f "tokens=1* delims= " %%T in ("!line!") do (
-        set "topic=%%T"
-        echo Deleting retained message from topic: [!topic!]
-        mosquitto_pub -h %HOST% -t "!topic!" -r -n
-    )
-
-    endlocal
-)
-
-:end
-echo Done.
-endlocal
-pause
+echo "Done cleaning retained MQTT messages!"

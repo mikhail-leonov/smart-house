@@ -25,63 +25,59 @@ const topic = mqtt.buildMqttTopic('inside', 'house', 'email', 'nas');
 
 // Setup IMAP for Gmail
 const imap = new Imap({
-  user: GMAIL_USER,
-  password: GMAIL_PASSWORD,
-  host: 'imap.gmail.com',
-  port: 993,
-  tls: true,
-  tlsOptions: { rejectUnauthorized: false }
+    user: GMAIL_USER,
+    password: GMAIL_PASSWORD,
+    host: 'imap.gmail.com',
+    port: 993,
+    tls: true,
+    tlsOptions: { rejectUnauthorized: false }
 });
 
 // Open inbox helper
 function openInbox(cb) {
-  imap.openBox('INBOX', false, cb);
+    imap.openBox('INBOX', false, cb);
 }
 
 // Scan for subject and publish MQTT notifications asynchronously
 function scan() {
-  console.log("Scan started");
+    console.log("Scan started");
 
-  imap.once('ready', function () {
-    openInbox(function (err, box) {
-      if (err) {
-        console.error('[IMAP] Inbox error:', err);
-        imap.end();
-        return;
-      }
+    const script = path.basename(path.dirname(__filename));
+    imap.once('ready', function () {
+		openInbox(function (err, box) {
+		    if (err) {
+			    console.error('[IMAP] Inbox error:', err);
+			    imap.end();
+			    return;
+		    }
+  		    imap.search(['UNSEEN', ['HEADER', 'SUBJECT', SUBJECT_MATCH]], async function (err, results) {
+				if (err) {
+					console.error('[IMAP] Search error:', err);
+					imap.end();
+					return;
+				}
+				const varValue = results ? results.length : 0;
+				const varName = 'emails';
+				try {
+					await mqtt.publishToMQTT(varName, topic, varValue, 'sensor', script);
+				} catch (publishErr) {
+					console.error('[MQTT] Publish error:', publishErr);
+				} finally {
+					imap.end(); // Close connection after publishing
+				}
+		    });
+		});
+	});
 
-      imap.search(['UNSEEN', ['HEADER', 'SUBJECT', SUBJECT_MATCH]], async function (err, results) {
-        if (err) {
-          console.error('[IMAP] Search error:', err);
-          imap.end();
-          return;
-        }
-
-        const varValue = results ? results.length : 0;
-        const varName = 'emails';
-
-        try {
-          await mqtt.publishToMQTT(varName, topic, varValue, 'sensor');
-          console.log(`Published ${varName} = ${varValue} to MQTT topic ${topic}`);
-        } catch (publishErr) {
-          console.error('[MQTT] Publish error:', publishErr);
-        } finally {
-          imap.end(); // Close connection after publishing
-        }
-      });
+    imap.once('error', function (err) {
+        console.error('[IMAP] Error:', err);
     });
-  });
-
-  imap.once('error', function (err) {
-    console.error('[IMAP] Error:', err);
-  });
-
-  imap.once('end', function () {
-    console.log('[IMAP] Connection closed');
-    process.exit(0); // Exit process cleanly after done
-  });
-
-  imap.connect();
+	
+    imap.once('end', function () {
+        console.log('[IMAP] Connection closed');
+        process.exit(0); // Exit process cleanly after done
+    });
+    imap.connect();
 }
 
 // Launch scan once

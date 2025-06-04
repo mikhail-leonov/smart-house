@@ -51,8 +51,9 @@ async function scan() {
                                 } else if (Array.isArray(section["mqttTopics"])) {
                                     topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
                                 }
+							    const script =	path.basename(path.dirname(__filename));
                                 for (const topic of topics) {
-                                    await mqtt.publishToMQTT(varName, topic, varValue, "web");
+                                    await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
                                     pause(1);
                                 }
                             } else {

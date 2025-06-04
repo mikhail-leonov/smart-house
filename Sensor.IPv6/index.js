@@ -76,6 +76,8 @@ async function scan() {
         continue;
       }
 
+      const script = path.basename(path.dirname(__filename));
+
       const isAlive = isIPv6Alive(ip);
       if (isAlive) {
         foundNow.push(ip);
@@ -84,7 +86,7 @@ async function scan() {
           const desc = tracked[ip];
           const topic = getTopic(desc);
           if (!lastSeen[ip]) {
-            await mqtt.publishToMQTT(desc, topic, 'Online', 'Sensor');
+            await mqtt.publishToMQTT(desc, topic, 'Online', 'sensor', script);
             console.log(`${ip} - Online (tracked: ${desc})`);
           }
           lastSeen[ip] = true;
@@ -92,7 +94,7 @@ async function scan() {
           if (!lastGuests.has(ip)) {
             const desc = guests[ip] || ip;
             const topic = getTopic(desc);
-            await mqtt.publishToMQTT(desc, topic, 'Online', 'Sensor');
+            await mqtt.publishToMQTT(desc, topic, 'Online', 'sensor', script);
             console.log(`${ip} - Online (guest: ${desc})`);
           }
         }
@@ -100,7 +102,7 @@ async function scan() {
         if (tracked[ip] && lastSeen[ip]) {
           const desc = tracked[ip];
           const topic = getTopic(desc);
-          await mqtt.publishToMQTT(desc, topic, 'Offline', 'Sensor');
+          await mqtt.publishToMQTT(desc, topic, 'Offline', 'sensor', script);
           lastSeen[ip] = false;
           console.log(`${ip} - Offline (tracked: ${desc})`);
         }

@@ -13,3 +13,5 @@
 [2025-06-04 19:07:33] [MQTT] home/inside/house/status/192.168.1.239: {"variable":"192.168.1.239","value":"Online","type":"sensor","timestamp":"2025-06-04T23:07:33.412Z","script":"sensor.ipv4"}
 [2025-06-04 19:47:09] [MQTT] home/outside/first_floor/driveway/car_presence: {"variable":"car_presence","value":0,"type":"web","timestamp":"2025-06-04T23:47:09.053Z","script":"sensor.image"}
 [2025-06-04 19:49:06] [MQTT] home/outside/first_floor/driveway/car_presence: {"variable":"car_presence","value":0,"type":"web","timestamp":"2025-06-04T23:49:06.044Z","script":"sensor.image"}
+[2025-06-04 20:01:03] [MQTT] home/outside/first_floor/sprinkler-area: {"variable":"sprinkler_controller_status","value":1,"type":"sensor","timestamp":"2025-06-05T00:01:03.320Z","script":"sensor.liveips"}
+[2025-06-04 20:01:05] [MQTT] home/outside/garage/door: {"variable":"garage_door_status","value":0,"type":"sensor","timestamp":"2025-06-05T00:01:05.346Z","script":"sensor.liveips"}

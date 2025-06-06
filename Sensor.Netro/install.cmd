@@ -1,1 +1,1 @@
-npü install ini  
+npm install ini axios

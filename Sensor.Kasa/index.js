@@ -1,6 +1,6 @@
 /**
- * SmartHub - Gmail-to-MQTT Notification (Async MQTT)
- * Pools working status EMULATOR send MQTT notice asynchronously
+ * SmartHub - AI powered Smart Home
+ * App which is reads values from Kasa devices 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
@@ -8,90 +8,70 @@
  * @license MIT
  */
 
-const fs = require('fs');
+const lib = require('./lib'); 
 const path = require('path');
-const ini = require('ini');
-const { execSync } = require('child_process');
+const fs = require('fs');
+const config = require('../Shared/config-node');
 const mqtt = require('../Shared/mqtt-node');
+const web = require('../Shared/web-node');
+const cache = require('../Shared/cache-node');
 
-// Load config
-const CONFIG_PATH = path.join(__dirname, 'config.cfg');
+const CONFIG = {
+    scanInterval: 5 * 60 * 1000,
+    configPath: path.join(__dirname, 'config.cfg')
+};
 
-let config;
-try {
-  const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
-  config = ini.parse(raw);
-} catch (err) {
-  console.error("Failed to read config file:", err.message);
-  process.exit(1);
-}
-
-const {
-    location,
-    floor,
-    room,
-    var_name: varName,
-    on_time: onTime,
-    off_time: offTime
-} = config.pool || {};
-
-if (!location || !room || !varName) {
-    console.error("Missing required pool config values: location, room, or var_name.");
-    process.exit(1);
-}
-
-function getTargetValue() {
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    const parseTime = (timeStr) => {
-        if (!timeStr) return null;
-        const parts = timeStr.split(':');
-        if (parts.length !== 2) return null;
-        const hour = parseInt(parts[0], 10);
-        const minute = parseInt(parts[1], 10);
-        if (isNaN(hour) || isNaN(minute)) return null;
-        return hour * 60 + minute;
-    };
-
-    const onTime = parseTime(config.pool?.on_time);
-    const offTime = parseTime(config.pool?.off_time);
-
-    if (onTime !== null && currentMinutes >= onTime && currentMinutes < onTime + 10) return "on";
-    if (offTime !== null && currentMinutes >= offTime && currentMinutes < offTime + 10) return "off";
-    return null;
-}
-
-// Blocking pause function (seconds)
 function pause(seconds) {
-  const start = Date.now();
-  while (Date.now() - start < 1000 * seconds) {
-    // Busy wait
-  }
+    const start = Date.now();
+    while (Date.now() - start < 1000 * seconds) {
+        // Do nothing, just block
+    }
 }
 
 async function scan() {
     console.log("Scan started");
-    const varValue = getTargetValue();
-    if (varValue) {
-      try {
-          const topic = mqtt.buildMqttTopic(location, floor, room, varName);
-          await mqtt.connectToMqtt();
-		  const script = path.basename(path.dirname(__filename));
-          await mqtt.publishToMQTT(varName, topic, varValue, "sensor", script);
-          pause(5);
-          await mqtt.disconnectFromMQTT();
-  
-      } catch (err) {
-          console.error(`[${new Date().toISOString()}] Error:`, err.message);
-      }
-    } else {
-      console.log(` - Outside of time frame`);
+    const cfg = config.loadConfig(CONFIG.configPath);
+    try {
+        await mqtt.connectToMqtt(); 
+        const entry = cfg['entry'];
+        for (const [key, value] of Object.entries(entry)) {
+            if (String(value).trim() == "1" ) {
+                if (typeof lib[key] === 'function') {
+                    const obj = await lib[key]();
+					console.log(obj);
+                    if (typeof obj === 'object') {
+                        for (const [varName, varValue] of Object.entries(obj)) {
+                            const section = cfg[varName];
+                            // Check if variable is enabled = 1 in its parent section (e.g., getAirData)
+                            const parentSection = cfg[key];
+                            const isEnabled = parentSection && String(parentSection[varName]).trim() == '1';
+                            if (section && isEnabled) {
+                                let topics = [];
+                                if (typeof section["mqttTopics"] === 'string') {
+                                    topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
+                                } else if (Array.isArray(section["mqttTopics"])) {
+                                    topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
+                                }
+								const script =	path.basename(path.dirname(__filename));
+                                for (const topic of topics) {
+                                    await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
+                                    pause(1);
+                                }
+                            } else {
+						        console.log(` - ${varName} = 0`);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        await mqtt.disconnectFromMQTT();
+    } catch (err) {
+        console.error('Error during scan:', err);
     }
     console.log("Scan done");
 }
 
-(async () => {
-  await scan();
+(async function main() {
+    await scan();
 })();
-

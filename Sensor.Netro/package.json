@@ -10,6 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "ini": "^5.0.0"
+    "ini": "^5.0.0",
+    "sync-request": "^6.1.0",
+    "tplink-smarthome-api": "^5.0.0"
   }
 }

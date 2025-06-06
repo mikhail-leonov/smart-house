@@ -1,1 +1,1 @@
-npü install ini  
+npü install ini tplink-smarthome-api sync-request

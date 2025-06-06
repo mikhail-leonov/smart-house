@@ -19,38 +19,49 @@ const MQTT_TOPIC = '#';
 const LOG_FILE_PATH = path.join(__dirname, 'home.log');
 const HTTP_PORT = 3131;
 
+// === Memory log buffer ===
+const LOG_BUFFER_LIMIT = 10;
+let logBuffer = [];
+
 function getFormattedTime() {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function logToFile(entry) {
-  fs.open(LOG_FILE_PATH, 'a', (err, fd) => {
-    if (err) {
-      console.error('Failed to open log file:', err);
-      return;
-    }
-    const line = entry + '\n';
-    fs.write(fd, line, (err) => {
-      if (err) console.error('Failed to write to log:', err);
-      fs.close(fd, (err) => {
-        if (err) console.error('Failed to close log file:', err);
-      });
-    });
+function flushLogBuffer() {
+  if (logBuffer.length === 0) return;
+
+  const combined = logBuffer.join('\n') + '\n';
+  fs.appendFile(LOG_FILE_PATH, combined, (err) => {
+    if (err) console.error('Failed to write log buffer to file:', err);
   });
+
+  logBuffer = []; // Clear buffer
 }
+
+function log(entry) {
+  logBuffer.push(entry);
+
+  if (logBuffer.length >= LOG_BUFFER_LIMIT) {
+    flushLogBuffer();
+  }
+}
+
 // === MQTT Logging ===
 const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 
 mqttClient.on('connect', () => {
-  console.log(`[${getFormattedTime()}] Connected to MQTT broker`);
+  const entry = `[${getFormattedTime()}] Connected to MQTT broker`;
+  console.log(entry);
+  log(entry);
+
   mqttClient.subscribe(MQTT_TOPIC, (err) => {
-    if (err) {
-      console.error(`[${getFormattedTime()}] MQTT subscribe error:`, err);
-    } else {
-      console.log(`[${getFormattedTime()}] Subscribed to topic "${MQTT_TOPIC}"`);
-    }
+    const msg = err
+      ? `[${getFormattedTime()}] MQTT subscribe error: ${err}`
+      : `[${getFormattedTime()}] Subscribed to topic "${MQTT_TOPIC}"`;
+    console.log(msg);
+    log(msg);
   });
 });
 
@@ -58,18 +69,19 @@ mqttClient.on('message', (topic, message) => {
   const msg = message.toString();
   const logEntry = `[${getFormattedTime()}] [MQTT] ${topic}: ${msg}`;
   console.log(logEntry);
-  logToFile(logEntry);
+  log(logEntry);
 });
 
 mqttClient.on('error', (err) => {
-  console.error(`[${getFormattedTime()}] MQTT error:`, err);
+  const errorEntry = `[${getFormattedTime()}] MQTT error: ${err}`;
+  console.error(errorEntry);
+  log(errorEntry);
 });
 
 // === Express App for LLM Logging ===
 const app = express();
 app.use(bodyParser.json());
 
-// Log just the question via GET
 app.get('/log', (req, res) => {
   const msg = req.query.msg;
   const time = getFormattedTime();
@@ -80,7 +92,7 @@ app.get('/log', (req, res) => {
 
   const logEntry = `[${time}] [LLM] Q: ${msg}`;
   console.log(logEntry);
-  logToFile(logEntry);
+  log(logEntry);
   res.send('Question logged');
 });
 
@@ -99,12 +111,15 @@ app.get('/show', (req, res) => {
 
 // Start server
 app.listen(HTTP_PORT, () => {
-  console.log(`[${getFormattedTime()}] Log server listening on http://log.jarvis.home:${HTTP_PORT}`);
+  const startMsg = `[${getFormattedTime()}] Log server listening on http://log.jarvis.home:${HTTP_PORT}`;
+  console.log(startMsg);
+  log(startMsg);
 });
 
-// Graceful shutdown
+// Graceful shutdown: flush anything left in memory
 process.on('SIGINT', () => {
   console.log('\nShutting down...');
+  flushLogBuffer();
   mqttClient.end();
   process.exit();
 });

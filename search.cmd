@@ -1,0 +1,1 @@
+find . -mindepth 2 -maxdepth 2 -type f -exec grep -iH 'your_substring' {} +

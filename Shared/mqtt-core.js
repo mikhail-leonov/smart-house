@@ -3,88 +3,145 @@
  * MQTT JS Library for any HTML App 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @author Mikhail Leonov
+ * @version 0.6.9
  * @license MIT
  */
 
-let mqttBrokerUrl = "ws://mqtt.jarvis.home:9001";
+(function () {
+    const mqttUrl = "ws://mqtt.jarvis.home:9001";
+    let client = null;
 
-const mqttTopic = "home";
-let mqttClient = null;
-
-function buildMqttTopic(l, f, r, v) {
-    let topic = l;
-    if (f) {
-        topic += `/${f}`;
+    // Core topic builder
+    function buildMqttTopic(area, floor, room, variable) {
+        console.log(`buildMqttTopic(${area}, ${floor}, ${room}, ${variable})`);
+        return `home/${area}/${floor}/${room}/${variable}`;
     }
-    topic += `/${r}/${v}`;
-    return "home/" + topic;
-}
 
-function connectToMqtt() {
-    if (mqttClient && mqttClient.connected) return mqttClient;
-    if (!mqttBrokerUrl) { return null; }
-
-    mqttClient = connect(mqttBrokerUrl);
-
-    mqttClient.on('connect', () => {
-        console.log("MQTT connected");
-    });
-    mqttClient.on('error', (err) => {
-        console.log("MQTT connection error:", err.message);
-    });
-    mqttClient.on('close', () => {
-        console.log("MQTT disconnected");
-    });
-    return mqttClient;
-}
-
-function disconnectFromMQTT() {
-    if (mqttClient && mqttClient.connected) {
-        mqttClient.end();
+    // Payload builder
+    function buildPayload(variable, value, type, script) {
+        return {
+            variable: variable.toLowerCase(),
+            value: value,
+            type: type?.toLowerCase() || "unknown",
+            timestamp: new Date().toISOString(),
+            script: script?.toLowerCase() || "undefined"
+        };
     }
-}
 
-function publishToMQTT(variable, topic, value, type, script) {
-    if (mqttClient) {
-        if (mqttClient.connected) {
-		
-			variable = variable.toLowerCase();
-			topic = topic.toLowerCase();
-			type = type.toLowerCase();
-			if (!script) { script = "Undefined"; } 
-			script = script.toLowerCase();
-			
-		    const payload = JSON.stringify({ 
-				variable,
-				value, 
-				type, 
-				timestamp: new Date().toISOString(),
-				script
-			})
-			console.log(` - mqtt.publishToMQTT(${variable}, ${topic}, ${value}, ${type}, ${script})`);
-            mqttClient.publish(topic, payload, { retain: true });
-        } else {
-            console.warn(`Cannot publish to MQTT ${mqttClient.connected}.`);
+    function connectToMqtt() {
+        if (client && client.connected) return client;
+
+        console.log("Connecting to MQTT:", mqttUrl);
+        client = mqtt.connect(mqttUrl);
+
+        client.on("connect", () => {
+            console.log("MQTT connected");
+            mqttLib.onConnect?.();
+        });
+
+        client.on("reconnect", () => {
+            console.log("MQTT reconnecting...");
+            mqttLib.onReconnect?.();
+        });
+
+        client.on("error", (err) => {
+            console.warn("MQTT connection error:", err.message);
+            mqttLib.onError?.(err);
+        });
+
+        client.on("close", () => {
+            console.warn("MQTT connection closed");
+            mqttLib.onClose?.();
+        });
+
+        client.on("message", (topic, message) => {
+            mqttLib.onMessage?.(topic, message.toString());
+        });
+
+        return client;
+    }
+
+    function disconnectFromMQTT() {
+        if (client) {
+            console.log("Disconnecting from MQTT...");
+            client.end(true, () => {
+                console.log("MQTT disconnected");
+                mqttLib.onDisconnect?.();
+            });
         }
-    } else {
-        console.warn(`Cannot publish to MQTT ${mqttClient}.`);
     }
-}
 
-const mqttContent = {
-    mqttClient,
-    mqttTopic,
-    buildMqttTopic,
-    connectToMqtt,
-    disconnectFromMQTT,
-    publishToMQTT
-};
+    function publishToMQTT(variable, topic, value, type, script) {
+        if (client && client.connected) {
+            const payload = JSON.stringify(buildPayload(variable, value, type, script));
+            console.log(`Publishing to ${topic}: ${payload}`);
+            client.publish(topic, payload, { retain: true });
+            mqttLib.onPublish?.(variable, topic, value, type, script);
+        } else {
+            console.warn("Cannot publish — MQTT not connected.");
+        }
+    }
 
-window.Jarvis = window.Jarvis || {};
-window.Jarvis.mqtt = mqttContent;
-connectToMqtt();
-window.addEventListener('load', connectToMqtt);
-window.addEventListener('beforeunload', disconnectFromMQTT);
+    function subscribeToTopic(topic) {
+        if (client && client.connected) {
+            client.subscribe(topic, (err, granted) => {
+                if (err) {
+                    console.warn(`Subscribe error [${topic}]:`, err.message);
+                } else {
+                    console.log(`Subscribed: ${topic}`);
+                    mqttLib.onSubscribe?.(topic, granted);
+                }
+            });
+        } else {
+            console.warn(`Cannot subscribe — MQTT not connected.`);
+        }
+    }
 
+    function unsubscribeFromTopic(topic) {
+        if (client && client.connected) {
+            client.unsubscribe(topic, (err) => {
+                if (err) {
+                    console.warn(`Unsubscribe error [${topic}]:`, err.message);
+                } else {
+                    console.log(`Unsubscribed: ${topic}`);
+                    mqttLib.onUnsubscribe?.(topic);
+                }
+            });
+        } else {
+            console.warn(`Cannot unsubscribe — MQTT not connected.`);
+        }
+    }
+
+    // Exposed library object
+    const mqttLib = {
+        get client() {
+            return client;
+        },
+        buildMqttTopic,
+        buildPayload,
+        connectToMqtt,
+        disconnectFromMQTT,
+        publishToMQTT,
+        subscribeToTopic,
+        unsubscribeFromTopic,
+        // Event hooks (optional)
+        onConnect: null,
+        onReconnect: null,
+        onError: null,
+        onClose: null,
+        onDisconnect: null,
+        onMessage: null,
+        onPublish: null,
+        onSubscribe: null,
+        onUnsubscribe: null
+    };
+
+    // Export to global scope
+    window.Jarvis = window.Jarvis || {};
+    window.Jarvis.mqtt = mqttLib;
+
+    // Auto connect/disconnect on load/unload
+    window.addEventListener("load", connectToMqtt);
+    window.addEventListener("beforeunload", disconnectFromMQTT);
+})();

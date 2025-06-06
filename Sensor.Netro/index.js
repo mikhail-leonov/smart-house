@@ -9,6 +9,7 @@
  */
 
 const lib = require('./lib'); 
+const common = require('../Shared/common-node'); 
 const path = require('path');
 const fs = require('fs');
 const config = require('../Shared/config-node');
@@ -37,8 +38,7 @@ async function scan() {
         for (const [key, value] of Object.entries(entry)) {
             if (String(value).trim() == "1" ) {
                 if (typeof lib[key] === 'function') {
-                    const obj = await lib[key]();
-					console.log(obj);
+                    const obj = common.callFunction(lib[key]);
                     if (typeof obj === 'object') {
                         for (const [varName, varValue] of Object.entries(obj)) {
                             const section = cfg[varName];

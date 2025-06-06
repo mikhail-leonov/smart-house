@@ -1299,3 +1299,4 @@ LLM/run.cmd
 LLM/unins000.dat
 LLM/unins000.exe
 LLM/unins000.msg
+Shared/cache/*

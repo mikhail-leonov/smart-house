@@ -44,7 +44,7 @@ function getTopics(section) {
 	return topics;
 }
 	
-async function processConfig(cfg, lib, mqtt) {
+async function processConfig(cfg, lib, mqtt, script) {
 	const startTime = Date.now();
 	
 	const entry = cfg['entry'];
@@ -65,7 +65,6 @@ async function processConfig(cfg, lib, mqtt) {
 							const isEnabled = parentSection && String(flag).trim() == '1';
 							if (section && isEnabled) {
 								const topics = getTopics(section);
-								const script =	path.basename(path.dirname(__filename));
 								for (const topic of topics) {
 									await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
 									pause(1);

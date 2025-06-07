@@ -23,7 +23,8 @@ async function scan() {
 	const cfg = config.loadConfig(CONFIG.configPath);
 	try {
 		await mqtt.connectToMqtt();
-		await common.processConfig(cfg, lib, mqtt);
+		const script = path.basename(path.dirname(__filename));
+		await common.processConfig(cfg, lib, mqtt, script);
         await mqtt.disconnectFromMQTT();
     } catch (err) {
         console.error('Error during scan:', err);

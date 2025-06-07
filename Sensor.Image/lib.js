@@ -10,25 +10,21 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const tf = require('@tensorflow/tfjs');
+const tf = require('@tensorflow/tfjs-node');
 const cocoSsd = require('@tensorflow-models/coco-ssd');
 const mqtt = require('../Shared/mqtt-node');
 const { createCanvas, loadImage } = require('canvas');
 
-let modelPromise = cocoSsd.load();
+const CONFIG = {
+    imageDir: path.join(__dirname, 'images')
+};
 
-function inferRoomFromFilename(filename) {
-    const base = path.basename(filename).toLowerCase();
-    const match = base.match(/^([a-z0-9]+)_/i);
-    return match ? match[1] : 'unknown';
+function getImageArea(filePath) {
+    const fileName = path.basename(filePath);
+    return fileName.split('-')[0];
 }
 
-function buildMqttResult(predictions, room) {
-    const car = predictions.find(obj => obj.class === 'car');
-    if (!car) { return { car_presence: 0 } } else { return { car_presence: 1 } } 
-}
-
-async function getImageObjects(filePath) {
+async function getImageObjects(filePath, modelPromise) {
     const model = await modelPromise;
     const image = await loadImage(filePath);
     const canvas = createCanvas(image.width, image.height);
@@ -36,15 +32,48 @@ async function getImageObjects(filePath) {
     ctx.drawImage(image, 0, 0);
     const input = tf.browser.fromPixels(canvas);
     const predictions = await model.detect(input);
-    const room = inferRoomFromFilename(filePath);
-    const result = buildMqttResult(predictions, room);
-/*
-    await fs.unlink(filePath).catch(err =>
-      console.warn(`Could not delete ${filePath}: ${err.message}`)
-    );
-*/
-    return result ;
+
+    const area = getImageArea(filePath);
+    const car = predictions.find(obj => obj.class === 'car');
+
+    return {
+        [area + "_car_presence"]: car ? 1 : 0
+    };
 }
 
-module.exports = { getImageObjects };
+async function getImageData(common) {
+    console.log("   - getImageData");
 
+    let result = []; // array of objects
+
+    try {
+        const modelPromise = cocoSsd.load();
+
+        const files = await fs.readdir(CONFIG.imageDir);
+        const imageFiles = files.filter(f =>
+            f.toLowerCase().endsWith('.jpg') || f.toLowerCase().endsWith('.png')
+        );
+
+        for (const filename of imageFiles) {
+            const filePath = path.join(CONFIG.imageDir, filename);
+
+            try {
+                const imageResult = await getImageObjects(filePath, modelPromise);
+                result.push(imageResult); // add each result as its own object
+            } catch (err) {
+                console.error(`Error processing image ${filename}:`, err);
+            }
+
+            await fs.unlink(filePath).catch(err =>
+                console.warn(`Could not delete ${filePath}: ${err.message}`)
+            );
+        }
+
+    } catch (err) {
+        console.error("General error in getImageData:", err);
+    }
+
+    return result;
+}
+
+module.exports = { getImageData };

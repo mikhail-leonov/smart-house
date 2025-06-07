@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
@@ -72,7 +72,7 @@ async function publishToMQTT(variable, topic, value, type, script) {
 	if (!script) { script = "Undefined"; } 
 	script = script.toLowerCase();
 		
-    console.log(` - mqtt.publishToMQTT(${variable}, ${topic}, ${value}, ${type}, ${script})`);
+    console.log(`       - mqtt.publishToMQTT(${variable}, ${topic}, ${value}, ${type}, ${script})`);
     if (!mqttConnected) {
         try {
             await connectToMqtt();
@@ -92,10 +92,10 @@ async function publishToMQTT(variable, topic, value, type, script) {
     return new Promise((resolve, reject) => {
         mqttClient.publish(topic, payload, { retain: true }, (err) => {
             if (err) {
-                console.error(" - - mqtt publish failed:", err.message);
+                console.error("         - mqtt publish failed:", err.message);
                 reject(err);
             } else {
-                console.error(" - - mqtt published succesfully");
+                console.error("         - mqtt published succesfully");
                 resolve();
             }
         });

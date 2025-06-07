@@ -1,78 +1,36 @@
 /**
  * SmartHub - Node-based IP Scanner using ping
  * Uses `ping` npm package instead of relying on ARP table
+ * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @version 0.6.8
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.6.9
  * @license MIT
  */
 
+const lib = require('./lib'); 
 const path = require('path');
-const util = require('util');
-const ping = require('ping');
-const mqtt = require('../Shared/mqtt-node');
+const common = require('../Shared/common-node'); 
 const config = require('../Shared/config-node');
+const mqtt = require('../Shared/mqtt-node');
 
 const CONFIG = {
-  configPath: path.join(__dirname, 'config.cfg'),
+	configPath: path.join(__dirname, 'config.cfg')
 };
 
-// Ping IP and return true/false
-async function isHostAlive(ip) {
-  try {
-    const res = await ping.promise.probe(ip, {
-      timeout: 2,
-      extra: ['-c', '1'],
-    });
-    return res.alive;
-  } catch (err) {
-    console.error(`Ping error for ${ip}:`, err.message);
-    return false;
-  }
-}
-
 async function scan() {
-  console.log("Starting scan...");
-
-  const cfg = config.loadConfig(CONFIG.configPath);
-  const entry = cfg['entry'] || {};
-
-  try {
-    await mqtt.connectToMqtt();
-
-    for (const [deviceName, isEnabled] of Object.entries(entry)) {
-      if (String(isEnabled).trim() !== "1") {
-        console.log(`Skipping ${deviceName} (disabled in config)`);
-        continue;
-      }
-
-      const deviceCfg = cfg[deviceName];
-      const ip = deviceCfg?.ip;
-      const topic = deviceCfg?.mqttTopic;
-      const varName = deviceCfg?.mqttVar || deviceName;
-
-      if (!ip || !topic) {
-        console.log(`Skipping ${deviceName}: missing IP or MQTT topic`);
-        continue;
-      }
-
-      console.log(`Pinging ${deviceName} at ${ip}...`);
-
-      const isAlive = await isHostAlive(ip);
-      const status = isAlive ? 1 : 0;
-      const script = path.basename(path.dirname(__filename));
-      await mqtt.publishToMQTT(varName, topic, status, "sensor", script);
-	  
-      console.log(`${deviceName} (${ip}) status = ${status}`);
+    console.log("Scan started");
+    const cfg = config.loadConfig(CONFIG.configPath);
+    try {
+        await mqtt.connectToMqtt(); 
+		await common.processConfig(cfg, lib, mqtt);
+        await mqtt.disconnectFromMQTT();
+    } catch (err) {
+        console.error('Error during scan:', err);
     }
-
-    await mqtt.disconnectFromMQTT();
-  } catch (err) {
-    console.error('Error during scan:', err);
-  }
-
-  console.log("Scan complete.");
+    console.log("Scan done");
 }
 
 (async function main() {
-  await scan();
+    await scan();
 })();

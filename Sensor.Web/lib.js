@@ -4,16 +4,16 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
 const request = require('sync-request');
 const path = require('path');
-const lib = require('./common-lib.js'); 
 const location = require('../Shared/location');
 const constants = require('../Shared/constants');
 const cache = require('../Shared/cache-node');
+const common = require('../Shared/common-node'); 
 
 function parseData(data) {
   const timeArray = data.hourly?.time;
@@ -37,8 +37,8 @@ function parseData(data) {
   return result;
 }
 
-function getOceanData() {
-  console.log("getOceanData");
+function getOceanData(common) {
+  console.log("   - getOceanData");
   const baseUrl = 'https://marine-api.open-meteo.com/v1/marine';
   const params = [
     ['latitude', location.OCEAN_LAT],
@@ -49,15 +49,15 @@ function getOceanData() {
       'wave_height', 'wave_direction', 'wave_period', 'wind_wave_height', 'wind_wave_direction', 'wind_wave_period', 'swell_wave_direction', 'swell_wave_height', 'swell_wave_period', 'sea_level_height_msl', 'sea_surface_temperature', 'ocean_current_velocity', 'ocean_current_direction'
     ].join(',')]
   ];
-  const url = lib.constructURL(baseUrl, params);
+  const url = common.constructURL(baseUrl, params);
   const res = request('GET', url);
   const data = JSON.parse(res.getBody('utf8'));
   let result = parseData(data);
   return result;
 }
 
-function getAirData() {
-  console.log("getAirData");
+function getAirData(common) {
+  console.log("   - getAirData");
   const baseUrl = 'https://air-quality-api.open-meteo.com/v1/air-quality';
   const params = [
     ['latitude', location.LAT],
@@ -69,15 +69,15 @@ function getAirData() {
     ].join(',')]
   ];
 
-  const url = lib.constructURL(baseUrl, params);
+  const url = common.constructURL(baseUrl, params);
   const res = request('GET', url);
   const data = JSON.parse(res.getBody('utf8'));
   let result = parseData(data);
   return result;
 }
 
-function getWeatherData(lon, lat) {
-  console.log("getWeatherData");
+function getWeatherData(common) {
+  console.log("   - getWeatherData");
   const baseUrl = 'https://api.open-meteo.com/v1/forecast';
   
   const params = [
@@ -90,15 +90,15 @@ function getWeatherData(lon, lat) {
     ].join(',')],
   ];
 
-  const url = lib.constructURL(baseUrl, params);
+  const url = common.constructURL(baseUrl, params);
   const res = request('GET', url);
   const data = JSON.parse(res.getBody('utf8'));
   let result = parseData(data);
 
   // Map to a human readable values
-  result["weather_code"       ] = lib.getWeatherDescription( result["weather_code"]);
-  result["visibility"         ] = lib.getVisibilityDescription( result["visibility"]);
-  result["wind_direction_10m" ] = lib.getWindDirection( result["wind_direction_10m"]);
+  result["weather_code"       ] = common.getWeatherDescription( result["weather_code"]);
+  result["visibility"         ] = common.getVisibilityDescription( result["visibility"]);
+  result["wind_direction_10m" ] = common.getWindDirection( result["wind_direction_10m"]);
 
   return result;
 }

@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
@@ -12,12 +12,11 @@ const request = require('sync-request');
 const path = require('path');
 const location = require('../Shared/location');
 const constants = require('../Shared/constants');
-const cache = require('../Shared/cache-node');
 const axios = require('axios');
 const environment = require('../Shared/env-node');
 
 async function getNetroData() {
-	console.log("getNetroData");
+	console.log("   - getNetroData");
 	let result = {};
 	
 	const env = environment.load();
@@ -47,11 +46,9 @@ async function getNetroData() {
 				temperature: deviceData.temp,
 				zone_count: deviceData.zonecnt
 			};
-		} else {
-			console.warn('Unexpected Netro response:', response.data);
 		}
 	} catch (error) {
-		console.error('Error fetching Netro device status:', error.message);
+		//console.error('Error fetching Netro device status:', error.message);
 	}
 	return result;
 }

@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
@@ -30,6 +30,7 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
  * 1 - At least one active flood warning near location (within 100 miles)
  */
 function getFloodData() {
+    console.log("   - getFloodData");
   return new Promise((resolve, reject) => {
     const url = `https://api.weather.gov/alerts/active?event=Flood%20Warning`;
 

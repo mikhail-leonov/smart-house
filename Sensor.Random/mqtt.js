@@ -4,55 +4,49 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
-const mqttPath = "#";
-const mqttUrl = "ws://mqtt.jarvis.home:9001";
+// Define your custom handler
+mqttContent.onMessage = (topic, message) => {
+    console.log(`[MQTT] Message received: ${topic} => ${message}`);
 
-const client = mqtt.connect(mqttUrl);
-
-client.on('connect', () => {
-    client.subscribe(mqttPath);
-});
-
-client.on('message', (topic, message) => {
-    const payload = message.toString();
-    const pathParts = topic.split('/');
-
-    // Extract parts for locating the room and sensor:
-    // Assuming topic format: "home/inside/first_floor/living-room-1f/temperature" or similar
-    const [home, location, floor, room, sensor] = pathParts;
-
-    // Find the matching room div by data attributes
-    const roomDiv = document.querySelector(`.room[data-location="${location}"][data-floor="${floor}"][data-room="${room}"]`);
-
-    if (roomDiv) {
-        // Inside roomDiv find the sensor div by id
-        const sensorDiv = roomDiv.querySelector(`#${sensor}`);
-        if (sensorDiv) {
-            const currentValuePayload = sensorDiv.getAttribute('data-value');
-            let currentValue = null;
-            if (currentValuePayload) {
-                currentValue = JSON.parse(currentValuePayload).value;
-            }
-            let newValue = JSON.parse(payload).value;
-
-            sensorDiv.setAttribute('data-value', payload);
-
-            if (newValue !== currentValue) {
-                roomDiv.classList.add('room-flash');
-                setTimeout(() => {
-                    roomDiv.classList.remove('room-flash');
-                }, 1000);
-            } else {
-                //console.log( `For ${location}/${floor}/${room}/${sensor} we got the same value` );
-            }
-        } else {
-            console.log( `${sensor} is not found` );
-        }
-    } else {
-        console.log( `Room not found ${location}/${floor}/${room}` );
+    // Try to parse the message as JSON
+    let payload;
+    try {
+        payload = JSON.parse(message);
+    } catch (e) {
+        console.warn(`[MQTT] Invalid JSON in message on ${topic}:`, message);
+        return;
     }
-});
+
+    // Split topic to extract smart home parts
+    const parts = topic.split('/');
+    const [, location, floor, room, sensor] = parts;
+
+    // Find the correct room element
+    const roomDiv = document.querySelector(`.room[data-location="${location}"][data-floor="${floor}"][data-room="${room}"]`);
+    if (!roomDiv) {
+        console.warn(`[UI] No room found for topic: ${topic}`);
+        return;
+    }
+
+    const sensorDiv = roomDiv.querySelector(`#${sensor}`);
+    if (!sensorDiv) {
+        console.warn(`[UI] Sensor div not found: ${sensor}`);
+        return;
+    }
+
+    // Compare new and old values
+    const oldPayload = sensorDiv.getAttribute('data-value');
+    const oldValue = oldPayload ? JSON.parse(oldPayload).value : null;
+    const newValue = payload.value;
+
+    sensorDiv.setAttribute('data-value', message);
+
+    if (oldValue !== newValue) {
+        roomDiv.classList.add('room-flash');
+        setTimeout(() => roomDiv.classList.remove('room-flash'), 1000);
+    }
+};

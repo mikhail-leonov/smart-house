@@ -4,9 +4,11 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
+
+return;
 
 const fs = require('fs');
 const path = require('path');

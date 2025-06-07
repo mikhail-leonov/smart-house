@@ -4,94 +4,33 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
-const fs = require('fs');
+const lib = require('./lib'); 
 const path = require('path');
-const ini = require('ini');
-const { execSync } = require('child_process');
+const common = require('../Shared/common-node'); 
+const config = require('../Shared/config-node');
 const mqtt = require('../Shared/mqtt-node');
 
-// Load config
-const CONFIG_PATH = path.join(__dirname, 'config.cfg');
-
-let config;
-try {
-  const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
-  config = ini.parse(raw);
-} catch (err) {
-  console.error("Failed to read config file:", err.message);
-  process.exit(1);
-}
-
-const {
-    location,
-    floor,
-    room,
-    var_name: varName,
-    on_time: onTime,
-    off_time: offTime
-} = config.pool || {};
-
-if (!location || !room || !varName) {
-    console.error("Missing required pool config values: location, room, or var_name.");
-    process.exit(1);
-}
-
-function getTargetValue() {
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    const parseTime = (timeStr) => {
-        if (!timeStr) return null;
-        const parts = timeStr.split(':');
-        if (parts.length !== 2) return null;
-        const hour = parseInt(parts[0], 10);
-        const minute = parseInt(parts[1], 10);
-        if (isNaN(hour) || isNaN(minute)) return null;
-        return hour * 60 + minute;
-    };
-
-    const onTime = parseTime(config.pool?.on_time);
-    const offTime = parseTime(config.pool?.off_time);
-
-    if (onTime !== null && currentMinutes >= onTime && currentMinutes < onTime + 10) return "on";
-    if (offTime !== null && currentMinutes >= offTime && currentMinutes < offTime + 10) return "off";
-    return null;
-}
-
-// Blocking pause function (seconds)
-function pause(seconds) {
-  const start = Date.now();
-  while (Date.now() - start < 1000 * seconds) {
-    // Busy wait
-  }
-}
+const CONFIG = {
+    configPath: path.join(__dirname, 'config.cfg')
+};
 
 async function scan() {
     console.log("Scan started");
-    const varValue = getTargetValue();
-    if (varValue) {
-      try {
-          const topic = mqtt.buildMqttTopic(location, floor, room, varName);
-          await mqtt.connectToMqtt();
-		  const script = path.basename(path.dirname(__filename));
-          await mqtt.publishToMQTT(varName, topic, varValue, "sensor", script);
-          pause(5);
-          await mqtt.disconnectFromMQTT();
-  
-      } catch (err) {
-          console.error(`[${new Date().toISOString()}] Error:`, err.message);
-      }
-    } else {
-      console.log(` - Outside of time frame`);
+    const cfg = config.loadConfig(CONFIG.configPath);
+    try {
+        await mqtt.connectToMqtt(); 
+		await common.processConfig(cfg, lib, mqtt);
+        await mqtt.disconnectFromMQTT();
+    } catch (err) {
+        console.error('Error during scan:', err);
     }
     console.log("Scan done");
 }
 
-(async () => {
-  await scan();
+(async function main() {
+    await scan();
 })();
-

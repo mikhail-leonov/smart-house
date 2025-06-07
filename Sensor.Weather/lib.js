@@ -4,15 +4,14 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
 const request = require('sync-request');
-const lib = require('./common-lib.js'); 
 const location = require('../Shared/location.js');
 const constants = require('../Shared/constants.js');
-
+const common = require('../Shared/common-node'); 
 
 /*
 function parseData(data) {
@@ -25,21 +24,22 @@ function parseData(data) {
     precipitation: data.hourlyRain            // mm or inches depending on config
   };
 }
-function getStationData2() {
-  console.log("getStationData");
+function getStationData2(common) {
+    console.log("   - getStationData");
 
-  const ipAddress = "";
-  const baseUrl = `http://${ipAddress}/data.json`; // Assumed WS-5000 endpoint
-  const res = request('GET', baseUrl);
-  const data = JSON.parse(res.getBody('utf8'));
+    const ipAddress = "";
+    const baseUrl = `http://${ipAddress}/data.json`; // Assumed WS-5000 endpoint
+    const res = request('GET', baseUrl);
+    const data = JSON.parse(res.getBody('utf8'));
 
-  let result = parseData(data);
-  return result;
+    let result = parseData(data);
+    return result;
 }
 
 */
-function getStationData() {
-  return { temperature: 21, humidity: 50, windSpeed: 0,  windDirection: 10, weatherCode: 3, precipitation: 0 };
+function getStationData(common) {
+    console.log("   - getStationData");
+    return { temperature: 21, humidity: 50, windSpeed: 0,  windDirection: 10, weatherCode: 3, precipitation: 0 };
 } 
 
 module.exports = {

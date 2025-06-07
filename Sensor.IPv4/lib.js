@@ -1,11 +1,10 @@
-
 /**
  * SmartHub - AI powered Smart Home
  * Library for App which is reads values from loca;l network IPv4
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
 
@@ -16,7 +15,8 @@ function isHostAliveSync(ip) {
     return result.status === 0;
 }
 
-function getIPv4Data() {
+function getIPv4Data(common) {
+    console.log("   - getIPv4Data");
     const networkPrefix = '192.168.1';
     const result = {};
     for (let i = 1; i <= 254; i++) {

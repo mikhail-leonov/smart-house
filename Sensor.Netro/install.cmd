@@ -1,1 +1,1 @@
-npm install ini axios
+npm install ini axios sync-request

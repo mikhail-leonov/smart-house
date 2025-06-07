@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ini": "^5.0.0",
+    "sync-request": "^6.1.0"
+  }
+}

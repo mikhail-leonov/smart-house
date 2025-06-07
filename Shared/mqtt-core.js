@@ -79,7 +79,7 @@
             client.publish(topic, payload, { retain: true });
             mqttLib.onPublish?.(variable, topic, value, type, script);
         } else {
-            console.warn("Cannot publish — MQTT not connected.");
+            console.warn("Cannot publish ï¿½ MQTT not connected.");
         }
     }
 
@@ -94,7 +94,7 @@
                 }
             });
         } else {
-            console.warn(`Cannot subscribe — MQTT not connected.`);
+            console.warn(`Cannot subscribe ï¿½ MQTT not connected.`);
         }
     }
 
@@ -109,7 +109,7 @@
                 }
             });
         } else {
-            console.warn(`Cannot unsubscribe — MQTT not connected.`);
+            console.warn(`Cannot unsubscribe ï¿½ MQTT not connected.`);
         }
     }
 

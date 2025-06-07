@@ -4,9 +4,11 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.6.8
+ * @version 0.6.9
  * @license MIT
  */
+
+return;
 
 const mqtt = require('mqtt');
 const fs = require('fs');
@@ -115,6 +117,7 @@ app.listen(HTTP_PORT, () => {
   console.log(startMsg);
   log(startMsg);
 });
+
 
 // Graceful shutdown: flush anything left in memory
 process.on('SIGINT', () => {

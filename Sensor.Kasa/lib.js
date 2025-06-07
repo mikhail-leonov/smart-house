@@ -25,7 +25,7 @@ function getKasaData(common) {
     return new Promise((resolve, reject) => {
 		const timeout = setTimeout(() => {
 			client.stopDiscovery();
-			resolve(result);
+			resolve([result]);
 		}, 3000); // 10-second discovery window
 
 		client.startDiscovery().on('device-new', async (device) => {

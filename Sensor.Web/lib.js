@@ -53,7 +53,7 @@ function getOceanData(common) {
   const res = request('GET', url);
   const data = JSON.parse(res.getBody('utf8'));
   let result = parseData(data);
-  return result;
+  return [result];
 }
 
 function getAirData(common) {
@@ -73,7 +73,7 @@ function getAirData(common) {
   const res = request('GET', url);
   const data = JSON.parse(res.getBody('utf8'));
   let result = parseData(data);
-  return result;
+  return [result];
 }
 
 function getWeatherData(common) {
@@ -100,7 +100,7 @@ function getWeatherData(common) {
   result["visibility"         ] = common.getVisibilityDescription( result["visibility"]);
   result["wind_direction_10m" ] = common.getWindDirection( result["wind_direction_10m"]);
 
-  return result;
+  return [result];
 }
 
 

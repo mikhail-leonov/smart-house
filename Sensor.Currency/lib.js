@@ -65,7 +65,7 @@ function getCurrencyData(common) {
 		}
 		cache.setCachedValue(result, cacheKey, 0, 0);
 	}
-	return result;
+    return [result];
 }
 
 module.exports = {

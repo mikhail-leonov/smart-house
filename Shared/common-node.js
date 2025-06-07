@@ -33,6 +33,17 @@ async function callFunction(func, m) {
 function getFlag(section, name) {
     return section && name in section ? section[name] : 0;
 }
+
+function getTopics(section) {
+	let topics = [];
+	if (typeof section["mqttTopics"] === 'string') {
+		topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
+	} else if (Array.isArray(section["mqttTopics"])) {
+		topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
+	}
+	return topics;
+}
+	
 async function processConfig(cfg, lib, mqtt) {
 	const startTime = Date.now();
 	
@@ -40,28 +51,25 @@ async function processConfig(cfg, lib, mqtt) {
 	for (const [key, value] of Object.entries(entry)) {
 		if (String(value).trim() == "1" ) {
 			if (typeof lib[key] === 'function') {
-				let obj = callFunction(lib[key], module.exports);
-				if (obj instanceof Promise) { obj = await obj; }
-				if (typeof obj === 'object') {
-					for (const [varName, varValue] of Object.entries(obj)) {
-						const section = cfg[varName];
-						// Check if variable is enabled = 1 in its parent section (e.g., getAirData)
-						const parentSection = cfg[key];
-						const flag = parentSection[varName];
-						console.log(`     - ${varName} = ${flag}`);
-						
-						const isEnabled = parentSection && String(flag).trim() == '1';
-						if (section && isEnabled) {
-							let topics = [];
-							if (typeof section["mqttTopics"] === 'string') {
-								topics = section["mqttTopics"].split(',').map(t => t.trim()).filter(t => t.length > 0);
-							} else if (Array.isArray(section["mqttTopics"])) {
-								topics = section["mqttTopics"].map(t => t.trim()).filter(t => t.length > 0);
-							}
-							const script =	path.basename(path.dirname(__filename));
-							for (const topic of topics) {
-								await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
-								pause(1);
+				let objs = callFunction(lib[key], module.exports);
+				if (objs instanceof Promise) { objs = await objs; }
+				for (const obj of objs) {
+					if (typeof obj === 'object') {
+						for (const [varName, varValue] of Object.entries(obj)) {
+							const section = cfg[varName];
+							// Check if variable is enabled = 1 in its parent section (e.g., getAirData)
+							const parentSection = cfg[key];
+							const flag = parentSection[varName];
+							console.log(`     - ${varName} = ${flag}`);
+							
+							const isEnabled = parentSection && String(flag).trim() == '1';
+							if (section && isEnabled) {
+								const topics = getTopics(section);
+								const script =	path.basename(path.dirname(__filename));
+								for (const topic of topics) {
+									await mqtt.publishToMQTT(varName, topic, varValue, "web", script);
+									pause(1);
+								}
 							}
 						}
 					}

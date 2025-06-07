@@ -24,7 +24,7 @@ function getIPv4Data(common) {
         const alive = isHostAliveSync(ip);
         result[ip] = alive ? 1 : 0;
     }
-    return result;
+    return [result];
 }
 
 module.exports = {

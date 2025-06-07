@@ -46,7 +46,7 @@ function getHurricaneData() {
           const storms = Array.isArray(parsed) ? parsed : parsed?.activeStorms || parsed?.storms || [];
 
           if (!Array.isArray(storms) || storms.length === 0) {
-            return resolve({ hurricane: 0 });
+            return resolve([{ hurricane: 0 }]);
           }
 
           let status = 0;
@@ -55,14 +55,14 @@ function getHurricaneData() {
             if (storm.stormType === "HU") { // Hurricane only
               const dist = haversineDistance(location.LAT, location.LON, storm.lat, storm.lon);
               if (dist <= 10) {
-                return resolve({ hurricane: 2 });
+                return resolve([{ hurricane: 2 }]);
               } else if (dist <= 100) {
                 status = 1;
               }
             }
           }
 
-          resolve({ hurricane: status });
+          resolve([{ hurricane: status }]);
         } catch (e) {
           reject('Failed to parse storm data: ' + e.message);
         }

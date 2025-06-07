@@ -42,7 +42,7 @@ function getFloodData() {
           const parsed = JSON.parse(data);
 
           if (!Array.isArray(parsed.features) || parsed.features.length === 0) {
-            return resolve({ flood: 0 });
+            return resolve([{ flood: 0 }]);
           }
 
           for (const alert of parsed.features) {
@@ -52,8 +52,8 @@ function getFloodData() {
             for (const polygon of area.coordinates) {
               for (const [lon, lat] of polygon) {
                 const dist = haversineDistance(location.LAT, location.LON, lat, lon);
-                if (dist <= 100) {
-                  return resolve({ flood: 1 });
+                if (dist <= 10) {
+                  return resolve([{ flood: 1 }]);
                 }
               }
             }

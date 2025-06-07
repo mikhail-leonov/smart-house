@@ -23,7 +23,7 @@ function getPoolData(common) {
     if ((hour === 10 || hour === 17) && minute === 0) {
         result.action = 1;
     }
-    return result;
+    return [result];
 }
 
 module.exports = {

@@ -39,7 +39,8 @@ function getStationData2(common) {
 */
 function getStationData(common) {
     console.log("   - getStationData");
-    return { temperature: 21, humidity: 50, windSpeed: 0,  windDirection: 10, weatherCode: 3, precipitation: 0 };
+    const result = { temperature: 21, humidity: 50, windSpeed: 0,  windDirection: 10, weatherCode: 3, precipitation: 0 };
+    return [result];
 } 
 
 module.exports = {

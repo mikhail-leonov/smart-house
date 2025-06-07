@@ -33,7 +33,7 @@ async function getLiveData() {
 		const alive = await isHostAlive(ip);
 		result[ip] = alive ? 1 : 0;
 	}
-	return result;
+    return [result];
 }
 
 module.exports = {

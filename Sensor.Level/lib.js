@@ -29,10 +29,11 @@ function getSystemData(common) {
 
 	const cpuVal = 100 - Math.round((idleMs / totalMs) * 100);
 
-	return {
+	const result = {
 		cpu: Math.round(cpuVal * 100) / 100,
 		mem: Math.round(memVal * 100) / 100
 	};
+    return [result];
 }
 
 module.exports = {

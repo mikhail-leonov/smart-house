@@ -48,7 +48,7 @@ function getMetalData() {
 			console.error(`Failed to fetch ${name} price:`, res.statusCode);
 		}
 	}
-	return result;
+    return [result];
 }
 
 module.exports = {

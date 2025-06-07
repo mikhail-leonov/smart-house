@@ -25,7 +25,7 @@ function getKitchenData(common) {
     if (quarterMonths.includes(month)) {
         if (day === 1) { return result = { action: 1 }; }
     }
-    return result;
+    return [result];
 }
 
 module.exports = {

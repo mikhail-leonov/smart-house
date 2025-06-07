@@ -50,7 +50,7 @@ async function getNetroData() {
 	} catch (error) {
 		//console.error('Error fetching Netro device status:', error.message);
 	}
-	return result;
+    return [result];
 }
 
 

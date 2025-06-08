@@ -19,12 +19,10 @@
 
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script src="/shared/mqtt-core.js"></script>
-    <script src="mqtt-ui.js"></script>
 	
     <!-- Local -->
     <link href="/shared/styles.css" rel="stylesheet">
     <script src="/shared/constants.js"></script>
-    <script src="/mqtt.js"></script>
 </head>
 <body>
     <div class="container mt-4">
@@ -35,27 +33,14 @@
                 <h5>Configuration</h5>
             </div>
             <div class="card-body">
-                <div class="row mb-3">
+                <div class="row mb-12">
                     <div class="col-md-6">
                         <label for="configFile" class="form-label">Upload Configuration JSON</label>
                         <input class="form-control" type="file" id="configFile" accept=".json">
                     </div>
-                </div>
-                
-                <div class="row mb-3">
                     <div class="col-md-3">
-                        <label for="interval" class="form-label">Send Interval (seconds)</label>
+                        <label for="interval" class="form-label">Send Interval (s)</label>
                         <input type="number" class="form-control" id="interval" min="1" max="60" value="5">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="randomness" class="form-label">Randomness (± seconds)</label>
-                        <input type="number" class="form-control" id="randomness" min="0" max="15" value="2">
-                    </div>
-                    <div class="col-md-6 d-flex align-items-end">
-                        <div>
-                            <span id="connectionStatus" class="status-indicator status-offline"></span>
-                            <span id="connectionStatusText">Disconnected</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -63,27 +48,64 @@
         
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Random Simulation Controls</h5>
+                <h5>Message Parameters</h5>
             </div>
             <div class="card-body">
                 <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="areas" class="form-label">Location Type</label>
+                        <select class="form-select" id="areas" disabled>
+                            <option value="">Select location</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="floors" class="form-label">Floor</label>
+                        <select class="form-select" id="floors" disabled>
+                            <option value="">Select floor</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="rooms" class="form-label">Room</label>
+                        <select class="form-select" id="rooms" disabled>
+                            <option value="">Select room</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="variables" class="form-label">Variable</label>
+                        <select class="form-select" id="variables" disabled>
+                            <option value="">Select variable</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="valueContainer" class="row mb-3" style="display: none;">
                     <div class="col-md-6">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="randomInterval" checked>
-                            <label class="form-check-label" for="randomInterval">Use Random Interval</label>
+                        <label for="value" class="form-label">Value</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="value">
+                            <button class="btn btn-outline-secondary" type="button" id="randomValueBtn">Random</button>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="logEachMessage" checked>
-                            <label class="form-check-label" for="logEachMessage">Log Each Message</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="variableDescription" class="description-box">
+                            Select a variable to see its description and valid values
                         </div>
                     </div>
                 </div>
                 
+            </div>
+        </div>
+		
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Simulation Controls</h5>
+            </div>
+            <div class="card-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <button id="startRandomBtn" class="btn btn-primary me-2">Start Random Simulation</button>
-                        <button id="stopRandomBtn" class="btn btn-danger me-2" disabled>Stop Simulation</button>
-                        <button id="sendSingleRandomBtn" class="btn btn-secondary">Send Single Random Message</button>
+                        <button id="startRandomBtn" class="btn btn-primary me-2">Start</button>
+                        <button id="stopRandomBtn" class="btn btn-danger me-2" disabled>Stop</button>
+                        <button id="sendSingleRandomBtn" class="btn btn-secondary">Send</button>
                     </div>
                 </div>
             </div>
@@ -92,268 +114,15 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Simulation Log</h5>
-                <button id="clearLogBtn" class="btn btn-sm btn-outline-secondary">Clear Log</button>
+                <button id="clearLogBtn" class="btn btn-sm btn-outline-secondary">Clear</button>
             </div>
             <div class="card-body">
-                <div id="log"></div>
+                <div id="log" style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; font-family: monospace;"></div>
             </div>
         </div>
     </div>
 
-    <script>
-        
-        const connected = mqtt.connect(mqttUrl);
-        
-        
-        // Handle config file upload
-        function handleConfigFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                logToConsole('No file selected', 'error');
-                return;
-            }
-            
-            // Check file type
-            if (!file.name.endsWith('.json')) {
-                logToConsole('Please upload a JSON file', 'error');
-                return;
-            }
-            
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    // First validate the JSON is parsable
-                    const jsonContent = e.target.result;
-                    if (!jsonContent.trim()) {
-                        throw new Error('File is empty');
-                    }
-                    
-                    configData = JSON.parse(jsonContent);
-                    
-                    // Then validate the structure
-                    if (!configData || !configData.home) {
-                        throw new Error('Invalid config structure: missing "home" property');
-                    }
-                    
-                    logToConsole('Configuration loaded successfully');
-                    parseAllVariables();
-                } catch (error) {
-                    logToConsole('Error parsing JSON: ' + error.message, 'error');
-                    console.error('Detailed error:', error);
-                    configData = null;
-                }
-            };
-            
-            reader.onerror = function() {
-                logToConsole('Error reading file', 'error');
-            };
-            
-            reader.readAsText(file);
-        }
-        
-        // Parse all variables from config into a flat array
-function parseAllVariables() {
-    allVariables = [];
-
-    if (!configData) {
-        logToConsole('No configuration data available', 'error');
-        return;
-    }
-
-    try {
-        for (const locationType of ['inside', 'outside']) {
-            const locationData = configData.home[locationType];
-            if (!locationData) continue;
-
-            for (const floor in locationData) {
-                const floorData = locationData[floor];
-                if (!floorData) continue;
-
-                for (const room in floorData) {
-                    const roomData = floorData[room];
-                    if (!roomData) continue;
-
-                    for (const variable in roomData) {
-                        const data = roomData[variable];
-                        if (data) {
-                            const topic = "home/" + locationType + "/" + floor + "/" + room + "/" + variable;
-                            allVariables.push({ topic, data });
-                        }
-                    }
-                }
-            }
-        }
-
-        logToConsole(`Parsed ${allVariables.length} variables from configuration`);
-    } catch (error) {
-        logToConsole('Error parsing variables: ' + error.message, 'error');
-        console.error('Detailed parsing error:', error);
-    }
-}        
-        // Get a random variable based on current filters
-        function getRandomVariable() {
-            try {
-                if (allVariables.length === 0) {
-                    logToConsole('No variables available', 'error');
-                    return null;
-                }
-                const randomIndex = Math.floor(Math.random() * allVariables.length);
-                return allVariables[randomIndex];
-            } catch (error) {
-                logToConsole('Error getting random variable: ' + error.message, 'error');
-                return null;
-            }
-        }
-        
-        // Generate a random value for a variable
-        function generateRandomValue(varData) {
-            try {
-                if (varData.values) {
-                    // Random value from predefined list
-                    const randomIndex = Math.floor(Math.random() * varData.values.length);
-                    return varData.values[randomIndex];
-                } else if (varData.min_value !== undefined && varData.max_value !== undefined) {
-                    // Random value within range
-                    const range = varData.max_value - varData.min_value;
-                    const randomValue = varData.min_value + Math.random() * range;
-                    
-                    if (Number.isInteger(varData.min_value)) {
-                        return Math.round(randomValue);
-                    } else {
-                        // For decimal values
-                        return parseFloat(randomValue.toFixed(2));
-                    }
-                }
-                
-                // Fallback to current value
-                return varData.value;
-            } catch (error) {
-                logToConsole('Error generating random value: ' + error.message, 'error');
-                return null;
-            }
-        }
-        
-        
-        // Start random simulation
-        async function startRandomSimulation() {
-            if (isSimulating) { return; }
-
-            if (!connected) { return; }
-            
-            if (allVariables.length === 0) {
-                logToConsole('No variables available. Please upload a configuration file first.', 'error');
-                return;
-            }
-            
-            isSimulating = true;
-            startRandomBtn.disabled = true;
-            stopRandomBtn.disabled = false;
-            
-            logToConsole('Started random simulation');
-            
-            // Send first message immediately
-            sendRandomMessage();
-            
-            // Set up interval
-            const baseInterval = parseInt(intervalInput.value) * 1000;
-            const randomness = randomIntervalCheckbox.checked ? parseInt(randomnessInput.value) * 1000 : 0;
-            
-            intervalId = setInterval(() => {
-                sendRandomMessage();
-            }, baseInterval + (randomness ? Math.random() * randomness * 2 - randomness : 0));
-        }
-        
-        // Stop random simulation
-        function stopRandomSimulation() {
-            if (!isSimulating) return;
-            
-            clearInterval(intervalId);
-            isSimulating = false;
-            startRandomBtn.disabled = false;
-            stopRandomBtn.disabled = true;
-            
-            logToConsole('Stopped random simulation');
-        }
-        
-        // Send a single random message
-        async function sendSingleRandomMessage() {
-
-            
-            if (allVariables.length === 0) {
-                logToConsole('No variables available. Please upload a configuration file first.', 'error');
-                return;
-            }
-            
-            sendRandomMessage();
-        }
-        
-function buildMqttTopic(l, f, r, v) {
-    let topic = l;
-    if (f) {
-        topic += `/${f}`;
-    }
-    topic += `/${r}/${v}`;
-    return "home/" + topic;
-}
-
-        // Send a random message
-        function sendRandomMessage() {
-            const connected = mqtt.connect(mqttUrl);
-            if (!connected) { return; }
-
-            const randomVar = getRandomVariable();
-            if (!randomVar) {
-                logToConsole('No variables available with current filters', 'error');
-                return;
-            }
-
-            const value = generateRandomValue(randomVar.data);
-            if (value === null) {
-                logToConsole('Failed to generate random value', 'error');
-                return;
-            }
-            
-            const topic = randomVar.topic;
-			const variable = topic.split('/').pop(); // Extract last part of topic
-			
-            // Create payload
-            const payload = { 
-			    variable,
-                value: isNaN(value) ? value : parseFloat(value),
-				type: "Random", 
-				timestamp: new Date().toISOString(), 
-				script: "sensor.random" };
-            
-            // Publish message
-            connected.publish(topic, JSON.stringify(payload), { retain: true, qos: 1 }, (err) => {
-                if (err) {
-                    logToConsole(`Error publishing to ${topic}: ${err.message}`, 'error');
-                } else if (logEachMessageCheckbox.checked) {
-                    logToConsole(`${topic}: ${JSON.stringify(payload)}`);
-                }
-            });
-        }
-       
-        
-        // Clear the log
-        function clearLog() {
-            if (logDiv) {
-                logDiv.innerHTML = '';
-            }
-        }
-        
-        // Clean up on page unload
-        window.addEventListener('beforeunload', () => {
-            if (mqttClient && mqttClient.connected) {
-                mqttClient.end();
-            }
-            
-            if (intervalId) {
-                clearInterval(intervalId);
-            }
-        });
-    </script>
+	<script src="index.js"></script>
     <script src="/shared/log-core.js"></script>
     <script src="/shared/cache-core.js"></script>
     <script src="/shared/web-core.js"></script>

@@ -21,7 +21,8 @@ const CONFIG = {
 
 function getImageArea(filePath) {
     const fileName = path.basename(filePath);
-    return fileName.split('-')[0];
+    const parts = fileName.split(/[^a-zA-Z0-9]+/); // Split on any non-letter/digit
+    return parts[0];
 }
 
 async function getImageObjects(filePath, modelPromise) {

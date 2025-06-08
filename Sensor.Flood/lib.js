@@ -29,6 +29,10 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
  * 0 - No active warnings nearby
  * 1 - At least one active flood warning near location (within 100 miles)
  */
+const FLOOD_YES = [{ flood: 1 }];
+const FLOOD_NO  = [{ flood: 0 }];
+ 
+ 
 function getFloodData() {
     console.log("   - getFloodData");
   return new Promise((resolve, reject) => {
@@ -42,7 +46,7 @@ function getFloodData() {
           const parsed = JSON.parse(data);
 
           if (!Array.isArray(parsed.features) || parsed.features.length === 0) {
-            return resolve([{ flood: 0 }]);
+            return resolve(FLOOD_NO);
           }
 
           for (const alert of parsed.features) {
@@ -53,13 +57,13 @@ function getFloodData() {
               for (const [lon, lat] of polygon) {
                 const dist = haversineDistance(location.LAT, location.LON, lat, lon);
                 if (dist <= 10) {
-                  return resolve([{ flood: 1 }]);
+                  return resolve(FLOOD_YES);
                 }
               }
             }
           }
 
-          resolve({ flood: 0 });
+          resolve(FLOOD_NO);
         } catch (err) {
           reject(new Error('Failed to parse JSON: ' + err.message));
         }

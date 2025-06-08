@@ -134,7 +134,17 @@
 		
         const connected = mqtt.connect(mqttUrl);
         
-        
+		function flattenConfig(obj, path = [], result = {}) {
+			for (let key in obj) {
+				if (typeof obj[key] === 'object' && obj[key] !== null && !('value' in obj[key])) {
+					flattenConfig(obj[key], path.concat(key), result);
+				} else {
+					result[path.join('.') + '.' + key] = obj[key];
+				}
+			}
+			return result;
+		}
+		
         // Update floor options based on location type
         function updateFloorOptions() {
             if (!configData) return;

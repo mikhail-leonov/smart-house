@@ -17,14 +17,20 @@ const cache = require('../Shared/cache-node');
 function getKitchenData(common) {
     console.log("   - getKitchenData");
 
+	let result = { water_filter: 0, frige_filter: 0 };	
     const now = new Date();
     const month = now.getMonth(); // 0-based: Jan = 0
     const day = now.getDate(); // 1-based
-	let result = { action: 0 };	
     const quarterMonths = [0, 3, 6, 9];
     if (quarterMonths.includes(month)) {
-        if (day === 1) { return result = { action: 1 }; }
+        if (day === 1) { 
+			result["water_filter"] = 1; 
+		}
     }
+	if ((month === 5 || month === 11) && day === 1) {
+		result["frige_filter"] = 1;
+	}	
+	
     return [result];
 }
 

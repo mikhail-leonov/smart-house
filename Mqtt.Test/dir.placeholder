@@ -1,8 +1,12 @@
-# MQTT over TCP (normal)
+# MQTT do store all data in memory and do not hit the SD card
+persistence false
+
+# MQTT listen over TCP (normal) - node.js
 listener 1883
 
-# MQTT over WebSockets
+# MQTT listen over WebSockets - browser
 listener 9001
 protocol websockets
 
+# MQTT does not require login 
 allow_anonymous true

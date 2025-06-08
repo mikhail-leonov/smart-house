@@ -8,6 +8,7 @@
  * @license MIT
  */
 
+const path = require('path');
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
 const mqtt = require('../Shared/mqtt-node');

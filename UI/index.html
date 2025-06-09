@@ -27,7 +27,7 @@
         <h2>Smart Home</h2>
         <ul>
           <li onclick="showSection('map')">House Map</li>
-          <li onclick="showSection('config')">Config</li>
+          <li onclick="showSection('leaks')">Leaks</li>
         </ul>
       </div>
       <div class="main-content">
@@ -36,25 +36,74 @@
           <div id="current-time"></div>
         </div>
 
-        <!-- Config Section -->
-        <div id="config" class="section" style="display: none;">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Config</h5>
-              <button id="getConfigBtn" class="btn btn-sm btn-outline-secondary" onclick="generateConfig();">Get Config</button>
-              <button id="getActionsgBtn" class="btn btn-sm btn-outline-secondary" onclick="generateActions();">Get Action</button>
-              <button id="copyConfigBtn" class="btn btn-sm btn-outline-secondary" onclick="selectTextAndCopy('config_text');">Copy</button>
-            </div>
-            <div class="card-body">
-              <pre style="height: 600px" id="config_text">
-{}
-              </pre>
-            </div>
-          </div>
+        <!-- Leaks Section -->
+        <div id="leaks" class="section" style="display: none;">
+		
+			<div class="row g-3">
+
+				<div class="col-6 col-md-4 col-lg-3">
+				  <div class="leak-card">
+					<h6>Bathroom 1F</h6>
+					<p>Leak: <span data-bind="home/inside/first_floor/bathroom-1f/water_leak"></span></p>
+					<p>Battery: <span data-bind="home/inside/first_floor/bathroom-1f/water_leak_sensor_battery"></span></p>
+				  </div>
+				</div>
+
+				<div class="col-6 col-md-4 col-lg-3">
+				  <div class="leak-card">
+					<h6>Kitchen 1F</h6>
+					<p>Leak: <span data-bind="home/inside/first_floor/kitchen-1f/water_leak"></span></p>
+					<p>Battery: <span data-bind="home/inside/first_floor/kitchen-1f/water_leak_sensor_battery"></span></p>
+				  </div>
+				</div>
+
+				<div class="col-6 col-md-4 col-lg-3">
+				  <div class="leak-card">
+					<h6>Laundry 1F</h6>
+					<p>Leak: <span data-bind="home/inside/first_floor/laundry-1f/water_leak"></span></p>
+					<p>Battery: <span data-bind="home/inside/first_floor/laundry-1f/water_leak_sensor_battery"></span></p>
+				  </div>
+				</div>
+
+				<div class="col-6 col-md-4 col-lg-3">
+				  <div class="leak-card">
+					<h6>Garage 1F</h6>
+					<p>Leak: <span data-bind="home/inside/first_floor/garage-1f/water_leak"></span></p>
+					<p>Battery: <span data-bind="home/inside/first_floor/garage-1f/water_leak_sensor_battery"></span></p>
+				  </div>
+				</div>
+
+				<div class="col-6 col-md-4 col-lg-3">
+				  <div class="leak-card">
+					<h6>Master Bath 2F</h6>
+					<p>Leak: <span data-bind="home/inside/second_floor/master-bathroom-2f/water_leak"></span></p>
+					<p>Battery: <span data-bind="home/inside/second_floor/master-bathroom-2f/water_leak_sensor_battery"></span></p>
+				  </div>
+				</div>
+
+				<div class="col-6 col-md-4 col-lg-3">
+				  <div class="leak-card">
+					<h6>Bathroom 2F</h6>
+					<p>Leak: <span data-bind="home/inside/second_floor/bathroom-2f/water_leak"></span></p>
+					<p>Battery: <span data-bind="home/inside/second_floor/bathroom-2f/water_leak_sensor_battery"></span></p>
+				  </div>
+				</div>
+
+				<div class="col-6 col-md-4 col-lg-3">
+				  <div class="leak-card">
+					<h6>Conditioner 2F</h6>
+					<p>Leak: <span data-bind="home/inside/second_floor/conditioner-2f/water_leak"></span></p>
+					<p>Battery: <span data-bind="home/inside/second_floor/conditioner-2f/water_leak_sensor_battery"></span></p>
+				  </div>
+				</div>
+				
+			</div>
+		
         </div>
 
         <!-- Map Section -->
         <div id="map" class="section" style="display: none;">
+
           <!-- Nav tabs Section -->
           <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -67,8 +116,6 @@
               <button class="nav-link" id="roof-tab" data-bs-toggle="tab" data-bs-target="#roof" type="button" role="tab" aria-controls="roof" aria-selected="false"> House </button>
             </li>
           </ul>
-
-
 
           <!-- CUT -->
 

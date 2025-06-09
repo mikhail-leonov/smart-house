@@ -8,8 +8,6 @@
  * @license MIT
  */
 
-return;
-
 const mqtt = require('mqtt');
 const fs = require('fs');
 const path = require('path');
@@ -19,10 +17,14 @@ const bodyParser = require('body-parser');
 const MQTT_BROKER_URL = 'ws://mqtt.jarvis.home:9001';
 const MQTT_TOPIC = '#';
 const LOG_FILE_PATH = path.join(__dirname, 'home.log');
+const LOCK_FILE_PATH = path.join(__dirname, 'home.lock');
 const HTTP_PORT = 3131;
 
+const LOCK_RETRY_INTERVAL = 1000; // ms
+const LOCK_MAX_RETRIES = 30; // max attempts
+
 // === Memory log buffer ===
-const LOG_BUFFER_LIMIT = 10;
+const LOG_BUFFER_LIMIT = 200;
 let logBuffer = [];
 
 function getFormattedTime() {
@@ -34,20 +36,46 @@ function getFormattedTime() {
 function flushLogBuffer() {
   if (logBuffer.length === 0) return;
 
-  const combined = logBuffer.join('\n') + '\n';
-  fs.appendFile(LOG_FILE_PATH, combined, (err) => {
-    if (err) console.error('Failed to write log buffer to file:', err);
-  });
+  const tryWrite = (retries = 0) => {
+    if (fs.existsSync(LOCK_FILE_PATH)) {
+      if (retries >= LOCK_MAX_RETRIES) {
+        console.error(`[${getFormattedTime()}] Log lock held too long. Skipping log write.`);
+        return;
+      }
+      return setTimeout(() => tryWrite(retries + 1), LOCK_RETRY_INTERVAL);
+    }
 
-  logBuffer = []; // Clear buffer
+    // Acquire lock
+    try {
+      fs.writeFileSync(LOCK_FILE_PATH, process.pid.toString());
+
+      const combined = logBuffer.join('\n') + '\n';
+      fs.appendFile(LOG_FILE_PATH, combined, (err) => {
+        if (err) {
+          console.error(`[${getFormattedTime()}] Failed to write to log file:`, err);
+        }
+
+        // Release lock
+        fs.unlink(LOCK_FILE_PATH, (err) => {
+          if (err) console.error('Error removing lock file:', err);
+        });
+      });
+
+      logBuffer = [];
+    } catch (e) {
+      console.error(`[${getFormattedTime()}] Error during locked log write:`, e);
+      if (fs.existsSync(LOCK_FILE_PATH)) {
+        try { fs.unlinkSync(LOCK_FILE_PATH); } catch (_) {}
+      }
+    }
+  };
+
+  tryWrite();
 }
 
 function log(entry) {
   logBuffer.push(entry);
-
-  if (logBuffer.length >= LOG_BUFFER_LIMIT) {
-    flushLogBuffer();
-  }
+  if (logBuffer.length >= LOG_BUFFER_LIMIT) flushLogBuffer();
 }
 
 // === MQTT Logging ===
@@ -117,7 +145,6 @@ app.listen(HTTP_PORT, () => {
   console.log(startMsg);
   log(startMsg);
 });
-
 
 // Graceful shutdown: flush anything left in memory
 process.on('SIGINT', () => {

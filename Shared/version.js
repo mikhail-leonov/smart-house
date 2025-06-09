@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 // === CONFIGURATION ===
-const targetVersion = '0.6.9'; 
+const targetVersion = '0.7.0'; 
 
 
 const rootDir = '/home/admin/smart-house/'; // Starting directory

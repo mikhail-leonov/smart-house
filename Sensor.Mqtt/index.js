@@ -22,8 +22,8 @@ let topicMappings = {};
 function parseConfig() {
   const cfg = configLoader.loadConfig(CONFIG.configPath);
 
-  const source = cfg.entry?.source || "mqtt://localhost:1883";
-  const destination = cfg.entry?.destination || "mqtt://localhost:1883";
+  const source = cfg.urls?.source || "mqtt://mqtt.jarvis.home:1883";
+  const destination = cfg.urls?.destination || "mqtt://mqtt.jarvis.home:1883";
 
   const subscriptions = [];
   for (const topic in cfg.topics) {

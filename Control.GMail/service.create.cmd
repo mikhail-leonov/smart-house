@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="Editor"
+NAME="Control.GMail"
 
 TARGET_DIR="/etc/systemd/system/"
 cd "$TARGET"

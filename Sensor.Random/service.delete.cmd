@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="Log"
+NAME="Sensor.Random"
 
 APP_NAME="smart-house-${NAME,,}"
 TARGET_DIR="/etc/systemd/system"

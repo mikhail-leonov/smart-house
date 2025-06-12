@@ -17,8 +17,8 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 8080;
-const HOST = "http://localhost";
+const PORT = 8090;
+const HOST = "http://mqtt.jarvis.home";
 
 // Load command map from external JSON file
 const commandMapPath = path.join(__dirname, 'commands.json');
@@ -35,7 +35,7 @@ try {
 app.use(express.json());
 
 // MQTT configuration
-const MQTT_BROKER = 'mqtt://localhost';
+const MQTT_BROKER = "mqtt://mqtt.jarvis.home:1883";
 const mqttClient = mqtt.connect(MQTT_BROKER);
 mqttClient.on('connect', () => {
     console.log('Connected to MQTT broker');

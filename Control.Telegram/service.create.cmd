@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="Editor"
+NAME="Control.Telegram"
 
 TARGET_DIR="/etc/systemd/system/"
 cd "$TARGET"

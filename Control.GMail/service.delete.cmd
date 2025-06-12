@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="Log"
+NAME="Control.GMail"
 
 APP_NAME="smart-house-${NAME,,}"
 TARGET_DIR="/etc/systemd/system"

@@ -1,0 +1,6 @@
+#!/bin/bash
+/home/admin/smart-house/UI/service.start.cmd
+/home/admin/smart-house/Editor/service.start.cmd
+/home/admin/smart-house/Log/service.start.cmd
+/home/admin/smart-house/Sensor.Random/service.start.cmd
+/home/admin/smart-house/Sensor.Mqtt/service.start.cmd

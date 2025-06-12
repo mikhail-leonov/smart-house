@@ -4,3 +4,6 @@
 /home/admin/smart-house/Log/service.stop.cmd
 /home/admin/smart-house/Sensor.Random/service.stop.cmd
 /home/admin/smart-house/Sensor.Mqtt/service.stop.cmd
+/home/admin/smart-house/Control.GMail/service.stop.cmd
+/home/admin/smart-house/Control.Telegram/service.stop.cmd
+/home/admin/smart-house/Command/service.stop.cmd

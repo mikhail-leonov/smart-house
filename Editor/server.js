@@ -60,37 +60,14 @@ mqttClient.on('error', (err) => {
 const app = express();
 app.use(bodyParser.json());
 
-// Log just the question via GET
-app.get('/log', (req, res) => {
-  const msg = req.query.msg;
-  const time = getFormattedTime();
-
-  if (!msg) {
-    return res.status(400).send('Missing "msg" query parameter.');
-  }
-
-  const logEntry = `[${time}] [LLM] Q: ${msg}`;
-  console.log(logEntry);
-  logToFile(logEntry);
-  res.send('Question logged');
-});
-
 // Optional: serve the log viewer
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/show', (req, res) => {
-  fs.readFile(LOG_FILE_PATH, 'utf8', (err, data) => {
-    if (err) return res.status(500).send('Error reading log file');
-    const lines = data.trim().split('\n').slice(-1000);
-    res.type('text/plain').send(lines.join('\n'));
-  });
-});
-
 // Start server
 app.listen(HTTP_PORT, () => {
-  console.log(`[${getFormattedTime()}] Log server listening on http://edit.jarvis.home:${HTTP_PORT}`);
+  console.log(`[${getFormattedTime()}] Edit server listening on http://edit.jarvis.home:${HTTP_PORT}`);
 });
 
 // Graceful shutdown

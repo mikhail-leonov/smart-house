@@ -30,7 +30,7 @@ const SETTINGS_FILE = config.general.settings_file;
 ACTIONS_FILE = config.general.actions_file;
 const LOG_URL = config.general.log_url;
 //const DEBUG = config.general.debug === 'true';
-let DEBUG = true;
+let DEBUG = false;
 
 const MQTT_URL = config.mqtt.url;
 
@@ -117,7 +117,7 @@ async function callClaude({ url, model, prompt, apiKey }) {
             'Content-Type': 'application/json'
         }
     });
-
+	
     return response.data?.content?.[0]?.text?.trim();
 }
 
@@ -198,7 +198,7 @@ async function callGrok({ url, model, prompt, apiKey }) {
 }
 
 // Универсальный маршрутизатор
-async function queryLLM(prompt) {
+async function queryAI(prompt) {
 
     const model = MODEL_NAMES[LLM_PROVIDER];
     const url = LLM_URLS[LLM_PROVIDER];
@@ -268,10 +268,11 @@ async function processRulesWithState() {
             const fullPath = path.join(OUTPUT_DIR, file + ".json");
             fs.writeFileSync(fullPath, prompt + '\n', 'utf-8');
             
-
-            const output = await queryLLM(prompt);
+            const output = await queryAI(prompt);
             console.log(output);
-            cmd.execCommand(output);
+            
+			cmd.execCommand(output);
+			
         } catch (err) {
             console.error(`Failed to query LLM for ${file}:`, err.message);
         }

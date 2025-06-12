@@ -13,7 +13,7 @@ function execCommand(command) {
     return Promise.reject(new Error('Command is required'));
   }
 
-  const url = new URL('http://localhost:8080/command');
+  const url = new URL('http://command.jarvis.home:8091/command');
   url.searchParams.append('c', command);
 
   return fetch(url.toString(), {

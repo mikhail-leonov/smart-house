@@ -18,7 +18,7 @@ const env = environment.load();
 const apiUrl = env.telegram.apiUrl;
 const chatid = env.telegram.chatid; 
 
-const PORT = 8080;
+const PORT = 8094;
 
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url.startsWith('/send')) {

@@ -4,3 +4,6 @@
 /home/admin/smart-house/Log/service.create.cmd
 /home/admin/smart-house/Sensor.Random/service.create.cmd
 /home/admin/smart-house/Sensor.Mqtt/service.create.cmd
+/home/admin/smart-house/Control.GMail/service.create.cmd
+/home/admin/smart-house/Control.Telegram/service.create.cmd
+/home/admin/smart-house/Command/service.create.cmd

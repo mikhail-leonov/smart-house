@@ -4,3 +4,6 @@
 /home/admin/smart-house/Log/service.delete.cmd
 /home/admin/smart-house/Sensor.Random/service.delete.cmd
 /home/admin/smart-house/Sensor.Mqtt/service.delete.cmd
+/home/admin/smart-house/Control.GMail/service.delete.cmd
+/home/admin/smart-house/Control.Telegram/service.delete.cmd
+/home/admin/smart-house/Command/service.delete.cmd

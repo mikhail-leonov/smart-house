@@ -140,6 +140,46 @@ client.on('message', (topic, message) => {
 	
 });
 
+
+// Leak Card code
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('.leak-card').forEach(card => {
+		const leakEl = card.querySelector('[data-bind$="/water_leak"]');
+		const batteryEl = card.querySelector('[data-bind$="/water_leak_sensor_battery"]');
+		if (!leakEl || !batteryEl) { return; }
+		const leakRaw = (leakEl.textContent || '').trim().toLowerCase();
+		const leakDetected = ['true', '1', 'yes', 'on', 'leak'].includes(leakRaw);
+		const batteryRaw = parseInt((batteryEl.textContent || '0').trim());
+		const batteryLevel = isNaN(batteryRaw) ? 0 : batteryRaw;
+			
+		// --- Leak styling ---
+		leakEl.classList.remove('bg-success', 'bg-danger');
+		if (leakDetected) {
+			leakEl.classList.add('badge', 'bg-danger');
+			leakEl.textContent = 'Leak!';
+			card.style.border = '2px solid red';
+			card.style.backgroundColor = '#ffe5e5';
+		} else {
+			leakEl.classList.add('badge', 'bg-success');
+			leakEl.textContent = 'Dry';
+		}
+		// --- Battery styling ---
+		batteryEl.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'text-dark');
+		if (batteryLevel < 20) {
+			batteryEl.classList.add('badge', 'bg-danger');
+			batteryEl.textContent = batteryLevel + '% ??';
+		} else if (batteryLevel < 50) {
+			batteryEl.classList.add('badge', 'bg-warning', 'text-dark');
+			batteryEl.textContent = batteryLevel + '%';
+		} else {
+			batteryEl.classList.add('badge', 'bg-success');
+			batteryEl.textContent = batteryLevel + '%';
+		}
+	});
+});
+
+
+
 // Update current time
 function updateTime() {
 	const now = new Date(); const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };  document.getElementById('current-time').textContent = now.toLocaleDateString('en-US', options);
@@ -149,3 +189,6 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 1000);
 showSection('map');
+
+
+

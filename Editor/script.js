@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Ivan Leonov ivanleonov1002@gmail.com 
- * @version 0.7.1
+ * @version 0.6.8
  * @license MIT
  */
 
@@ -35,7 +35,9 @@ function getDomId(id, suffix) {
 function toggleRangeInputs() {
     const type = document.getElementById('propertyType').value;
     const rangeInputs = document.getElementById('rangeInputs');
+    const listInputs = document.getElementById('listInputs');
     rangeInputs.style.display = type === 'range' ? 'flex' : 'none';
+    listInputs.style.display = type === 'list' ? 'flex' : 'none';
 }
 
 function addProperty() {
@@ -53,11 +55,19 @@ function addProperty() {
         range: type === 'range' ? {
             min: parseFloat(document.getElementById('minValue').value),
             max: parseFloat(document.getElementById('maxValue').value)
-        } : null
+        } : null,
+        options: type === 'list' ? 
+            document.getElementById('listOptions').value.split(',').map(opt => opt.trim()).filter(opt => opt) 
+            : null
     };
     
     if (type === 'range' && (isNaN(property.range.min) || isNaN(property.range.max))) {
         alert('Please enter valid min and max values for range type.');
+        return;
+    }
+    
+    if (type === 'list' && (!property.options || property.options.length < 2)) {
+        alert('Please enter at least two comma-separated options for list type.');
         return;
     }
     
@@ -72,7 +82,9 @@ function addProperty() {
     document.getElementById('propertyType').value = '';
     document.getElementById('minValue').value = '';
     document.getElementById('maxValue').value = '';
+    document.getElementById('listOptions').value = '';
     document.getElementById('rangeInputs').style.display = 'none';
+    document.getElementById('listInputs').style.display = 'none';
 }
 
 function updatePropertyList() {
@@ -80,8 +92,10 @@ function updatePropertyList() {
     list.innerHTML = properties.map(p => `
         <div class="property-item">
             <div class="property-name">${p.name}</div>
-            <div class="property-type">${p.type === 'range' ? 
-                `Range (${p.range.min} to ${p.range.max})` : 'Binary (On/Off)'}
+            <div class="property-type">${
+                p.type === 'range' ? `Range (${p.range.min} to ${p.range.max})` : 
+                p.type === 'list' ? `List (${p.options.join(', ')})` : 
+                'Binary (On/Off)'}
             </div>
             <button onclick="deleteProperty('${p.name}')">🗑️ Delete</button>
         </div>
@@ -163,7 +177,7 @@ function closeAssignPropertyModal() {
 function updatePropertySelectOptions() {
     const select = document.getElementById('propertySelect');
     select.innerHTML = '<option value="">Select Property</option>' + 
-        properties.map(p => `<option value="${p.name}">${p.name} (${p.type === 'range' ? 'Range' : 'Binary'})</option>`).join('');
+        properties.map(p => `<option value="${p.name}">${p.name} (${p.type === 'range' ? 'Range' : p.type === 'list' ? 'List' : 'Binary'})</option>`).join('');
 }
 
 // Tree Management
@@ -386,6 +400,8 @@ function updateTree() {
                                         ${property ? (
                                             property.type === 'range' ? 
                                             `Range: ${property.range.min} to ${property.range.max}` : 
+                                            property.type === 'list' ?
+                                            `List: ${property.options.join(', ')}` :
                                             'Binary (On/Off)'
                                         ) : 'Type not found'}
                                     </div>
@@ -480,45 +496,4 @@ function importTree() {
 // Initialize when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Set up form event listeners
-    document.getElementById('addNodeForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('nodeName').value.trim();
-        const parentId = document.getElementById('nodeParentId').value;
-        const parentElementId = document.getElementById('nodeParentElementId').value;
-        const level = parseInt(document.getElementById('nodeLevel').value);
-        const nodeId = document.getElementById('nodeId').value;
-        
-        const parent = parentId === 'tree' ? tree : findNode(parentId, level - 1);
-        if (!parent) {
-            alert('Error: Parent node not found.');
-            return;
-        }
-
-        if (nodeId) {
-            const node = findNode(nodeId, level);
-            if (node) {
-                node.name = name;
-                updateTree();
-                closeAddNodeModal();
-            } else {
-                alert('Error: Node not found.');
-            }
-        } else {
-            const type = document.getElementById('nodeType').value;
-            addNode(type, parent, parentElementId, level, name);
-            closeAddNodeModal();
-        }
-    });
-
-    document.getElementById('assignPropertyForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const roomId = document.getElementById('roomId').value;
-        const property = document.getElementById('propertySelect').value;
-        addPropertyToRoom(roomId, property);
-        closeAssignPropertyModal();
-    });
-
-    // Initial render
-    updatePropertyList();
-    updateTree();
-});
+    document

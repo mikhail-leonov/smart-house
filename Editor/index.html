@@ -6,7 +6,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Ivan Leonov ivanleonov1002@gmail.com 
- * @version 0.7.1
+ * @version 0.6.8
  * @license MIT
  */
 -->
@@ -30,10 +30,14 @@
                     <option value="">Select Type</option>
                     <option value="range">Range</option>
                     <option value="binary">Binary (On/Off)</option>
+                    <option value="list">List</option>
                 </select>
                 <div id="rangeInputs" style="display:none;">
                     <input type="number" id="minValue" placeholder="Min value">
                     <input type="number" id="maxValue" placeholder="Max value">
+                </div>
+                <div id="listInputs" style="display:none;">
+                    <input type="text" id="listOptions" placeholder="Comma-separated options (e.g., Low,Medium,High)">
                 </div>
                 <button onclick="addProperty()">Add Property</button>
             </div>
@@ -46,7 +50,7 @@
         <div class="section">
             <h2>Building Structure</h2>
             <div id="tree">
-                <div class="node">
+                <div class="node level-1">
                     <div class="node-header-container">
                         <div class="node-title-container">
                             <h3>Home</h3>

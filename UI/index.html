@@ -26,8 +26,13 @@
       <div class="sidebar">
         <h2>Smart Home</h2>
         <ul>
-          <li onclick="showSection('map')">House Map</li>
-          <li onclick="showSection('leaks')">Leaks</li>
+          <li class="nav-item" onclick="showSection('map')">House Map</li>
+          <li class="nav-item" onclick="showSection('leaks')">Leaks</li>
+		  
+          <li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
+          <li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
+          <li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
+		  
         </ul>
       </div>
       <div class="main-content">
@@ -40,7 +45,28 @@
         <div id="leaks" class="section" style="display: none;">
 		
 			<div class="row g-3">
+				
+				<div class="col-6 col-md-4 col-lg-3">
+					
+					<div class="card leak-card mb-3">
+					  <div class="card-header bg-primary text-white">
+						Bathroom 1 floor
+					  </div>
+					  <div class="card-body text-black">
+						<p class="card-text">
+						  <strong>Leak:</strong>
+						  <span data-bind="home/inside/first_floor/bathroom-1f/water_leak"></span>
+						</p>
+						<p class="card-text">
+						  <strong>Battery:</strong>
+						  <span data-bind="home/inside/first_floor/bathroom-1f/water_leak_sensor_battery"></span>
+						</p>
+					  </div>
+					</div>
 
+					
+				</div>
+				
 				<div class="col-6 col-md-4 col-lg-3">
 				  <div class="leak-card">
 					<h6>Bathroom 1F</h6>

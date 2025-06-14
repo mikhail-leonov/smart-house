@@ -18,8 +18,10 @@
   <link href="/shared/bootstrap.min.css" rel="stylesheet">
   <link href="/shared/ui.css" rel="stylesheet">
   <link href="/shared/home.css" rel="stylesheet">
+  <link href="/shared/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
+
   <div class="container container-no-left">
     <div class="sidebar">
       <h2>Smart Home</h2>
@@ -55,6 +57,12 @@
               <input type="text" class="form-control" id="sensorDesc" required>
             </div>
             <div class="col-md-2">
+              <div id="actionsInputs">
+				<label for="sensorActions" class="form-label">Actions</label>
+				<input type="text" id="sensorActions" class="form-control" placeholder="start, stop, reset" />		
+              </div>
+            </div>
+            <div class="col-md-2">
               <label for="sensorType" class="form-label">Type</label>
               <select id="sensorType" class="form-control" onchange="toggleRangeInputs()">
                 <option value="">Select Type</option>
@@ -80,9 +88,8 @@
                 <input type="text" class="form-control" id="listOptions" placeholder="Comma-separated options (e.g., Low,Medium,High)">
               </div>
             </div>
-			
             <div class="col-md-1 d-flex align-items-end">
-              <button type="button" id="addBtn" onclick="createSensor()" class="btn btn-primary w-100">Add</button>
+              <button type="button" id="addBtn" onclick="createSensor()" class="btn btn-primary w-100">+</button>
             </div>
             <div class="col-md-1 d-flex align-items-end">
               <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="btn btn-secondary w-100" style="display: none;">Cancel</button>

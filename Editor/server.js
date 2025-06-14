@@ -15,21 +15,26 @@ const path = require('path');
 const PORT = 8084;
 
 http.createServer((req, res) => {
-  let filePath = './public' + req.url;
-  if (filePath === './public/') { filePath = './public/index.html' };
+	let filePath = './public' + req.url;
+	if (filePath === './public/') { filePath = './public/index.html' };
 
-  const ext = path.extname(filePath).toLowerCase();
-  const mimeTypes = {
-    '.html': 'text/html',
-    '.js': 'text/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.ico': 'image/x-icon',
-  };
-
-  const contentType = mimeTypes[ext] || 'application/octet-stream';
+	const ext = path.extname(filePath).toLowerCase();
+	const mimeTypes = {
+	  '.html': 'text/html',
+	  '.js': 'text/javascript',
+	  '.css': 'text/css',
+	  '.json': 'application/json',
+	  '.png': 'image/png',
+	  '.jpg': 'image/jpeg',
+	  '.ico': 'image/x-icon',
+	  '.woff': 'font/woff',
+	  '.woff2': 'font/woff2',
+	  '.ttf': 'font/ttf',
+	  '.otf': 'font/otf',
+	  '.eot': 'application/vnd.ms-fontobject',
+	  '.svg': 'image/svg+xml'
+	};
+	const contentType = mimeTypes[ext] || 'application/octet-stream';
 
   fs.readFile(filePath, (err, content) => {
     if (err) {

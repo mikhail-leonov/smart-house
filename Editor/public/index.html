@@ -1,113 +1,143 @@
 <!DOCTYPE html>
-<!--
+<!-- 
 /**
  * SmartHub - AI powered Smart Home
- * App which is running and read rules and try to validate them with AI and send command to a Controller 
+ * UI App which is reads values from MQTT and show them to user
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
- * @author Ivan Leonov ivanleonov1002@gmail.com 
+ * @author Mikhail Leonov mikecommon@gmail.com
  * @version 0.7.1
  * @license MIT
  */
 -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Building Management System</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Home Config</title>
+  <link href="/shared/bootstrap.min.css" rel="stylesheet">
+  <link href="/shared/ui.css" rel="stylesheet">
+  <link href="/shared/home.css" rel="stylesheet">
+  <link href="/shared/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Building Management System</h1>
-        
-        <!-- Property Management -->
-        <div class="section">
-            <h2>Properties</h2>
-            <div class="property-form">
-                <input type="text" id="propertyName" placeholder="Property Name (e.g., temperature)">
-                <select id="propertyType" onchange="toggleRangeInputs()">
-                    <option value="">Select Type</option>
-                    <option value="range">Range</option>
-                    <option value="binary">Binary (On/Off)</option>
-                    <option value="list">List</option>
-                </select>
-                <div id="rangeInputs" style="display:none;">
-                    <input type="number" id="minValue" placeholder="Min value">
-                    <input type="number" id="maxValue" placeholder="Max value">
-                </div>
-                <div id="listInputs" style="display:none;">
-                    <input type="text" id="listOptions" placeholder="Comma-separated options (e.g., Low,Medium,High)">
-                </div>
-                <button onclick="addProperty()">Add Property</button>
-            </div>
-            <div id="propertyList"></div>
-            <button onclick="exportProperties()">Export Properties</button>
-            <input type="file" id="importProperties" accept=".json" onchange="importProperties()">
-        </div>
 
-        <!-- Tree Management -->
-        <div class="section">
-            <h2>Building Structure</h2>
-            <div id="tree">
-                <div class="node level-1">
-                    <div class="node-header-container">
-                        <div class="node-title-container">
-                            <h3>Home</h3>
-                        </div>
-                        <span class="collapse-icon" onclick="toggleCollapse(this.parentElement)">+</span>
-                    </div>
-                    <div class="node-content">
-                        <div class="controls">
-                            <div class="left-buttons">
-                                <button class="add-btn" onclick="openAddNodeModal('location', 'tree', 'locations', 2)">➕ Add House Area</button>
-                            </div>
-                        </div>
-                        <div id="locations"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- JSON Export -->
-        <div class="section">
-            <button onclick="exportTree()">Export Tree to JSON</button>
-            <input type="file" id="importTree" accept=".json" onchange="importTree()">
-        </div>
-
-		<div id="addNodeModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeAddNodeModal()">×</span>
-                <h2>Add New Node</h2>
-                <form id="addNodeForm">
-                    <label for="nodeName">Node Name:</label>
-                    <input type="text" id="nodeName" required>
-                    <input type="hidden" id="nodeType">
-                    <input type="hidden" id="nodeParentId">
-                    <input type="hidden" id="nodeParentElementId">
-                    <input type="hidden" id="nodeLevel">
-                    <input type="hidden" id="nodeId">
-                    <button type="button" onclick="handleAddNode()">Add</button>
-                </form>
-            </div>
-        </div>
-		
-        <!-- Modal for Assigning Properties -->
-        <div id="assignPropertyModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeAssignPropertyModal()">×</span>
-                <h2>Assign Property to Room</h2>
-                <form id="assignPropertyForm">
-                    <label for="propertySelect">Property:</label>
-                    <select id="propertySelect" required>
-                        <option value="">Select Property</option>
-                    </select>
-                    <input type="hidden" id="roomId">
-                    <button type="submit">Assign</button>
-                </form>
-            </div>
-        </div>
+  <div class="container container-no-left">
+    <div class="sidebar">
+      <h2>Smart Home</h2>
+      <ul>
+        <li class="nav-item" onclick="showSection('sensors')">Sensors</li>
+        <li class="nav-item" onclick="showSection('tree')">Tree</li>
+        <li class="nav-item" onclick="showSection('config')">Config</li>
+      </ul>
     </div>
-    <script src="script.js"></script>
+    <div class="main-content">
+      <div class="dashboard-header">
+        <h1>Smart Home Config</h1>
+        <div id="current-time"></div>
+      </div>
+
+      <div id="sensors" class="section" style="display: none;">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h4 class="mb-0">Add / Edit Sensor</h4>
+			<div class="d-flex gap-2">
+				<button type="button" class="btn btn-secondary" onclick="exportSensors()">Export JSON</button>
+				<button type="button" class="btn btn-secondary" onclick="document.getElementById('importSensorsFileInput').click()">Import JSON</button>
+			</div>
+			<input type="file" id="importSensorsFileInput" accept=".json" style="display:none" onchange="importSensors(event)">			
+		</div>
+        <form id="sensorForm" class="row gx-2 align-items-end">
+          <div class="row">
+            <div class="col-md-2">
+              <label for="sensorName" class="form-label">Name</label>
+              <input type="text" class="form-control" id="sensorName" required>
+            </div>
+            <div class="col-md-2">
+              <label for="sensorDesc" class="form-label">Description</label>
+              <input type="text" class="form-control" id="sensorDesc" required>
+            </div>
+            <div class="col-md-2">
+              <div id="actionsInputs">
+				<label for="sensorActions" class="form-label">Actions</label>
+				<input type="text" id="sensorActions" class="form-control" placeholder="start, stop, reset" />		
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label for="sensorType" class="form-label">Type</label>
+              <select id="sensorType" class="form-control" onchange="toggleRangeInputs()">
+                <option value="">Select Type</option>
+                <option value="range">Range</option>
+                <option value="binary">Binary (On/Off)</option>
+                <option value="list">List</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <div id="rangeInputs" style="display:none;">
+                <label class="form-label d-block">Range</label>
+                <div class="row gx-4">
+                  <div class="col">
+                    <input type="number" class="form-control" id="minValue" placeholder="Min value">
+                  </div>
+                  <div class="col">
+                    <input type="number" class="form-control" id="maxValue" placeholder="Max value">
+                  </div>
+                </div>
+              </div>
+              <div id="listInputs" style="display:none;">
+                <label class="form-label d-block">List</label>
+                <input type="text" class="form-control" id="listOptions" placeholder="Comma-separated options (e.g., Low,Medium,High)">
+              </div>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+              <button type="button" id="addBtn" onclick="createSensor()" class="btn btn-primary w-100">+</button>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+              <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="btn btn-secondary w-100" style="display: none;">Cancel</button>
+            </div>
+          </div>
+        </form>
+        <table class="table table-bordered table-sm mt-4">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Values</th>
+              <th>Min-Max</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sensorTableBody"></tbody>
+        </table>
+      </div>
+	  
+      <div id="tree" class="section" style="display: none;">
+        <h2>Tree</h2>
+		<!-- Tree Editor Tab Content -->
+		<div id="treeEditorTab" class="tab-pane">
+			<div class="mb-4">
+				<button class="btn btn-primary me-2" onclick="showAddAreaForm()">Add Area</button>
+				<button class="btn btn-secondary me-2" onclick="exportTree()">Export Tree</button>
+				<button class="btn btn-secondary" onclick="document.getElementById('importTreeFileInput').click()">Import Tree</button>
+				<input type="file" id="importTreeFileInput" accept=".json" style="display:none" onchange="importTree(event)">
+			</div>
+			<div id="treeContainer"></div>
+			<!-- Container for Add/Edit forms -->
+			<div id="formContainer"></div>
+		</div>
+      </div>
+	  
+      <div id="config" class="section" style="display: none;">
+        <h2>Config</h2>
+		
+		
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script src="tree.js"></script>
+  <script>showSection('sensors');</script>
 </body>
 </html>

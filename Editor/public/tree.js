@@ -267,4 +267,3 @@ function capitalize(s) {
 
 // Initial render on script load
 document.addEventListener('DOMContentLoaded', renderTree);
-

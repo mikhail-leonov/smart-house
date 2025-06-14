@@ -154,44 +154,42 @@ function exportSensors() {
 		alert("No sensors to export.");
 		return;
 	}
-	// Build the export object
 	const exportObj = {};
+
 	sensors.forEach(sensor => {
-		let values = [];
-		if (sensor.type === "binary") {
-			values = [0, 1];
-		} else if (sensor.type === "list") {
-			values = sensor.values;
-		} else if (sensor.type === "range") {
-			values = [sensor.min, sensor.max];
-		}
-
-		let defaultValue;
-		if (sensor.type === "list") {
-			defaultValue = values.length > 0 ? values[0] : null;
-		} else if (sensor.type === "binary") {
-			defaultValue = 0;
-		} else if (sensor.type === "range") {
-			defaultValue = sensor.min !== undefined ? sensor.min : 0;
-		} else {
-			defaultValue = null;
-		}
-
-		exportObj[sensor.name] = {
-			value: defaultValue,
-			values: values,
+		// Build base export sensor object
+		const exportSensor = {
 			description: sensor.description,
 			actions: sensor.actions || []
 		};
+
+		// If min_value and max_value present, export them and skip values array
+		if (sensor.min !== undefined && sensor.max !== undefined) {
+			exportSensor.min_value = sensor.min;
+			exportSensor.max_value = sensor.max;
+		} else {
+			// Otherwise export values array normally
+			let values = [];
+			if (sensor.type === "binary") {
+				values = [0, 1];
+			} else if (sensor.type === "list") {
+				values = sensor.values || [];
+			} else if (sensor.type === "range") {
+				values = [sensor.min, sensor.max];
+			}
+			exportSensor.values = values;
+		}
+
+		exportObj[sensor.name] = exportSensor;
 	});
-	// Custom stringify each sensor on one line
+
 	const sensorEntries = Object.entries(exportObj).map(([key, val]) => {
 		const valStr = JSON.stringify(val);
 		return `"${key}": ${valStr}`;
 	});
 	const sensorsStr = sensorEntries.join(",\n  ");
 
-	const jsonStr = `[\n  {\n  ${sensorsStr}\n  }\n]`;
+	const jsonStr = `[\n {\n  ${sensorsStr} \n }\n]`;
 
 	const blob = new Blob([jsonStr], { type: "application/json" });
 	const url = URL.createObjectURL(blob);
@@ -203,9 +201,11 @@ function exportSensors() {
 	URL.revokeObjectURL(url);
 }
 
+
 function importSensors(event) {
 	const file = event.target.files[0];
 	if (!file) return;
+
 	const reader = new FileReader();
 	reader.onload = function(e) {
 		try {
@@ -214,37 +214,55 @@ function importSensors(event) {
 				alert("Invalid sensors JSON format.");
 				return;
 			}
+
 			const sensorsObj = data[0];
 			sensors = [];
+
 			for (const [name, sensor] of Object.entries(sensorsObj)) {
-				if (!sensor.description || !Array.isArray(sensor.values)) {
-					continue; // skip invalid
+				if (!sensor.description) continue;
+
+				// Determine values
+				let values = sensor.values;
+				if (!Array.isArray(values)) {
+					if (typeof sensor.min_value === "number" && typeof sensor.max_value === "number") {
+						values = [sensor.min_value, sensor.max_value];
+					} else {
+						console.warn(`Skipping sensor "${name}": missing values or min/max`);
+						continue;
+					}
 				}
-				// Guess sensor type based on values
+
+				// Guess sensor type
 				let type = "binary";
-				if (sensor.values.every(v => typeof v === "number")) {
-					if (sensor.values.length === 2 && sensor.values.includes(0) && sensor.values.includes(1)) {
+				if (values.every(v => typeof v === "number")) {
+					if (values.length === 2 && values.includes(0) && values.includes(1)) {
 						type = "binary";
 					} else {
-						type = "range"; // rough guess for numeric range
+						type = "range";
 					}
 				} else {
 					type = "list";
 				}
 
-				let min, max, values;
+				let min, max;
 				if (type === "range") {
-					min = Math.min(...sensor.values);
-					max = Math.max(...sensor.values);
-				} else if (type === "list") {
-					values = sensor.values;
+					min = Math.min(...values);
+					max = Math.max(...values);
 				}
 
-				const newSensor = { 
-					name, 
-					description: sensor.description, 
-					type, 
-					actions: Array.isArray(sensor.actions) ? sensor.actions : []
+				// Normalize actions
+				let actions = [];
+				if (Array.isArray(sensor.actions)) {
+					actions = sensor.actions;
+				} else if (typeof sensor.actions === "string") {
+					actions = sensor.actions.split(",").map(a => a.trim()).filter(Boolean);
+				}
+
+				const newSensor = {
+					name,
+					description: sensor.description,
+					type,
+					actions
 				};
 
 				if (type === "range") {
@@ -254,8 +272,10 @@ function importSensors(event) {
 				if (type === "list") {
 					newSensor.values = values;
 				}
+
 				sensors.push(newSensor);
 			}
+
 			renderSensors();
 			event.target.value = null;
 		} catch (err) {

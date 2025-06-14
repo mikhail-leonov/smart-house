@@ -130,6 +130,22 @@
       <div id="config" class="section" style="display: none;">
         <h2>Config</h2>
 		
+		<div>
+		  <h2>Rooms Tree</h2>
+		  <div id="roomsTree"></div>
+		</div>
+		
+		<div>
+		  <h2>Sensors</h2>
+		  <div id="sensorList"></div>
+		</div>
+		
+		<button id="assignBtn" disabled>Assign Selected Sensors to Room</button>
+		
+		<div>
+		  <h3>Assigned Sensors for Selected Room</h3>
+		  <div id="assignedSensors">Select a room leaf to see assigned sensors.</div>
+		</div>
 		
       </div>
     </div>
@@ -138,6 +154,7 @@
   <script src="/shared/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
   <script src="tree.js"></script>
+  <script src="merge.js"></script>
   <script>showSection('sensors');</script>
 </body>
 </html>

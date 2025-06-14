@@ -75,8 +75,7 @@
             <input type="file" id="importTree" accept=".json" onchange="importTree()">
         </div>
 
-        <!-- Modal for Adding Nodes -->
-        <div id="addNodeModal" class="modal">
+		<div id="addNodeModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeAddNodeModal()">×</span>
                 <h2>Add New Node</h2>
@@ -88,11 +87,11 @@
                     <input type="hidden" id="nodeParentElementId">
                     <input type="hidden" id="nodeLevel">
                     <input type="hidden" id="nodeId">
-                    <button type="submit">Add</button>
+                    <button type="button" onclick="handleAddNode()">Add</button>
                 </form>
             </div>
         </div>
-
+		
         <!-- Modal for Assigning Properties -->
         <div id="assignPropertyModal" class="modal">
             <div class="modal-content">

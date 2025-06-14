@@ -135,7 +135,7 @@ app.get('/log', (req, res) => {
 
 // Optional: serve the log viewer
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 app.get('/show', (req, res) => {

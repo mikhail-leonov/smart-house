@@ -1,6 +1,6 @@
 /**
  * SmartHub - AI powered Smart Home
- * Web server which is logging all what happens inside the home 
+ * HTTP server App 
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
@@ -8,71 +8,38 @@
  * @license MIT
  */
 
-const mqtt = require('mqtt');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
-const bodyParser = require('body-parser');
 
-const MQTT_BROKER_URL = 'ws://editor.jarvis.home:9001';
-const MQTT_TOPIC = '#';
-const LOG_FILE_PATH = path.join(__dirname, 'home.log');
-const HTTP_PORT = 8084;
+const PORT = 8084;
 
-function getFormattedTime() {
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
+http.createServer((req, res) => {
+  let filePath = './public' + req.url;
+  if (filePath === './public/') { filePath = './public/index.html' };
 
-function logToFile(entry) {
-  fs.appendFile(LOG_FILE_PATH, entry + '\n', (err) => {
-    if (err) console.error('Failed to write to log:', err);
-  });
-}
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeTypes = {
+    '.html': 'text/html',
+    '.js': 'text/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.ico': 'image/x-icon',
+  };
 
-// === MQTT Logging ===
-const mqttClient = mqtt.connect(MQTT_BROKER_URL);
+  const contentType = mimeTypes[ext] || 'application/octet-stream';
 
-mqttClient.on('connect', () => {
-  console.log(`[${getFormattedTime()}] Connected to MQTT broker`);
-  mqttClient.subscribe(MQTT_TOPIC, (err) => {
+  fs.readFile(filePath, (err, content) => {
     if (err) {
-      console.error(`[${getFormattedTime()}] MQTT subscribe error:`, err);
+      res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/plain' });
+      res.end(err.code === 'ENOENT' ? '404 Not Found' : 'Server Error');
     } else {
-      console.log(`[${getFormattedTime()}] Subscribed to topic "${MQTT_TOPIC}"`);
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content, 'utf-8');
     }
   });
-});
-
-mqttClient.on('message', (topic, message) => {
-  const msg = message.toString();
-  const logEntry = `[${getFormattedTime()}] [MQTT] ${topic}: ${msg}`;
-  console.log(logEntry);
-  logToFile(logEntry);
-});
-
-mqttClient.on('error', (err) => {
-  console.error(`[${getFormattedTime()}] MQTT error:`, err);
-});
-
-// === Express App for LLM Logging ===
-const app = express();
-app.use(bodyParser.json());
-
-// Optional: serve the log viewer
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Start server
-app.listen(HTTP_PORT, () => {
-  console.log(`[${getFormattedTime()}] Edit server listening on http://edit.jarvis.home:${HTTP_PORT}`);
-});
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\nShutting down...');
-  mqttClient.end();
-  process.exit();
+}).listen(PORT, () => {
+  console.log(`Server running at http://edit.jarvis.home:${PORT}/`);
 });

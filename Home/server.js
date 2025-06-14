@@ -199,7 +199,7 @@ async function callGrok({ url, model, prompt, apiKey }) {
 
 // Универсальный маршрутизатор
 async function queryAI(prompt) {
-
+    console.log("  - queryAI");
     const model = MODEL_NAMES[LLM_PROVIDER];
     const url = LLM_URLS[LLM_PROVIDER];
     const apiKey = env.ai[LLM_PROVIDER + "_api_key"];

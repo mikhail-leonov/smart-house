@@ -15,8 +15,8 @@ const path = require('path');
 const PORT = 8081;
 
 http.createServer((req, res) => {
-  let filePath = '.' + req.url;
-  if (filePath === './') filePath = './index.html';
+  let filePath = './public' + req.url;
+  if (filePath === './public/') { filePath = './public/index.html' };
 
   const ext = path.extname(filePath).toLowerCase();
   const mimeTypes = {

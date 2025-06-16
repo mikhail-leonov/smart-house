@@ -8,9 +8,9 @@
  * @license MIT
  */
 
-let sensors = [];
-let tree = { home: {} };
-
+//
+// Common part
+//
 function showSection(sectionId) {
 	document.querySelectorAll('.section').forEach(section => {
 		section.style.display = 'none';
@@ -18,167 +18,29 @@ function showSection(sectionId) {
 	document.getElementById(sectionId).style.display = 'block';
 }
 
-function exportTree(event) {
-	// Simple export JSON of the tree including home root
-	const exportObj = { home: tree.home };
-	const jsonStr = JSON.stringify(exportObj, null, 2);
-	// Show in new tab
-	const newTab = window.open();
-	newTab.document.body.innerHTML = `<pre>${jsonStr}</pre>`;
-}
-
-function importTree(event) {
-	const file = event.target.files[0];
-	if (!file) return;
-	const reader = new FileReader();
-	reader.onload = function(e) {
-		try {
-			const data = JSON.parse(e.target.result);
-			if (!data.home) {
-				alert('Invalid JSON format: missing "home" root.');
-				return;
-			}
-			tree.home = data.home;
-			initializeTree(tree);
-			event.target.value = null;
-		} catch (err) {
-			alert('Error parsing JSON: ' + err.message);
-		}
-	};
-	reader.readAsText(file);
-}
-
-function convertToJsTreeData(obj, path = '') {
-	return Object.entries(obj).map(([key, val]) => {
-		const hasChildren = typeof val === 'object' && Object.keys(val).length > 0;
-		const id = path + '/' + key;
-		return {
-			id,
-			text: key,
-			children: hasChildren ? convertToJsTreeData(val, id) : [],
-			originalLeaf: !hasChildren // Track original leaves only
-		};
-	});
-}
-
-// Flatten external list into a sensorMap: { sensorKey: metadata }
-function createSensorMap(sensorArray) {
-	const map = {};
-	sensorArray.forEach(sensorObj => {
-		for (const [key, value] of Object.entries(sensorObj)) {
-			map[key] = value;
-		}
-	});
-	return map;
-}
-
-// Rebuild nested config structure from jsTree node data, merging external metadata
-function buildNestedObjectFromJsTree(nodes, sensorMap) {
-	const result = {};
-	nodes.forEach(node => {
-		const key = node.text;
-		if (node.children && node.children.length > 0) {
-			result[key] = buildNestedObjectFromJsTree(node.children, sensorMap);
-		} else {
-			const meta = sensorMap[key];
-			if (meta) {
-				const { value, ...rest } = meta;
-				result[key] = rest;
-			} else {
-				result[key] = {
-					description: `No metadata for ${key}`
-				};
-			}
-		}
-	});
-	return result;
-}
-
-// Helper to extract sensorArray from jsTree node text
-function extractSensorArray(jsTreeNodes) {
-	const result = [];
-	jsTreeNodes.forEach(topNode => {
-		const children = topNode.children || [];
-		const obj = {};
-		children.forEach(child => {
-			const [k, v] = child.text.split(':').map(s => s.trim());
-			if (!k) return;
-			obj[k] = isNaN(v) ? v : Number(v);
-		});
-		const wrapper = {};
-		wrapper[topNode.text] = obj;
-		result.push(wrapper);
-	});
-	return result;
-}
-
-function exportConfig(event) {
-	const tree = $('#tree').jstree(true);
-	const jsTreeData = tree.get_json('#', { flat: false });
-
-	const sensorTree = $('#mrgExternal').jstree(true);
-	const sensorRawData = sensorTree.get_json('#', { flat: false });
-	const sensorArray = extractSensorArray(sensorRawData);
-	const sensorMap = createSensorMap(sensorArray);
-
-	const config = buildNestedObjectFromJsTree(jsTreeData, sensorMap);
-	const fullConfig = config;  // <- no extra 'home' wrapping!
-
-	const blob = new Blob([JSON.stringify(fullConfig, null, 2)], { type: 'application/json' });
-	const a = document.createElement('a');
-	a.href = URL.createObjectURL(blob);
-	a.download = 'smart-home-config.json';
-	document.body.appendChild(a);
-	a.click();
-
-	setTimeout(() => {
-		URL.revokeObjectURL(a.href);
-		document.body.removeChild(a);
-	}, 100);
-}
-
-function importConfig(event) {
-	alert("Not iplemented yet");
-
-}
-
-function initializeTree(objTree) {
-	// Destroy existing jsTree instance if it exists
-	const existingTree = $('#tree').jstree(true);
-	if (existingTree) {
-		$('#tree').jstree('destroy').empty();
-	}
-	$('#tree').jstree({
-		core: {
-			check_callback: function (operation, node, parent, position, more) {
-				const tree = $('#tree').jstree(true);
-				// Disallow internal drag-and-drop
-				if (operation === "move_node" && more && more.origin === tree) {
-					return false;
-				}
-				// Allow drop only into original leaves
-				if (operation === "move_node" && parent) {
-					const parentNode = tree.get_node(parent);
-					return parentNode.original && parentNode.original.originalLeaf === true;
-				}
-				return true;
-			},
-			data: convertToJsTreeData(objTree)
-		},
-		plugins: ['dnd']
-	}).on('ready.jstree', function () {
-		$('#tree').jstree('open_all');
-	});
-}
-
 
 
 //
-// Store current editing sensor id and data
+// Sensor part
 //
-let currentSensorId = null;
-let currentSensorData = null;
+let sensors = [];
 
+//
+// Sensor events 
+//
+document.getElementById('sensorEditForm').addEventListener('submit', function (e) {
+	handleListModalSUbmit(e);
+});
+document.getElementById('deleteSensorBtn').addEventListener('click', function (e) {
+    handledeleteSensor(e);
+});
+$('#sensorType').on('change', function () {
+	updateModalFieldVisibility(this.value);
+});
+
+//
+// Sensor functions
+//
 function convertToJsListData(sensorObjMap, icon) {
 	const result = [];
 	for (const [key, sensorData] of Object.entries(sensorObjMap)) {
@@ -309,19 +171,6 @@ function exportSensors(event) {
 }
 
 
-
-// Handle Submit button on List item modal form
-document.getElementById('sensorEditForm').addEventListener('submit', function (e) {
-	handleListModalSUbmit(e);
-});
-// Handle dropdown change on List item modal form
-$('#sensorType').on('change', function () {
-	updateModalFieldVisibility(this.value);
-});
-// Handle delete button pressed on List item modal form
-document.getElementById('deleteSensorBtn').addEventListener('click', function (e) {
-    handledeleteSensor(e);
-});
 
 function handleListClick(e, data) {
 	const sensor = data.node.data || {};
@@ -475,5 +324,159 @@ function updateSensorFormVisibility(type) {
 
 
 
-initializeTree(tree);
+
+
+//
+// Sensor initaializations
+//
 initializeList(sensors);
+
+
+
+//
+// Tree part
+//
+let tree = { home: {} };
+
+//
+// Tree events 
+//
+
+
+
+//
+// Tree functions
+//
+function exportTree(event) {
+	// Simple export JSON of the tree including home root
+	const exportObj = { home: tree.home };
+	const jsonStr = JSON.stringify(exportObj, null, 2);
+	// Show in new tab
+	const blob = new Blob([jsonStr], { type: "application/json" });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = "tree.json";
+	a.click();
+	URL.revokeObjectURL(url);
+}
+
+function importTree(event) {
+	const file = event.target.files[0];
+	if (!file) return;
+	const reader = new FileReader();
+	reader.onload = function(e) {
+		try {
+			const data = JSON.parse(e.target.result);
+			if (!data.home) {
+				alert('Invalid JSON format: missing "home" root.');
+				return;
+			}
+			tree.home = data.home;
+			initializeTree(tree);
+			event.target.value = null;
+		} catch (err) {
+			alert('Error parsing JSON: ' + err.message);
+		}
+	};
+	reader.readAsText(file);
+}
+
+function convertToJsTreeData(obj, path = '') {
+	return Object.entries(obj).map(([key, val]) => {
+		const hasChildren = typeof val === 'object' && Object.keys(val).length > 0;
+		const id = path + '/' + key;
+		return {
+			id,
+			text: key,
+			children: hasChildren ? convertToJsTreeData(val, id) : [],
+			originalLeaf: !hasChildren // Track original leaves only
+		};
+	});
+}
+
+// Flatten external list into a sensorMap: { sensorKey: metadata }
+function createSensorMap(sensorArray) {
+	const map = {};
+	sensorArray.forEach(sensorObj => {
+		for (const [key, value] of Object.entries(sensorObj)) {
+			map[key] = value;
+		}
+	});
+	return map;
+}
+
+// Rebuild nested config structure from jsTree node data, merging external metadata
+function buildNestedObjectFromJsTree(nodes, sensorMap) {
+	const result = {};
+	nodes.forEach(node => {
+		const key = node.text;
+		if (node.children && node.children.length > 0) {
+			result[key] = buildNestedObjectFromJsTree(node.children, sensorMap);
+		} else {
+			const meta = sensorMap[key];
+			if (meta) {
+				const { value, ...rest } = meta;
+				result[key] = rest;
+			} else {
+				result[key] = {
+					description: `No metadata for ${key}`
+				};
+			}
+		}
+	});
+	return result;
+}
+
+// Helper to extract sensorArray from jsTree node text
+function initializeTree(objTree) {
+	// Destroy existing jsTree instance if it exists
+	const existingTree = $('#tree').jstree(true);
+	if (existingTree) {
+		$('#tree').jstree('destroy').empty();
+	}
+	$('#tree').jstree({
+		core: {
+			check_callback: function (operation, node, parent, position, more) {
+				const tree = $('#tree').jstree(true);
+				// Disallow internal drag-and-drop
+				if (operation === "move_node" && more && more.origin === tree) {
+					return false;
+				}
+				// Allow drop only into original leaves
+				if (operation === "move_node" && parent) {
+					const parentNode = tree.get_node(parent);
+					return parentNode.original && parentNode.original.originalLeaf === true;
+				}
+				return true;
+			},
+			data: convertToJsTreeData(objTree)
+		},
+		plugins: ['dnd']
+	}).on('ready.jstree', function () {
+		$('#tree').jstree('open_all');
+	});
+}
+
+
+
+//
+// Tree initaializations
+//
+initializeTree(tree);
+
+
+//
+// Config functions
+//
+function exportConfig(event) {
+	alert("Not iplemented yet");
+
+}
+
+function importConfig(event) {
+	alert("Not iplemented yet");
+
+}
+
+

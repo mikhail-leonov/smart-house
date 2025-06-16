@@ -530,3 +530,6 @@ form button[type="submit"]:hover {
 .modal-content button:hover {
     background-color: #0056b3;
 }
+
+body { font-family: sans-serif; display: flex; gap: 3em; margin: 2em; }
+#external, #tree { border: 1px solid #ccc; padding: 1em; width: 300px; }

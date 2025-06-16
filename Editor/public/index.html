@@ -19,6 +19,9 @@
   <link href="/shared/ui.css" rel="stylesheet">
   <link href="/shared/home.css" rel="stylesheet">
   <link href="/shared/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="jstree.css" />
+  <script src="jquery.js"></script>
+  <script src="jstree.js"></script>
 </head>
 <body>
 
@@ -41,8 +44,8 @@
 		<div class="d-flex justify-content-between align-items-center mb-3">
 			<h4 class="mb-0">Add / Edit Sensor</h4>
 			<div class="d-flex gap-2">
-				<button type="button" class="btn btn-secondary" onclick="exportSensors()">Export JSON</button>
-				<button type="button" class="btn btn-secondary" onclick="document.getElementById('importSensorsFileInput').click()">Import JSON</button>
+				<button type="button" class="btn btn-secondary" onclick="exportSensors()">Export</button>
+				<button type="button" class="btn btn-secondary" onclick="document.getElementById('importSensorsFileInput').click()">Import</button>
 			</div>
 			<input type="file" id="importSensorsFileInput" accept=".json" style="display:none" onchange="importSensors(event)">			
 		</div>
@@ -115,10 +118,10 @@
         <h2>Tree</h2>
 		<!-- Tree Editor Tab Content -->
 		<div id="treeEditorTab" class="tab-pane">
-			<div class="mb-4">
+			<div class="d-flex gap-2">
 				<button class="btn btn-primary me-2" onclick="showAddAreaForm()">Add Area</button>
-				<button class="btn btn-secondary me-2" onclick="exportTree()">Export Tree</button>
-				<button class="btn btn-secondary" onclick="document.getElementById('importTreeFileInput').click()">Import Tree</button>
+				<button class="btn btn-secondary me-2" onclick="exportTree()">Export</button>
+				<button class="btn btn-secondary" onclick="document.getElementById('importTreeFileInput').click()">Import</button>
 				<input type="file" id="importTreeFileInput" accept=".json" style="display:none" onchange="importTree(event)">
 			</div>
 			<div id="treeContainer"></div>
@@ -129,22 +132,29 @@
 	  
       <div id="config" class="section" style="display: none;">
         <h2>Config</h2>
-		
-		<div>
-		  <h2>Rooms Tree</h2>
-		  <div id="roomsTree"></div>
+		<!-- Tree Editor Tab Content -->
+		<div id="treeEditorTab" class="tab-pane">
+			<div class="d-flex gap-2">
+				<button class="btn btn-secondary me-2" onclick="exportConfig()">Export</button>
+			</div>
 		</div>
-		
-		<div>
-		  <h2>Sensors</h2>
-		  <div id="sensorList"></div>
-		</div>
-		
-		<button id="assignBtn" disabled>Assign Selected Sensors to Room</button>
-		
-		<div>
-		  <h3>Assigned Sensors for Selected Room</h3>
-		  <div id="assignedSensors">Select a room leaf to see assigned sensors.</div>
+	
+		<div class="container-fluid">
+		  <div class="row">
+			<!-- Left column: External Items -->
+			<div class="col-md-6">
+			  <h3>External Items</h3>
+			  <div id="mrgExternal"></div>
+			</div>
+
+			<!-- Right column: Main Tree -->
+			<div class="col-md-6">
+			  <h3>Main Tree</h3>
+			  <div id="mrgTree"></div>
+			</div>
+			
+			
+		  </div>
 		</div>
 		
       </div>
@@ -153,8 +163,6 @@
 
   <script src="/shared/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
-  <script src="tree.js"></script>
-  <script src="merge.js"></script>
   <script>showSection('sensors');</script>
 </body>
 </html>

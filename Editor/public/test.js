@@ -48,7 +48,8 @@ function convertToJsListData(sensorObjMap, icon) {
 			text: sensorData.name,
 			id: 'sensor' + "-" + sensorData.name + "-" + key,
 			icon: icon,
-			data: sensorData
+			data: sensorData,
+			sensor: true
 		};
 		result.push(node);
 	}
@@ -67,13 +68,12 @@ function initializeList(sensorObjMap) {
 			'data': convertToJsListData(sensorObjMap, 'gear.png'),
 			'check_callback': false
 		},
-		'plugins': ['dnd']
+		plugins: ["dnd", "types"] 
 	});
 	$('#list').on('select_node.jstree', function (e, data) {
 		handleListClick(e, data);
 	});
 }
-
 
 function importSensors(event) {
 	const file = event.target.files?.[0];
@@ -235,7 +235,8 @@ function handleListModalSUbmit(e) {
 			id: name,
 			text: name,
 			icon: 'gear.png',
-			data: { ...updatedSensor }
+			data: { ...updatedSensor },
+			sensor: true
 		}, 'last');
 
 		// Reset the new marker
@@ -347,6 +348,98 @@ let tree = { home: {} };
 //
 // Tree functions
 //
+function initializeTree(objTree) {
+	// Destroy existing jsTree instance if it exists
+	const existingTree = $('#tree').jstree(true);
+	if (existingTree) {
+		$('#tree').jstree('destroy').empty();
+	}
+	$('#tree').jstree({
+		core: {
+			check_callback: function (operation, node, parent, position, more) {
+				const tree = $('#tree').jstree(true);
+				// Prevent internal drag-drop within #tree
+				if (operation === "move_node" && more?.origin === tree) {
+					return false;
+				}
+				// Allow drop from #list only into leaf nodes
+				if (operation === "move_node" && parent && more?.origin) {
+					const parentNode = tree.get_node(parent);
+					const isLeaf = parentNode.original?.originalLeaf === true;
+					const isFromList = more.origin.element?.attr('id') === 'list';
+					
+					const fromList = more && more.origin && more.origin.element.attr('id') === 'list';
+					const toTree = this.element && this.element.attr('id') === 'tree';
+					if (fromList && toTree && parent) {
+						// Ensure it's a sensor leaf
+						node.sensor = true;
+						node.children = [];
+						
+						// Optional: copy metadata from original
+						const origNode = more?.origin?.get_node?.(more?.origin?.get_node(node.id));
+						if (origNode?.data) {
+							node.data = { ...origNode.data };
+						}
+						
+						if (node.data.description) {
+							node.description = node.data.description;
+						}
+						if (node.data.actions) {
+							node.actions = node.data.actions;
+						}
+						if (node.data.min_value) {
+							node.min_value = node.data.min_value;
+						}
+						if (node.data.max_value) {
+							node.max_value = node.data.max_value;
+						}
+						if (node.data.values) {
+							node.values = node.data.values;
+						}
+						console.log(node);
+						// Optional: clean up other UI-related data
+						delete node.state; // Just in case it carries open/closed state
+						delete node.li_attr; // Remove inherited HTML attributes if any
+					}
+					return isFromList && isLeaf;
+				}
+				return true;
+			},
+			data: convertToJsTreeData(objTree)
+		},
+		plugins: ["contextmenu", "dnd", "types"], 
+		contextmenu: {
+			items: function (node) {
+				return {
+					delete: {
+						label: "Delete Sensor",
+						// icon: "jstree-icon jstree-close", // icon removed from here as requested
+						action: function () {
+							const tree = $('#tree').jstree(true);
+							if (node.icon === "gear.png") {
+								if (confirm(`Delete "${node.text}"?`)) {
+									tree.delete_node(node);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	});
+	
+	$('#tree').on('ready.jstree', function () {
+		$('#tree').jstree('open_all');
+	});	
+	$('#tree').on('select_node.jstree', function (e, data) {
+		handleTreeClick(e, data);
+	});
+	
+}
+function handleTreeClick(e, data) {
+	const sensor = data.node.data || {};
+	console.log(sensor);
+}
 function exportTree(event) {
 	// Simple export JSON of the tree including home root
 	const exportObj = { home: tree.home };
@@ -390,12 +483,12 @@ function convertToJsTreeData(obj, path = '') {
 			id,
 			text: key,
 			children: hasChildren ? convertToJsTreeData(val, id) : [],
-			originalLeaf: !hasChildren // Track original leaves only
+			originalLeaf: !hasChildren,
+			sensor: false
 		};
 	});
 }
 
-// Flatten external list into a sensorMap: { sensorKey: metadata }
 function createSensorMap(sensorArray) {
 	const map = {};
 	sensorArray.forEach(sensorObj => {
@@ -406,7 +499,6 @@ function createSensorMap(sensorArray) {
 	return map;
 }
 
-// Rebuild nested config structure from jsTree node data, merging external metadata
 function buildNestedObjectFromJsTree(nodes, sensorMap) {
 	const result = {};
 	nodes.forEach(node => {
@@ -428,55 +520,84 @@ function buildNestedObjectFromJsTree(nodes, sensorMap) {
 	return result;
 }
 
-// Helper to extract sensorArray from jsTree node text
-function initializeTree(objTree) {
-	// Destroy existing jsTree instance if it exists
-	const existingTree = $('#tree').jstree(true);
-	if (existingTree) {
-		$('#tree').jstree('destroy').empty();
-	}
-	$('#tree').jstree({
-		core: {
-			check_callback: function (operation, node, parent, position, more) {
-				const tree = $('#tree').jstree(true);
-				// Disallow internal drag-and-drop
-				if (operation === "move_node" && more && more.origin === tree) {
-					return false;
-				}
-				// Allow drop only into original leaves
-				if (operation === "move_node" && parent) {
-					const parentNode = tree.get_node(parent);
-					return parentNode.original && parentNode.original.originalLeaf === true;
-				}
-				return true;
-			},
-			data: convertToJsTreeData(objTree)
-		},
-		plugins: ['dnd']
-	}).on('ready.jstree', function () {
-		$('#tree').jstree('open_all');
-	});
-}
-
-
 
 //
 // Tree initaializations
 //
 initializeTree(tree);
 
-
 //
 // Config functions
 //
-function exportConfig(event) {
-	alert("Not iplemented yet");
-
-}
-
 function importConfig(event) {
 	alert("Not iplemented yet");
-
 }
 
+function transformJsTreeNodesToConfig(nodes) {
+  const result = {};
+
+  nodes.forEach(node => {
+    // If node has children, recursively transform children
+    if (node.children && node.children.length > 0) {
+      result[node.text] = transformJsTreeNodesToConfig(node.children);
+      // Optionally include other node metadata if needed
+      if (node.data && node.data.description) {
+        result[node.text].description = node.data.description;
+      }
+    } else {
+      // Leaf node: construct sensor object with properties from node.data
+      // Adjust property names depending on how you stored them
+      const sensorData = {};
+
+      if (node.data) {
+        if (node.data.values) sensorData.values = node.data.values;
+        if (node.data.min_value !== undefined) sensorData.min_value = node.data.min_value;
+        if (node.data.max_value !== undefined) sensorData.max_value = node.data.max_value;
+        if (node.data.actions) sensorData.actions = node.data.actions;
+        if (node.data.description) sensorData.description = node.data.description;
+      }
+
+      // If no sensor data, fallback to just description or empty object
+      if (Object.keys(sensorData).length === 0) {
+        sensorData.description = node.data && node.data.description ? node.data.description : "";
+      }
+
+      result[node.text] = sensorData;
+    }
+  });
+
+  return result;
+}
+
+function exportConfig(event) {
+  const mainTree = $('#tree').jstree(true);
+  if (!mainTree) {
+    alert('Main tree not initialized');
+    return;
+  }
+
+  // Get jsTree data array (root-level nodes)
+  const treeNodes = mainTree.get_json('#', { flat: false });
+
+  // Transform jsTree node array into your nested config object
+  const config = {
+    home: transformJsTreeNodesToConfig(treeNodes)
+  };
+
+  // JSON stringify pretty
+  const jsonStr = JSON.stringify(config, null, 2);
+
+  // Create blob and download
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "config.json";
+  document.body.appendChild(a);
+  a.click();
+
+  // Cleanup
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 

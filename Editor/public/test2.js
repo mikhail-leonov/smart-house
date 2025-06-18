@@ -1,6 +1,9 @@
 //
 // Common part
 //
+
+let $clicked;
+
 function showSection(sectionId) {
 	document.querySelectorAll('.section').forEach(section => {
 		section.style.display = 'none';
@@ -45,7 +48,6 @@ function getFullPath(e) {
 	return pathParts.join('/');
 }
 
-let $clicked;
 
 $(document).ready(function () {
 	$('#tree').on('click', 'li', function (e) {
@@ -89,10 +91,6 @@ $(document).ready(function () {
 	});
 });
 
-//
-// Drag part
-//
-
 document.getElementById('sensorType').addEventListener('change', function (e) {
 	updateModalFieldVisibility( e.target.value);
 });
@@ -123,6 +121,8 @@ document.addEventListener('dragstart', function (e) {
 		console.log('Drag started, set drop-sensorActions:', e.target.dataset.sensorActions);
 	}	
 });
+
+
 
 //
 // Sensors part
@@ -300,6 +300,7 @@ function createNewSensor() {
 	modal.show();
 }
 
+
 document.getElementById('deleteSensorBtn').addEventListener('click', function (e) {
 	const sensorId = $('#sensorId').val();
 	if (sensorId) {
@@ -363,16 +364,16 @@ document.getElementById('saveSensorBtn').addEventListener('click', function (e) 
 });
 
 
+
+
 //
 // Tree part
 //
 let tree = {};
 
 function exportTree(event) {
-	// Simple export JSON of the tree including home root
 	const exportObj = { home: tree.home };
 	const jsonStr = JSON.stringify(exportObj, null, 2);
-	// Show in new tab
 	const blob = new Blob([jsonStr], { type: "application/json" });
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
@@ -520,20 +521,6 @@ function createNewTreeElement() {
 	modal.show();
 }
 
-document.getElementById('saveTreeElementBtn').addEventListener('click', function (e) {
-	const name = $('#treeNodeName').val().trim();
-	const parentPath = $('#treeNodeParentPath').val();
-	if (!name) {
-		alert("Node name is required.");
-		return;
-	}
-	insertNode(tree, parentPath, name);
-	renderTree(tree); 
-	bootstrap.Modal.getInstance(document.getElementById('treeNodeEditModal')).hide();
-});
-
-
-// tree is your nested object
 function insertNode(tree, path, newNodeName) {
 	if (!path) {
 		tree[newNodeName] = {};
@@ -562,17 +549,233 @@ function editTreeElement() {
 		e = e[0];
 	}
 	const parentPath = getFullPath(e);
-
 	const parts = parentPath.split('/');
-
 	const name = parts[parts.length - 1] || '';
 	const parentName = parts[parts.length - 1] || '';
-
 	$('#treeNodeParentPath').val(parentPath);
 	$('#treeNodeParentName').val(parentName);
 	$('#treeNodeName').val(name);
 	document.getElementById('deleteTreeElementBtn').style.visibility = '';
-
 	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
 	modal.show();
+}
+
+
+
+
+document.getElementById('saveTreeElementBtn').addEventListener('click', function (e) {
+	const name = $('#treeNodeName').val().trim();
+	const parentPath = $('#treeNodeParentPath').val();
+	if (!name) {
+		alert("Node name is required.");
+		return;
+	}
+	insertNode(tree, parentPath, name);
+	renderTree(tree); 
+	bootstrap.Modal.getInstance(document.getElementById('treeNodeEditModal')).hide();
+});
+
+
+
+
+
+
+//
+// Config part
+//
+
+function getFirstTextNodeText(el) {
+  for (const node of el.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+      return node.textContent.trim();
+    }
+  }
+  return null;
+}
+
+function buildConfigFromTree2() {
+    const result = {};
+	const $root = $('#tree');
+	if ($root.length) {
+		for (const child of $root[0].children) {
+			for (const child2 of child.children) {
+				const key2 = getFirstTextNodeText(child2);
+				if (key2) { result[key2] = {}; }
+				for (const child3 of child2.children) {
+					for (const child4 of child3.children) {
+						const key4 = getFirstTextNodeText(child4);
+						if (key4) { result[key2][key4] = {}; }
+						for (const child5 of child4.children) {
+							for (const child6 of child5.children) {
+								const key6 = getFirstTextNodeText(child6);
+								if (key6) { result[key2][key4][key6] = {}; }
+								for (const child7 of child6.children) {
+									for (const child8 of child7.children) {
+										const key8 = getFirstTextNodeText(child8);
+										if (key8) { result[key2][key4][key6][key8] = {}; }
+										for (const child9 of child8.children) {
+											for (const child10 of child9.children) {
+												let key10 = getFirstTextNodeText(child10);
+												if (key10) { 
+													if (key10.trim() !== "x" ) { 
+														key10 = key10.trim();
+														if (key10.startsWith('-')) {
+															key10 = key10.slice(1).trim(); 
+														}
+														key10 = key10.split(' ').join('');
+														
+														let sensor = {}
+														
+														let description = ""; 
+														if (child10.dataset.sensorDescription) {
+															description = child10.dataset.sensorDescription;
+														}
+														if (description) {
+															sensor["description"] = description;
+														}
+														let type = ""; 
+														if (child10.dataset.sensorType) {
+															type = child10.dataset.sensorType;
+														}
+														if (type === "bnary") {
+															sensor["values"] = [0,1];
+														}
+														
+														let values = ""; 
+														if (child10.dataset.sensorValues) {
+															values = child10.dataset.sensorValues;
+														}
+														if (values) {
+															sensor["values"] = values.split(',').map(value => value.trim()).filter(value => value.length > 0);
+														}
+														let min = ""; 
+														if (child10.dataset.sensorMin) {
+															min = child10.dataset.sensorMin;
+														}
+														if (min) {
+															sensor["min_value"] = min;
+														}
+														let max = ""; 
+														if (child10.dataset.sensorMax) {
+															max = child10.dataset.sensorMax;
+														}
+														if (max) {
+															sensor["max_value"] = max;
+														}
+														let actions = ""; 
+														if (child10.dataset.sensorActions) {
+															actions = child10.dataset.sensorActions;
+														}
+														if (actions) {
+															sensor["actions"] = actions.split(',').map(action => action.trim()).filter(action => action.length > 0);
+														}
+														
+														
+  														result[key2][key4][key6][key8][key10] = JSON.stringify(sensor);
+													}
+												}
+											}	
+										}
+									}
+								}
+							}	
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+function buildConfigFromTree() {
+    const result = {};
+    const $root = $('#tree');
+
+    if (!$root.length) return result;
+
+    for (const child of $root[0].children) {
+        for (const child2 of child.children) {
+            const key2 = getFirstTextNodeText(child2);
+            if (!key2) continue;
+            result[key2] = {};
+
+            for (const child3 of child2.children) {
+                for (const child4 of child3.children) {
+                    const key4 = getFirstTextNodeText(child4);
+                    if (!key4) continue;
+                    result[key2][key4] = {};
+					
+                    for (const child5 of child4.children) {
+                        for (const child6 of child5.children) {
+                            const key6 = getFirstTextNodeText(child6);
+                            if (!key6) continue;
+                            result[key2][key4][key6] = {};
+
+                            for (const child7 of child6.children) {
+                                for (const child8 of child7.children) {
+                                    const key8 = getFirstTextNodeText(child8);
+                                    if (!key8) continue;
+                                    result[key2][key4][key6][key8] = {};
+
+                                    for (const child9 of child8.children) {
+                                        for (const child10 of child9.children) {
+                                            let key10 = getFirstTextNodeText(child10);
+                                            if (!key10 || key10.trim() === 'x') continue;
+
+                                            key10 = key10.trim().replace(/^-\s*/, '').replace(/\s+/g, '');
+
+                                            const sensor = {};
+                                            const ds = child10.dataset;
+
+                                            if (ds.sensorDescription) sensor.description = ds.sensorDescription;
+                                            if (ds.sensorType === 'bnary') sensor.values = [0, 1];
+                                            if (ds.sensorValues) {
+                                                sensor.values = ds.sensorValues.split(',')
+                                                    .map(v => v.trim())
+                                                    .filter(Boolean);
+                                            }
+                                            if (ds.sensorMin) sensor.min_value = ds.sensorMin;
+                                            if (ds.sensorMax) sensor.max_value = ds.sensorMax;
+                                            if (ds.sensorActions) {
+                                                sensor.actions = ds.sensorActions.split(',')
+                                                    .map(a => a.trim())
+                                                    .filter(Boolean);
+                                            }
+                                            result[key2][key4][key6][key8][key10] = JSON.stringify(sensor);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+function exportConfig () { 
+	const config = buildConfigFromTree();
+	let  jsonStr = JSON.stringify(config, null, 2);
+	jsonStr = jsonStr.split('\\').join(''); 
+	jsonStr = jsonStr.split('  ').join(' ');
+	jsonStr = jsonStr.split('"{').join('{');
+	jsonStr = jsonStr.split('}"').join('}');
+	const blob = new Blob([jsonStr], { type: "application/json" });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = "tree.json";
+	a.click();
+	URL.revokeObjectURL(url);
+}
+
+function importConfig () { 
+
+alert("!");
+
+
 }

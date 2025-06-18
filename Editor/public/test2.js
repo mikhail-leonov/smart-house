@@ -15,15 +15,113 @@ function isLeaf(nodeData) {
 function findSensorIdByName(name) {
   return Object.keys(sensors).find(id => sensors[id].name === name);
 }
+
+function rndId(length = 12) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function getFullPath(e) {
+	const pathParts = [];
+	let el = e;
+	while (el && el.tagName === 'LI') {
+		// Try to get node name/id from data attributes, fallback to trimmed text content
+		const nodeName = el.dataset.node || el.dataset.name || el.textContent.trim();
+		if (nodeName) {
+			pathParts.unshift(nodeName); // prepend to array
+		}
+		el = el.parentElement;
+		if (!el) { break; }
+		if (el.tagName === 'UL') {
+			el = el.parentElement;
+		} else {
+			break;
+		}	
+	}
+	return pathParts.join('/');
+}
+
+let $clicked;
+
+$(document).ready(function () {
+	$('#tree').on('click', 'li', function (e) {
+		e.stopPropagation();
+		const $this = $(this);
+		if ($clicked && $clicked[0] === $this[0]) {
+			$clicked = null;
+			$this.removeClass('active');
+			$this.find('.edit-btn').remove();
+			return;
+		}
+		$('#tree .edit-btn').remove();        // Remove all edit buttons
+		$('#tree li').removeClass('active');  // Unmark all
+		$this.addClass('active');             // Mark this one
+		$clicked = $this;                     // Save reference
+		const depth = $this.parentsUntil('#tree', 'ul').length + 1;
+		if (depth <= 5) {
+			const $editBtn = $('<span>')
+				.addClass('edit-btn text-primary ms-2')
+				.text('[edit]')
+				.css({
+					cursor: 'pointer',
+					fontSize: '0.85em'
+				})
+				.attr('title', 'Edit this section')
+				.click(function (ev) {
+					ev.stopPropagation();
+					editTreeElement();
+				});
+			let inserted = false;
+			$this.contents().each(function () {
+				if (this.nodeType === Node.TEXT_NODE && this.nodeValue.trim() !== '' && !inserted) {
+					$(this).after($editBtn);
+					inserted = true;
+				}
+			});
+			if (!inserted) {
+				$this.prepend($editBtn);
+			}
+		}
+	});
+});
+
 //
 // Drag part
 //
 
+document.getElementById('sensorType').addEventListener('change', function (e) {
+	updateModalFieldVisibility( e.target.value);
+});
+
 document.addEventListener('dragstart', function (e) {
     if (e.target.dataset.sensorName) {
-        e.dataTransfer.setData('drop-name', e.target.dataset.sensorName);
-        console.log('Drag started, set drop-name:', e.target.dataset.sensorName);
-    }
+        e.dataTransfer.setData('drop-sensorName', e.target.dataset.sensorName);
+		console.log('Drag started, set drop-sensorName:', e.target.dataset.sensorName);
+	}
+    if (e.target.dataset.sensorDescription) {
+        e.dataTransfer.setData('drop-sensorDescription', e.target.dataset.sensorDescription);
+		console.log('Drag started, set drop-sensorDescription:', e.target.dataset.sensorDescription);
+	}	
+    if (e.target.dataset.sensorMin) {
+        e.dataTransfer.setData('drop-sensorMin', e.target.dataset.sensorMin);
+		console.log('Drag started, set drop-sensorMin:', e.target.dataset.sensorMin);
+	}	
+    if (e.target.dataset.sensorMax) {
+        e.dataTransfer.setData('drop-sensorMax', e.target.dataset.sensorMax);
+		console.log('Drag started, set drop-sensorMax:', e.target.dataset.sensorMax);
+	}	
+    if (e.target.dataset.sensorValues) {
+        e.dataTransfer.setData('drop-sensorValues', e.target.dataset.sensorValues);
+		console.log('Drag started, set drop-sensorValues:', e.target.dataset.sensorValues);
+	}	
+    if (e.target.dataset.sensorActions) {
+        e.dataTransfer.setData('drop-sensorActions', e.target.dataset.sensorActions);
+		console.log('Drag started, set drop-sensorActions:', e.target.dataset.sensorActions);
+	}	
 });
 
 //
@@ -167,6 +265,7 @@ function updateSensorFormVisibility(type) {
 
 
 function showSensorModal(meta) {
+	$('#sensorId').val(meta.sensorId || rndId() );
 	$('#sensorName').val(meta.sensorName || '');
 	$('#sensorDescription').val(meta.sensorDescription || '');
 	$('#sensorIsNew').val('false');
@@ -182,20 +281,41 @@ function showSensorModal(meta) {
 	modal.show();
 }
 
+function createNewSensor() {
+	$('#sensorId').val( rndId() );
+	$('#sensorName').val('');
+	$('#sensorName').prop('readonly', false);
+	$('#sensorDescription').val('');
+	$('#sensorIsNew').val('true');
+	document.getElementById('deleteSensorBtn').style.visibility = 'hidden';
+	
+	$('#sensorType').val('binary');
+	updateSensorFormVisibility('binary');
+	updateModalFieldVisibility
+	$('#sensorMinValue').val('');
+	$('#sensorMaxValue').val('');
+	$('#sensorValues').val('');
+	$('#sensorActions').val('');
+	const modal = new bootstrap.Modal(document.getElementById('sensorEditModal'));
+	modal.show();
+}
+
 document.getElementById('deleteSensorBtn').addEventListener('click', function (e) {
-	const sensorId = $('#sensorIdEditing').val();
+	const sensorId = $('#sensorId').val();
 	if (sensorId) {
 		const confirmed = confirm("Are you sure you want to delete this sensor?");
 		if (confirmed) { 
 			delete sensors[sensorId];
-			renderSensors(sensors); // refresh the list
+			renderSensors(sensors);
 			// Close the modal
-			bootstrap.Modal.getInstance(document.getElementById('sensorEditModal')).hide();
+			const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('sensorEditModal'));
+			modal.hide();
 		}
 	}
 });
 
 document.getElementById('saveSensorBtn').addEventListener('click', function (e) {
+	
 	const name = $('#sensorName').val().trim();
 	const description = $('#sensorDescription').val().trim();
 	const type = $('#sensorType').val();
@@ -317,7 +437,12 @@ function renderTree(obj) {
 				li.addEventListener('drop', e => {
 					e.preventDefault();
 					li.classList.remove('border', 'border-primary', 'border-2');
-					const sensorName = e.dataTransfer.getData('drop-name');
+					
+					const sensorName = e.dataTransfer.getData('drop-sensorName');
+					
+					const sensorWrapper = document.createElement('span');
+					sensorWrapper.className = 'mb-1 d-flex align-items-center';
+					
 					if (!sensorName) { return; }
 					// Check if sensor name is already present
 					const alreadyExists = Array.from(li.querySelectorAll('div')).some(div => div.textContent === sensorName);
@@ -325,10 +450,40 @@ function renderTree(obj) {
 					// Find sensor ID by name (optional, if you want description)
 					const sensorId = findSensorIdByName(sensorName);
 					const sensorDiv = document.createElement('div');
-					sensorDiv.className = 'ms-3 small text-muted';
+					sensorDiv.className = 'me-1'; 
 					sensorDiv.textContent = " - " + sensorName;
+					sensorDiv.dataset.sensorDescription = e.dataTransfer.getData('drop-sensorDescription');
+					
+					const min_value = e.dataTransfer.getData('drop-sensorMin');
+					if (min_value) {
+						sensorDiv.dataset.sensorMin = min_value;
+					}
+					const max_value = e.dataTransfer.getData('drop-sensorMax');
+					if (max_value) {
+						sensorDiv.dataset.sensorMax = max_value;
+					}
+					const values = e.dataTransfer.getData('drop-sensorValues');
+					if (values) {
+						sensorDiv.dataset.sensorValues = values;
+					}
+					const actions = e.dataTransfer.getData('drop-sensorActions');
+					if (actions) {
+						sensorDiv.dataset.sensorActions = actions;
+					}
 					sensorDiv.title = sensorId ? sensors[sensorId]?.description || '' : '';
-					li.appendChild(sensorDiv);
+					
+					const deleteChar = document.createElement('span');
+					deleteChar.textContent = ' x ';
+					deleteChar.style.color = 'red';
+					deleteChar.style.cursor = 'pointer';
+					deleteChar.onclick = () => { 
+						sensorWrapper.remove();
+					}
+					
+					sensorWrapper.appendChild(sensorDiv);
+					sensorWrapper.appendChild(deleteChar);
+					
+					li.appendChild(sensorWrapper);
 				});
 			}
             // Recurse to build children
@@ -346,4 +501,78 @@ function renderTree(obj) {
     container.appendChild(tree);
 }
 
+function createNewTreeElement() {
+	if (!$clicked) { return; }
+	let e = $clicked;
+	if (e.length > 0) {
+		e = e[0];
+	}
+	const parentPath = getFullPath(e);
+	const parts = parentPath.split('/');
+	const parentName = parts[parts.length - 1] || '';
+	$('#treeNodeParentPath').val(parentPath);
+	$('#treeNodeParentName').val(parentName);
+	$('#treeNodeName').val('');
+	$('#treeNodeName').prop('readonly', false);
+	document.getElementById('deleteTreeElementBtn').style.visibility = 'hidden';
 
+	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
+	modal.show();
+}
+
+document.getElementById('saveTreeElementBtn').addEventListener('click', function (e) {
+	const name = $('#treeNodeName').val().trim();
+	const parentPath = $('#treeNodeParentPath').val();
+	if (!name) {
+		alert("Node name is required.");
+		return;
+	}
+	insertNode(tree, parentPath, name);
+	renderTree(tree); 
+	bootstrap.Modal.getInstance(document.getElementById('treeNodeEditModal')).hide();
+});
+
+
+// tree is your nested object
+function insertNode(tree, path, newNodeName) {
+	if (!path) {
+		tree[newNodeName] = {};
+		return;
+	}
+	const parts = path.split('/'); // split path into keys
+	let current = tree;
+	for (const part of parts) {
+		if (!(part in current)) {
+			current[part] = {};
+		}
+		current = current[part];
+	}
+	if (!(newNodeName in current)) {
+		current[newNodeName] = {};
+	} else {
+		console.warn(`Node "${newNodeName}" already exists at path "${path}"`);
+	}
+}
+
+
+function editTreeElement() { 
+	if (!$clicked) { return; }
+	let e = $clicked;
+	if (e.length > 0) {
+		e = e[0];
+	}
+	const parentPath = getFullPath(e);
+
+	const parts = parentPath.split('/');
+
+	const name = parts[parts.length - 1] || '';
+	const parentName = parts[parts.length - 1] || '';
+
+	$('#treeNodeParentPath').val(parentPath);
+	$('#treeNodeParentName').val(parentName);
+	$('#treeNodeName').val(name);
+	document.getElementById('deleteTreeElementBtn').style.visibility = '';
+
+	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
+	modal.show();
+}

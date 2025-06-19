@@ -44,9 +44,10 @@
 		  <button class="btn btn-light p-1" onclick="exportConfig()" title="Save config data to file">
 			<i class="bi bi-save"></i>
 		  </button>
-		  <button class="btn btn-light p-1" onclick="importConfig()" title="Load config data from file">
-			<i class="bi bi-upload"></i>
+		  <button class="btn" onclick="document.getElementById('importConfigFileInput').click()">
+			<i title="Load structure tree from file" class="bi bi-upload me-1"></i>
 		  </button>
+		  <input type="file" id="importConfigFileInput" accept=".config" style="display:none" onchange="importConfig(event)">
 		</div>
 	
 		<div class="container-fluid">
@@ -68,7 +69,7 @@
 				  <button class="btn btn-light p-1" onclick="document.getElementById('importSensorsFileInput').click()" title="Load sensor list from file">
 					<i class="bi bi-upload"></i>
 				  </button>
-				  <input type="file" id="importSensorsFileInput" accept=".json" style="display:none" onchange="importSensors(event)">
+				  <input type="file" id="importSensorsFileInput" accept=".sensors" style="display:none" onchange="importSensors(event)">
 				</div>
 				
 			  </div>
@@ -95,7 +96,7 @@
 					  <button class="btn" onclick="document.getElementById('importTreeFileInput').click()">
 					    <i title="Load structure tree from file" class="bi bi-upload me-1"></i>
 					  </button>
-					  <input type="file" id="importTreeFileInput" accept=".json" style="display:none" onchange="importTree(event)">
+					  <input type="file" id="importTreeFileInput" accept=".tree" style="display:none" onchange="importTree(event)">
 				    </div>
  				  </div>
  				</div>

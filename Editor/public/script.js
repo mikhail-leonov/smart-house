@@ -59,6 +59,76 @@ function getFullPath(e) {
 }
 
 
+function dropSensor(li, e) {
+	const sensorName = e.dataTransfer.getData('drop-sensorName');
+	
+	const sensorWrapper = document.createElement('span');
+	sensorWrapper.className = 'mb-1 d-flex align-items-center';
+	
+	if (!sensorName) { return; }
+	// Check if sensor name is already present
+	const alreadyExists = Array.from(li.querySelectorAll('div')).some(div => div.textContent === sensorName);
+	if (alreadyExists) { return; }
+	// Find sensor ID by name (optional, if you want description)
+	const sensorId = findSensorIdByName(sensorName);
+	const sensorDiv = document.createElement('div');
+	sensorDiv.className = 'me-1'; 
+	sensorDiv.textContent = " - " + sensorName;
+	
+	sensorDiv.dataset.sensorDescription = e.dataTransfer.getData('drop-sensorDescription');
+	sensorDiv.dataset.sensorMinValue = e.dataTransfer.getData('drop-sensorMinValue');
+	sensorDiv.dataset.sensorMaxValue = e.dataTransfer.getData('drop-sensorMaxValue');
+	sensorDiv.dataset.sensorValues = e.dataTransfer.getData('drop-sensorValues');
+	sensorDiv.dataset.sensorActions = e.dataTransfer.getData('drop-sensorActions');
+	sensorDiv.title = sensorId ? sensors[sensorId]?.description || '' : '';
+	
+	const deleteChar = document.createElement('span');
+	deleteChar.textContent = ' x ';
+	deleteChar.style.color = 'red';
+	deleteChar.style.cursor = 'pointer';
+	deleteChar.onclick = () => { 
+		sensorWrapper.remove();
+	}
+	
+	sensorWrapper.appendChild(sensorDiv);
+	sensorWrapper.appendChild(deleteChar);
+	
+	li.appendChild(sensorWrapper);
+}
+
+function connectSensor(room, sensor) {
+	const sensorName = sensor.name;
+	
+	const sensorWrapper = document.createElement('span');
+	sensorWrapper.className = 'mb-1 d-flex align-items-center';
+
+	// Find sensor ID by name (optional, if you want description)
+	const sensorId = findSensorIdByName(sensorName);
+	const sensorDiv = document.createElement('div');
+	sensorDiv.className = 'me-1'; 
+	sensorDiv.textContent = " - " + sensorName;
+	
+	sensorDiv.dataset.sensorDescription = sensor.description;
+	sensorDiv.dataset.sensorMinValue = e.dataTransfer.getData('drop-sensorMinValue');
+	sensorDiv.dataset.sensorMaxValue = e.dataTransfer.getData('drop-sensorMaxValue');
+	sensorDiv.dataset.sensorValues = e.dataTransfer.getData('drop-sensorValues');
+	sensorDiv.dataset.sensorActions = e.dataTransfer.getData('drop-sensorActions');
+	sensorDiv.title = sensorId ? sensors[sensorId]?.description || '' : '';
+	
+	const deleteChar = document.createElement('span');
+	deleteChar.textContent = ' x ';
+	deleteChar.style.color = 'red';
+	deleteChar.style.cursor = 'pointer';
+	deleteChar.onclick = () => { 
+		sensorWrapper.remove();
+	}
+	
+	sensorWrapper.appendChild(sensorDiv);
+	sensorWrapper.appendChild(deleteChar);
+	
+	li.appendChild(sensorWrapper);
+
+}
 $(document).ready(function () {
 	$('#tree').on('click', 'li', function (e) {
 		e.stopPropagation();
@@ -108,11 +178,11 @@ document.addEventListener('dragstart', function (e) {
 	const desc = e.target.dataset.sensorDescription || "";
 	e.dataTransfer.setData('drop-sensorDescription', desc);
 	
-	const min = e.target.dataset.sensorMin ?? 0
-    e.dataTransfer.setData('drop-sensorMin', min);
+	const MinValue = e.target.dataset.sensorMinValue ?? 0
+    e.dataTransfer.setData('drop-sensorMinValue', MinValue);
 	
-	const max = e.target.dataset.sensorMax ?? 0;
-    e.dataTransfer.setData('drop-sensorMax', max);
+	const MaxValue = e.target.dataset.sensorMaxValue ?? 0;
+    e.dataTransfer.setData('drop-sensorMaxValue', MaxValue);
 	
 	const values = e.target.dataset.sensorValues ?? [];
     e.dataTransfer.setData('drop-sensorValues', values);
@@ -120,6 +190,7 @@ document.addEventListener('dragstart', function (e) {
 	const actions = e.target.dataset.sensorActions ?? [];
     e.dataTransfer.setData('drop-sensorActions', actions);
 });
+
 
 
 
@@ -135,8 +206,8 @@ function exportSensors(event) {
 		const exportSensor = {};
 		
 		exportSensor.values = sensor.values || [];
-		exportSensor.min_value = sensor.min;
-		exportSensor.max_value = sensor.max;
+		exportSensor.min_value = sensor.min_value;
+		exportSensor.max_value = sensor.max_value;
 		exportSensor.description = sensor.description;
 		exportSensor.actions = sensor.actions || [];
 		
@@ -152,13 +223,11 @@ function exportSensors(event) {
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
-	a.download = "sensors.json";
+	a.download = "sensors.sensors";
 	a.click();
 	URL.revokeObjectURL(url);
 }
-
 function importSensors(event) {
-console.log("importSensors");
 	const file = event.target.files?.[0];
 	if (!file) { return; }
 	const reader = new FileReader();
@@ -169,8 +238,8 @@ console.log("importSensors");
 			for (const [name, sensor] of Object.entries(sensorsObj)) {
 				if (sensor.description) { 
 					const newSensor = { name, description: sensor.description };
-					newSensor.min = sensor.min_value ?? 0;
-					newSensor.max = sensor.max_value ?? 0;
+					newSensor.min_value = sensor.min_value ?? 0;
+					newSensor.max_value = sensor.max_value ?? 0;
 					newSensor.values = sensor.values ?? "";
 					newSensor.actions = sensor.actions ?? "";
 					sensors.push(newSensor);
@@ -184,7 +253,6 @@ console.log("importSensors");
 	};
 	reader.readAsText(file);
 }
-
 function renderSensors(sensors) {
 	const list = document.getElementById('sensors');
 	list.innerHTML = '';
@@ -200,8 +268,8 @@ function renderSensors(sensors) {
 		link.dataset.sensorId = id;
 		link.dataset.sensorName = meta.name;
 		link.dataset.sensorDescription = meta.description;
-		link.dataset.sensorMin = meta.min_value ?? 0;
-		link.dataset.sensorMax = meta.max_value ?? 0;
+		link.dataset.sensorMinValue = meta.min_value ?? 0;
+		link.dataset.sensorMaxValue = meta.max_value ?? 0;
 		link.dataset.sensorValues = meta.values ?? "[]";
 		link.dataset.sensorActions = meta.actions ?? "[]";
 		
@@ -215,7 +283,6 @@ function renderSensors(sensors) {
 		list.appendChild(li);
 	}
 }
-
 function showSensorModal(meta) {
 	$('#sensorId').val(meta.sensorId || rndId() );
 	$('#sensorName').val(meta.sensorName || '');
@@ -223,14 +290,14 @@ function showSensorModal(meta) {
 	$('#sensorIsNew').val('false');
 	document.getElementById('deleteSensorBtn').style.visibility = 'visible';
 	
-	$('#sensorMinValue').val(meta.sensorMin ?? '');
-	$('#sensorMaxValue').val(meta.sensorMax ?? '');
+	$('#sensorMinValue').val(meta.sensorMinValue ?? '');
+	$('#sensorMaxValue').val(meta.sensorMaxValue ?? '');
 	$('#sensorValues').val(meta.sensorValues ?? '');
 	$('#sensorActions').val(meta.sensorActions ?? '');
+	
 	const modal = new bootstrap.Modal(document.getElementById('sensorEditModal'));
 	modal.show();
 }
-
 function createNewSensor() {
 	$('#sensorId').val( rndId() );
 	$('#sensorName').val('');
@@ -243,11 +310,10 @@ function createNewSensor() {
 	$('#sensorMaxValue').val('');
 	$('#sensorValues').val('');
 	$('#sensorActions').val('');
+	
 	const modal = new bootstrap.Modal(document.getElementById('sensorEditModal'));
 	modal.show();
 }
-
-
 document.getElementById('deleteSensorBtn').addEventListener('click', function (e) {
 	const sensorId = $('#sensorId').val();
 	if (sensorId) {
@@ -255,18 +321,17 @@ document.getElementById('deleteSensorBtn').addEventListener('click', function (e
 		if (confirmed) { 
 			delete sensors[sensorId];
 			renderSensors(sensors);
-			// Close the modal
+			
+			document.activeElement.blur();
 			const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('sensorEditModal'));
 			modal.hide();
 		}
 	}
 });
-
 document.getElementById('saveSensorBtn').addEventListener('click', function (e) {
 	
 	const name = $('#sensorName').val().trim();
 	const description = $('#sensorDescription').val().trim();
-	const type = $('#sensorType').val();
 	const min = $('#sensorMinValue').val();
 	const max = $('#sensorMaxValue').val();
 	const values = $('#sensorValues').val();
@@ -286,9 +351,8 @@ document.getElementById('saveSensorBtn').addEventListener('click', function (e) 
 	const sensor = {
 		name,
 		description,
-		type,
-		min: min ? Number(min) : undefined,
-		max: max ? Number(max) : undefined,
+		min: min ? Number(min) : 0,
+		max: max ? Number(max) : 0,
 		values: parsedValues,
 		actions: parsedActions
 	};
@@ -306,10 +370,9 @@ document.getElementById('saveSensorBtn').addEventListener('click', function (e) 
 	// Optional: re-render sensor list
 	renderSensors(sensors);
 
-	// Close the modal
+	document.activeElement.blur();
 	bootstrap.Modal.getInstance(document.getElementById('sensorEditModal')).hide();
 });
-
 
 
 
@@ -325,11 +388,10 @@ function exportTree(event) {
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
-	a.download = "tree.json";
+	a.download = "tree.tree";
 	a.click();
 	URL.revokeObjectURL(url);
 }
-
 function importTree(event) {
 	const file = event.target.files[0];
 	if (!file) {  return; }
@@ -350,7 +412,6 @@ function importTree(event) {
 	};
 	reader.readAsText(file);
 }
-
 function renderTree(obj) {
     // Get the container where the tree should go
     const container = document.getElementById('tree');
@@ -386,40 +447,8 @@ function renderTree(obj) {
 					e.preventDefault();
 					li.classList.remove('border', 'border-primary', 'border-2');
 					
-					const sensorName = e.dataTransfer.getData('drop-sensorName');
+					dropSensor(li, e);
 					
-					const sensorWrapper = document.createElement('span');
-					sensorWrapper.className = 'mb-1 d-flex align-items-center';
-					
-					if (!sensorName) { return; }
-					// Check if sensor name is already present
-					const alreadyExists = Array.from(li.querySelectorAll('div')).some(div => div.textContent === sensorName);
-					if (alreadyExists) { return; }
-					// Find sensor ID by name (optional, if you want description)
-					const sensorId = findSensorIdByName(sensorName);
-					const sensorDiv = document.createElement('div');
-					sensorDiv.className = 'me-1'; 
-					sensorDiv.textContent = " - " + sensorName;
-					
-					sensorDiv.dataset.sensorDescription = e.dataTransfer.getData('drop-sensorDescription');
-					sensorDiv.dataset.sensorMin = e.dataTransfer.getData('drop-sensorMin');
-					sensorDiv.dataset.sensorMax = e.dataTransfer.getData('drop-sensorMax');
-					sensorDiv.dataset.sensorValues = e.dataTransfer.getData('drop-sensorValues');
-					sensorDiv.dataset.sensorActions = e.dataTransfer.getData('drop-sensorActions');
-					sensorDiv.title = sensorId ? sensors[sensorId]?.description || '' : '';
-					
-					const deleteChar = document.createElement('span');
-					deleteChar.textContent = ' x ';
-					deleteChar.style.color = 'red';
-					deleteChar.style.cursor = 'pointer';
-					deleteChar.onclick = () => { 
-						sensorWrapper.remove();
-					}
-					
-					sensorWrapper.appendChild(sensorDiv);
-					sensorWrapper.appendChild(deleteChar);
-					
-					li.appendChild(sensorWrapper);
 				});
 			}
             // Recurse to build children
@@ -436,7 +465,6 @@ function renderTree(obj) {
     const tree = buildTree(obj);
     container.appendChild(tree);
 }
-
 function createNewTreeElement() {
 	if (!$clicked) { return; }
 	let e = $clicked;
@@ -455,7 +483,6 @@ function createNewTreeElement() {
 	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
 	modal.show();
 }
-
 function insertNode(tree, path, newNodeName) {
 	if (!path) {
 		tree[newNodeName] = {};
@@ -475,8 +502,6 @@ function insertNode(tree, path, newNodeName) {
 		console.warn(`Node "${newNodeName}" already exists at path "${path}"`);
 	}
 }
-
-
 function editTreeElement() { 
 	if (!$clicked) { return; }
 	let e = $clicked;
@@ -494,10 +519,6 @@ function editTreeElement() {
 	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
 	modal.show();
 }
-
-
-
-
 document.getElementById('saveTreeElementBtn').addEventListener('click', function (e) {
 	const name = $('#treeNodeName').val().trim();
 	const parentPath = $('#treeNodeParentPath').val();
@@ -507,8 +528,12 @@ document.getElementById('saveTreeElementBtn').addEventListener('click', function
 	}
 	insertNode(tree, parentPath, name);
 	renderTree(tree); 
+
+	document.activeElement.blur();
 	bootstrap.Modal.getInstance(document.getElementById('treeNodeEditModal')).hide();
 });
+
+
 
 
 
@@ -527,62 +552,6 @@ function getFirstTextNodeText(el) {
   }
   return null;
 }
-
-function buildConfigFromTree2() {
-    const result = {};
-	const $root = $('#tree');
-	if ($root.length) {
-		for (const child of $root[0].children) {
-			for (const child2 of child.children) {
-				const key2 = getFirstTextNodeText(child2);
-				if (key2) { result[key2] = {}; }
-				for (const child3 of child2.children) {
-					for (const child4 of child3.children) {
-						const key4 = getFirstTextNodeText(child4);
-						if (key4) { result[key2][key4] = {}; }
-						for (const child5 of child4.children) {
-							for (const child6 of child5.children) {
-								const key6 = getFirstTextNodeText(child6);
-								if (key6) { result[key2][key4][key6] = {}; }
-								for (const child7 of child6.children) {
-									for (const child8 of child7.children) {
-										const key8 = getFirstTextNodeText(child8);
-										if (key8) { result[key2][key4][key6][key8] = {}; }
-										for (const child9 of child8.children) {
-											for (const child10 of child9.children) {
-												let key10 = getFirstTextNodeText(child10);
-												if (key10) { 
-													if (key10.trim() !== "x" ) { 
-														key10 = key10.trim();
-														if (key10.startsWith('-')) {
-															key10 = key10.slice(1).trim(); 
-														}
-														key10 = key10.split(' ').join('');
-														
-														let sensor = {}
-														sensor["description"] = child10.dataset.sensorDescription;
-														sensor["values"] = child10.dataset.sensorValues;
-														sensor["min_value"] = child10.dataset.sensorMin;
-														sensor["max_value"] = child10.dataset.sensorMax;
-														sensor["actions"] = child10.dataset.sensorActions;
-														
-  														result[key2][key4][key6][key8][key10] = JSON.stringify(sensor);
-													}
-												}
-											}	
-										}
-									}
-								}
-							}	
-						}
-					}
-				}
-			}
-		}
-	}
-	return result;
-}
-
 function buildConfigFromTree() {
     const result = {};
     const $root = $('#tree');
@@ -624,8 +593,8 @@ function buildConfigFromTree() {
                                             const ds = child10.dataset;
                                             sensor.description = ds.sensorDescription;
                                             sensor.values = ds.sensorValues.split(',').map(v => v.trim()).filter(Boolean);
-                                            sensor.min_value = ds.sensorMin ? ds.sensorMin : 0;
-                                            sensor.max_value = ds.sensorMax ? ds.sensorMax : 0;
+                                            sensor.min_value = ds.sensorMinValue ? ds.sensorMinValue : 0;
+                                            sensor.max_value = ds.sensorMaxValue ? ds.sensorMaxValue : 0;
                                             sensor.actions = ds.sensorActions.split(',').map(a => a.trim()).filter(Boolean);
 											
                                             result[key2][key4][key6][key8][key10] = JSON.stringify(sensor);
@@ -654,14 +623,123 @@ function exportConfig () {
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
-	a.download = "tree.json";
+	a.download = "config.config";
 	a.click();
 	URL.revokeObjectURL(url);
 }
 
-function importConfig () { 
+function importConfig(event) {
+	const file = event.target.files[0];
+	if (!file) {  return; }
+	const reader = new FileReader();
+	reader.onload = function(e) {
+		try {
+			const data = JSON.parse(e.target.result);
+			if (!data.home) {
+				alert('Invalid JSON format: missing "home" root.');
+				return;
+			}
+			tree.home = getTreeFromConfig(data.home);
+			console.log(data);
+			renderTree(tree);
+			
+			sensors = getSensorsFromConfig(data.home);
+			renderSensors(sensors);
+			
+			connectAllSensors();
+			
+			event.target.value = null;
+		} catch (err) {
+			alert('Error parsing JSON: ' + err.message);
+		}
+	};
+	reader.readAsText(file);
+}
+function getTreeFromConfig(config) {
+	if (!config || typeof config !== 'object') {
+		return {};
+	}
+	const result = {};
+	for (const key in config) {
+		if (config.hasOwnProperty(key)) {
+			result[key] = {};
+			const level2 = config[key];
+			if (level2 && typeof level2 === 'object') {
+				for (const key2 in level2) {
+					if (level2.hasOwnProperty(key2)) {
+						result[key][key2] = {};
+						const level3 = level2[key2];
+						if (level3 && typeof level3 === 'object') {
+							for (const key3 in level3) {
+								if (level3.hasOwnProperty(key3)) {
+									result[key][key2][key3] = {};
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+function getSensorsFromConfig(config) {
+	if (!config || typeof config !== 'object') {
+		return [];
+	}
+	const result = {};
+	for (const key1 in config) {
+		if (typeof config[key1] === 'object') {
+			const level2 = config[key1];
+			for (const key2 in level2) {
+				if (typeof level2[key2] === 'object') {
+					const level3 = level2[key2];
+					for (const key3 in level3) {
+						if (typeof level3[key3] === 'object') {
+							const sensors = level3[key3];
+							for (const sensorName in sensors) {
+								if (!result[sensorName]) {
+									// Clone the sensor object and add the `name` field
+									const sensorData = { ...sensors[sensorName], name: sensorName };
+									result[sensorName] = sensorData;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-alert("!");
+	// Return the result as an array
+	return Object.values(result);
+}
 
-
+function connectAllSensors() {
+	if (!config || typeof config !== 'object') {
+		return [];
+	}
+	const result = {};
+	for (const key1 in config) {
+		if (typeof config[key1] === 'object') {
+			const level2 = config[key1];
+			for (const key2 in level2) {
+				if (typeof level2[key2] === 'object') {
+					const level3 = level2[key2];
+					for (const key3 in level3) {
+						if (typeof level3[key3] === 'object') {
+							const sensors = level3[key3];
+							for (const sensorName in sensors) {
+								if (!result[sensorName]) {
+									// Clone the sensor object and add the `name` field
+									const sensorData = { ...sensors[sensorName], name: sensorName };
+									connectSensor(key3, sensorData);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

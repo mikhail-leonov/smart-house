@@ -267,18 +267,23 @@ function importSensors(event) {
 	};
 	reader.readAsText(file);
 }
-function renderSensors(sensors) {
+function renderSensors() {
 	const list = document.getElementById('sensors');
+	const filterInput = document.getElementById('sensorFilter');
+	const filterText = filterInput?.value?.toLowerCase() || '';
 	list.innerHTML = '';
-
 	for (const [id, meta] of Object.entries(sensors)) {
+		const name = meta.name?.toLowerCase() || '';
+		const description = meta.description?.toLowerCase() || '';
+		// Only render if filter matches name or description
+		if (filterText && !name.includes(filterText) && !description.includes(filterText)) {
+			continue;
+		}
 		const li = document.createElement('li');
 		li.className = 'list-group-item';
-		// Create link
 		const link = document.createElement('a');
 		link.href = '#';
 		link.textContent = meta.name;
-		
 		link.dataset.sensorId = id;
 		link.dataset.sensorName = meta.name;
 		link.dataset.sensorDescription = meta.description;
@@ -286,9 +291,7 @@ function renderSensors(sensors) {
 		link.dataset.sensorMaxValue = meta.max_value ?? 0;
 		link.dataset.sensorValues = meta.values ?? "[]";
 		link.dataset.sensorActions = meta.actions ?? "[]";
-		
-		link.draggable = true; // if you want to keep drag functionality
-		// Click handler to show modal
+		link.draggable = true;
 		link.addEventListener('click', (e) => {
 			e.preventDefault();
 			showSensorModal(link.dataset);
@@ -394,6 +397,7 @@ document.getElementById('saveSensorBtn').addEventListener('click', function (e) 
 
 
 
+document.getElementById('sensorFilter').addEventListener('input', renderSensors);
 //
 // Tree part
 //

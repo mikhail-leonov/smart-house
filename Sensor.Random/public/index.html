@@ -15,112 +15,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MQTT All Simulator</title>
+    <link href="/shared/ui.css" rel="stylesheet">
+    <link href="/shared/home.css" rel="stylesheet">
     <link href="/shared/bootstrap.min.css" rel="stylesheet">
 
     <script src="/shared/mqtt.min.js"></script>
     <script src="/shared/mqtt-core.js"></script>
 	
     <!-- Local -->
-    <link href="/shared/styles.css" rel="stylesheet">
     <script src="/shared/constants.js"></script>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="mb-4">MQTT All Simulator</h1>
-        
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Configuration</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-12">
-                    <div class="col-md-6">
-                        <label for="configFile" class="form-label">Upload Configuration JSON</label>
-                        <input class="form-control" type="file" id="configFile" accept=".json">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="interval" class="form-label">Send Interval (s)</label>
-                        <input type="number" class="form-control" id="interval" min="1" max="60" value="5">
-                    </div>
-                </div>
-            </div>
+<div class="container container-no-left">
+    
+			  <div class="sidebar">
+				<h2>Smart Home</h2>
+				<ul>
+					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://www.jarvis.home:8080/'">UI</a></li>
+					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
+					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
+					<li class="nav-item" onclick="#"> - Simulate</li>
+					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
+				</ul>
+			  </div>
+			  <div class="main-content">
+
+    <!-- Main content -->
+    <div class="col-md-10 p-4">
+      <h1 class="mb-4">MQTT All Simulator</h1>
+
+      <h5 class="mb-3">Configuration</h5>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="configFile" class="form-label">Upload Configuration JSON</label>
+          <input class="form-control" type="file" id="configFile" accept=".config,.json">
         </div>
-        
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Message Parameters</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <label for="areas" class="form-label">Location Type</label>
-                        <select class="form-select" id="areas" disabled>
-                            <option value="">Select location</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="floors" class="form-label">Floor</label>
-                        <select class="form-select" id="floors" disabled>
-                            <option value="">Select floor</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="rooms" class="form-label">Room</label>
-                        <select class="form-select" id="rooms" disabled>
-                            <option value="">Select room</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="variables" class="form-label">Variable</label>
-                        <select class="form-select" id="variables" disabled>
-                            <option value="">Select variable</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div id="valueContainer" class="row mb-3" style="display: none;">
-                    <div class="col-md-6">
-                        <label for="value" class="form-label">Value</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="value">
-                            <button class="btn btn-outline-secondary" type="button" id="randomValueBtn">Random</button>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div id="variableDescription" class="description-box">
-                            Select a variable to see its description and valid values
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
+        <div class="col-md-6">
+          <label for="interval" class="form-label">Send Interval (s)</label>
+          <input type="number" class="form-control" id="interval" min="1" max="60" value="5">
         </div>
+      </div>
+
 		
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Simulation Controls</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <button id="startRandomBtn" class="btn btn-primary me-2">Start</button>
-                        <button id="stopRandomBtn" class="btn btn-danger me-2" disabled>Stop</button>
-                        <button id="sendSingleRandomBtn" class="btn btn-secondary">Send</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Simulation Log</h5>
-                <button id="clearLogBtn" class="btn btn-sm btn-outline-secondary">Clear</button>
-            </div>
-            <div class="card-body">
-                <div id="log" style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; font-family: monospace;"></div>
-            </div>
-        </div>
+<div class="row">
+  <div class="col">
+    <h5 class="mb-3">Message Parameters</h5>
+
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label for="areas" class="form-label">Location Type</label>
+        <select class="form-select" id="areas" disabled>
+          <option value="">Select location</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="floors" class="form-label">Floor</label>
+        <select class="form-select" id="floors" disabled>
+          <option value="">Select floor</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="rooms" class="form-label">Room</label>
+        <select class="form-select" id="rooms" disabled>
+          <option value="">Select room</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="variables" class="form-label">Variable</label>
+        <select class="form-select" id="variables" disabled>
+          <option value="">Select variable</option>
+        </select>
+      </div>
     </div>
+
+    <div id="valueContainer" class="row mb-3" style="display: none;">
+      <div class="col-md-6">
+        <label for="value" class="form-label">Value</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="value">
+          <button class="btn btn-outline-secondary" type="button" id="randomValueBtn">Random</button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div id="variableDescription" class="description-box border rounded p-2 bg-light">
+          Select a variable to see its description and valid values
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+		
+<div class="row mb-4">
+  <div class="col">
+    <h5 class="mb-3">Simulation Controls</h5>
+    <div class="row">
+      <div class="col-md-12">
+        <button id="startRandomBtn" class="btn btn-primary me-2">Start</button>
+        <button id="stopRandomBtn" class="btn btn-danger me-2" disabled>Stop</button>
+        <button id="sendSingleRandomBtn" class="btn btn-secondary">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+		
+<div class="row mb-4">
+  <div class="col">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Simulation Log</h5>
+      <button id="clearLogBtn" class="btn btn-sm btn-outline-secondary">Clear</button>
+    </div>
+    <div id="log" style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; font-family: monospace;"></div>
+  </div>
+</div>
+
+</div>
 
 	<script src="index.js"></script>
     <script src="/shared/log-core.js"></script>

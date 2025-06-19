@@ -148,8 +148,8 @@ function handleConfigFileUpload(event) {
         logMessageToConsole('No file selected', 'error');
         return;
     }
-    if (!file.name.endsWith('.json')) {
-        logMessageToConsole('Please upload a JSON file', 'error');
+    if (!file.name.endsWith('.config')) {
+        logMessageToConsole('Please upload a JSON .config file', 'error');
         return;
     }
     const reader = new FileReader();

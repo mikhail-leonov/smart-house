@@ -11,7 +11,6 @@
 //
 // Common part
 //
-
 let $clicked;
 
 function showSection(sectionId) {
@@ -35,7 +34,7 @@ function findLIByRoomName(roomName) {
 	}
 	return null; // Not found
 }
-function rndId(length = 12) {
+function rndId(length = 32) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
@@ -259,6 +258,7 @@ function importSensors(event) {
 					sensors.push(newSensor);
 				}
 			}
+			sensors.sort((a, b) => a.name.localeCompare(b.name));
 			renderSensors(sensors);
 			event.target.value = null; 
 		} catch (err) {
@@ -449,6 +449,7 @@ function renderTree(obj) {
             li.className = 'list-group-item';
             li.textContent = key;
             li.dataset.node = key;
+			li.dataset.treeId = rndId();
 			
             const nodeData = nodeObj[key];
             const leaf = isLeaf(nodeData);
@@ -464,9 +465,7 @@ function renderTree(obj) {
 				li.addEventListener('drop', e => {
 					e.preventDefault();
 					li.classList.remove('border', 'border-primary', 'border-2');
-					
 					dropSensor(li, e);
-					
 				});
 			}
             // Recurse to build children
@@ -491,15 +490,18 @@ function createNewTreeElement() {
 	}
 	const parentPath = getFullPath(e);
 	const parts = parentPath.split('/');
-	const parentName = parts[parts.length - 1] || '';
-	$('#treeNodeParentPath').val(parentPath);
-	$('#treeNodeParentName').val(parentName);
-	$('#treeNodeName').val('');
-	$('#treeNodeName').prop('readonly', false);
-	document.getElementById('deleteTreeElementBtn').style.visibility = 'hidden';
+	if (parts.length < 4) {
+		const parentName = parts[parts.length - 1] || '';
+		$('#treeId').val(rndId());
+		$('#treeNodeParentPath').val(parentPath);
+		$('#treeNodeParentName').val(parentName);
+		$('#treeNodeName').val('');
+		$('#treeNodeName').prop('readonly', false);
+		document.getElementById('deleteTreeElementBtn').style.visibility = 'hidden';
 
-	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
-	modal.show();
+		const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
+		modal.show();
+	}
 }
 function insertNode(tree, path, newNodeName) {
 	if (!path) {
@@ -520,6 +522,28 @@ function insertNode(tree, path, newNodeName) {
 		console.warn(`Node "${newNodeName}" already exists at path "${path}"`);
 	}
 }
+function deleteNode(tree, path) {
+	if (!path) {
+		console.warn("Cannot delete root or empty path");
+		return;
+	}
+	const parts = path.split('/');
+	const lastKey = parts.pop();
+	let current = tree;
+	for (const part of parts) {
+		if (!(part in current)) {
+			console.warn(`Path "${parts.join('/')}" does not exist`);
+			return;
+		}
+		current = current[part];
+	}
+	if (lastKey in current) {
+		delete current[lastKey];
+	} else {
+		console.warn(`Node "${lastKey}" does not exist at path "${parts.join('/')}"`);
+	}
+}
+
 function editTreeElement() { 
 	if (!$clicked) { return; }
 	let e = $clicked;
@@ -533,7 +557,7 @@ function editTreeElement() {
 	$('#treeNodeParentPath').val(parentPath);
 	$('#treeNodeParentName').val(parentName);
 	$('#treeNodeName').val(name);
-	document.getElementById('deleteTreeElementBtn').style.visibility = '';
+	document.getElementById('deleteTreeElementBtn').style.visibility = 'visible';
 	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
 	modal.show();
 }
@@ -554,19 +578,23 @@ document.getElementById('saveTreeElementBtn').addEventListener('click', function
 	document.activeElement.blur();
 	bootstrap.Modal.getInstance(document.getElementById('treeNodeEditModal')).hide();
 });
-
-
-
-
-
-
-
-
-
+document.getElementById('deleteTreeElementBtn').addEventListener('click', function (e) {
+	const fullPath = $('#treeNodeParentPath').val();
+	if (fullPath) {
+		const confirmed = confirm("Are you sure you want to delete this tree element?");
+		if (confirmed) {
+			
+			deleteNode(tree, fullPath);
+			renderTree(tree);
+			
+			document.activeElement.blur();
+			bootstrap.Modal.getInstance(document.getElementById('treeNodeEditModal')).hide();
+		}
+	}
+});
 //
 // Config part
 //
-
 function getFirstTextNodeText(el) {
   for (const node of el.childNodes) {
     if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
@@ -666,6 +694,7 @@ function importConfig(event) {
 			renderTree(tree);
 			
 			sensors = getSensorsFromConfig(data.home);
+			sensors.sort((a, b) => a.name.localeCompare(b.name));
 			renderSensors(sensors);
 			
 			connectAllSensors(data.home);

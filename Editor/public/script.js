@@ -28,7 +28,13 @@ function isLeaf(nodeData) {
 function findSensorIdByName(name) {
   return Object.keys(sensors).find(id => sensors[id].name === name);
 }
-
+function findLIByRoomName(roomName) {
+	const lis = document.querySelectorAll('li[data-node="'+roomName+'"]');
+	if(lis.length > 0) {
+		return lis[0];
+	}
+	return null; // Not found
+}
 function rndId(length = 12) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
@@ -109,10 +115,10 @@ function connectSensor(room, sensor) {
 	sensorDiv.textContent = " - " + sensorName;
 	
 	sensorDiv.dataset.sensorDescription = sensor.description;
-	sensorDiv.dataset.sensorMinValue = e.dataTransfer.getData('drop-sensorMinValue');
-	sensorDiv.dataset.sensorMaxValue = e.dataTransfer.getData('drop-sensorMaxValue');
-	sensorDiv.dataset.sensorValues = e.dataTransfer.getData('drop-sensorValues');
-	sensorDiv.dataset.sensorActions = e.dataTransfer.getData('drop-sensorActions');
+	sensorDiv.dataset.sensorMinValue = sensor.min_value;
+	sensorDiv.dataset.sensorMaxValue = sensor.max_value;
+	sensorDiv.dataset.sensorValues = sensor.values;
+	sensorDiv.dataset.sensorActions = sensor.actions;
 	sensorDiv.title = sensorId ? sensors[sensorId]?.description || '' : '';
 	
 	const deleteChar = document.createElement('span');
@@ -126,9 +132,17 @@ function connectSensor(room, sensor) {
 	sensorWrapper.appendChild(sensorDiv);
 	sensorWrapper.appendChild(deleteChar);
 	
-	li.appendChild(sensorWrapper);
-
+	const li = findLIByRoomName(room);
+	if (li) {
+		li.appendChild(sensorWrapper);
+	}
 }
+function beautifyLabel(key) {
+	return key.replace(/[_\-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+//
+// Common section - handlers
+//
 $(document).ready(function () {
 	$('#tree').on('click', 'li', function (e) {
 		e.stopPropagation();
@@ -314,6 +328,10 @@ function createNewSensor() {
 	const modal = new bootstrap.Modal(document.getElementById('sensorEditModal'));
 	modal.show();
 }
+
+//
+// Sensors section - handlers
+//
 document.getElementById('deleteSensorBtn').addEventListener('click', function (e) {
 	const sensorId = $('#sensorId').val();
 	if (sensorId) {
@@ -519,6 +537,10 @@ function editTreeElement() {
 	const modal = new bootstrap.Modal(document.getElementById('treeNodeEditModal'));
 	modal.show();
 }
+
+//
+// Tree section - handlers
+//
 document.getElementById('saveTreeElementBtn').addEventListener('click', function (e) {
 	const name = $('#treeNodeName').val().trim();
 	const parentPath = $('#treeNodeParentPath').val();
@@ -532,6 +554,7 @@ document.getElementById('saveTreeElementBtn').addEventListener('click', function
 	document.activeElement.blur();
 	bootstrap.Modal.getInstance(document.getElementById('treeNodeEditModal')).hide();
 });
+
 
 
 
@@ -640,13 +663,12 @@ function importConfig(event) {
 				return;
 			}
 			tree.home = getTreeFromConfig(data.home);
-			console.log(data);
 			renderTree(tree);
 			
 			sensors = getSensorsFromConfig(data.home);
 			renderSensors(sensors);
 			
-			connectAllSensors();
+			connectAllSensors(data.home);
 			
 			event.target.value = null;
 		} catch (err) {
@@ -715,7 +737,7 @@ function getSensorsFromConfig(config) {
 	return Object.values(result);
 }
 
-function connectAllSensors() {
+function connectAllSensors(config) {
 	if (!config || typeof config !== 'object') {
 		return [];
 	}
@@ -743,3 +765,40 @@ function connectAllSensors() {
 		}
 	}
 }
+
+
+//
+// Html section
+//
+function convertJson2Html(inputText) {
+	try {
+		const text = "{\n" + inputText + "\n}";
+		const jsonData = JSON.parse(text);
+		let html = '';
+		for (const [sectionKey, sectionValue] of Object.entries(jsonData)) {
+			// Create section header
+			const sectionName = sectionKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+			html += `${sectionName}\n`;
+			html += `<div class="content">\n`;
+			// Process each item in the section
+			for (const [itemKey, itemValue] of Object.entries(sectionValue)) {
+				const itemName = itemKey.replace(/_/g, ' ');
+				html += `  ${itemKey}: <span id="${itemKey}" data-bind="home/outside/first_floor/${sectionKey}/${itemKey}"></span></br>\n`;
+			}
+			html += `</div>\n\n`;
+		}
+		return html.trim();
+	} catch (error) {
+		return 'Error: Invalid JSON format';
+	}
+}
+	
+
+//
+// Html section - handlers
+//
+document.getElementById('convertJson2HtmlBtn').addEventListener('click', function() {
+	const inputText = document.getElementById('inputText').value;
+	const outputTextarea = document.getElementById('outputText');
+	outputTextarea.value = convertJson2Html(inputText);
+});

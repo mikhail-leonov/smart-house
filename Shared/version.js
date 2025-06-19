@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.1
+ * @version 0.7.2
  * @license MIT
  */
 
@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 // === CONFIGURATION ===
-const targetVersion = '0.7.1'; 
+const targetVersion = '0.7.2'; 
 
 
 const rootDir = '/home/admin/smart-house/'; // Starting directory

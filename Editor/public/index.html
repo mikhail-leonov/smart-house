@@ -25,18 +25,54 @@
 <body>
 
   <div class="container container-no-left">
-    <div class="sidebar">
+    
+	<div class="sidebar">
       <h2>Smart Home</h2>
       <ul>
         <li class="nav-item" onclick="showSection('config')">Config</li>
+        <li class="nav-item" onclick="showSection('html')">HTML</li>
       </ul>
     </div>
+	
+	
     <div class="main-content">
       <div class="dashboard-header">
         <h1>Smart Home Config</h1>
         <div id="current-time"></div>
       </div>
 
+	  <div id="html" class="section" style="display: none;">
+		<div class="row">
+			<h2 class="mb-0">Html</h2>
+		</div>
+		
+		<div class="row">
+			<div class="col-12">
+				<div class="mb-3">
+					<label for="inputText" class="form-label">Input Json</label>
+					<textarea class="form-control" id="inputText" rows="8" placeholder="Enter your JSON text here...">
+    "warnings": {
+		"water_leak": {"actions":[],"values":[0,1],"min_value":0,"max_value":0,"description":"Indicates if any water leaks are detected. 0 means no leak, 1 means leak detected.","name":"water_leak"},
+		"battery_level": {"actions":[],"values":[0,1],"min_value":0,"max_value":0,"description":"Represents the battery status. 0 means normal level, 1 means low battery warning.","name":"battery_level"},
+		"nas": {"actions":["reply","delete"],"values":[0,1],"min_value":0,"max_value":0,"description":"Shows the status of the NAS device. 0 means it is offline or unreachable, 1 means it is online and functioning.","name":"nas"}
+	}
+					
+					</textarea>
+				</div>
+				
+				<div class="text-center mb-3">
+					<button type="button" class="btn btn-primary btn-lg" id="convertJson2HtmlBtn">Convert</button>
+				</div>
+				
+				<div class="mb-3">
+					<label for="outputText" class="form-label">Output Text</label>
+					<textarea class="form-control" id="outputText" rows="8" placeholder="HTML text will appear here..." readonly></textarea>
+				</div>
+			</div>
+		</div>
+		  
+		
+	  </div>
       <div id="config" class="section" style="display: none;">
 
 		<div class="d-flex align-items-center gap-2 flex-wrap">

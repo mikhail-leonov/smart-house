@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "dorita980": "^3.1.11",
+    "ini": "^5.0.0",
+    "sync-request": "^6.1.0"
+  }
+}

@@ -7,3 +7,4 @@
 /home/admin/smart-house/Control.GMail/service.create.cmd
 /home/admin/smart-house/Control.Telegram/service.create.cmd
 /home/admin/smart-house/Command/service.create.cmd
+/home/admin/smart-house/Mqtt.Test/service.create.cmd

@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.2
+ * @version 0.7.3
  * @license MIT
  */
 
@@ -12,11 +12,10 @@ const fs = require('fs');
 const path = require('path');
 
 // === CONFIGURATION ===
-const targetVersion = '0.7.2'; 
-
+const targetVersion = '0.7.3'; 
 
 const rootDir = '/home/admin/smart-house/'; // Starting directory
-const forbiddenDirs = ['Install', 'LLM', 'Mqtt', 'node_modules', '.git', 'backup']; // <-- Forbidden directory names
+const forbiddenDirs = ['Install', 'LLM', 'Mqtt', 'node_modules', '.git', 'backup']; // Forbidden directory names
 
 // This regex matches lines like: * @version 0.5.5
 const versionRegex = /^(\s*\*\s*@version\s+)(\d+\.\d+\.\d+)(.*)$/i;
@@ -41,7 +40,6 @@ function updateVersionInFile(filePath) {
   }
 }
 
-// Walk the directory only one level deep, skipping forbidden ones
 function walkDirectory(dirPath, depth = 0) {
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   console.log(` - Checking: ${dirPath}`);
@@ -51,14 +49,22 @@ function walkDirectory(dirPath, depth = 0) {
 
     if (entry.isDirectory()) {
       if (forbiddenDirs.includes(entry.name)) {
-        console.log(`   Skipping forbidden directory: ${entry.name}`);
+        // Special case: allow processing of public subdir inside forbidden ones
+        const publicPath = path.join(fullPath, 'public');
+        if (fs.existsSync(publicPath) && fs.statSync(publicPath).isDirectory()) {
+          console.log(`   Found 'public' in forbidden dir, processing: ${publicPath}`);
+          walkDirectory(publicPath, depth + 1);
+        } else {
+          console.log(`   Skipping forbidden directory: ${entry.name}`);
+        }
         continue;
       }
-      if (depth < 1) {
+
+      if (entry.name === 'public' || depth < 1) {
         walkDirectory(fullPath, depth + 1);
       }
     } else if (entry.isFile()) {
-      updateVersionInFile(fullPath);
+		updateVersionInFile(fullPath);
     }
   }
 }

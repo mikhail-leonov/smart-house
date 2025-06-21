@@ -7,3 +7,4 @@
 /home/admin/smart-house/Control.GMail/service.start.cmd
 /home/admin/smart-house/Control.Telegram/service.start.cmd
 /home/admin/smart-house/Command/service.start.cmd
+/home/admin/smart-house/Mqtt.Test/service.start.cmd

@@ -4,7 +4,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.1
+ * @version 0.7.3
  * @license MIT
  */
 
@@ -23,7 +23,6 @@ function entryClicked(roomDiv) {
     titleElem.innerText = `home/${l}/${f}/${r}`;
 
     const contentDiv = roomDiv.querySelector('.content');
-    const modalElement = document.getElementById('dataModal');
     const modalContent = document.getElementById('modalContent');
 
     if (!contentDiv) {
@@ -33,16 +32,11 @@ function entryClicked(roomDiv) {
     }
 
     // Clear modal content BEFORE showing
-    modalContent.innerHTML = "";
+    modalContent.innerHTML = contentDiv.innerHTML;
 
-    // Show modal (this removes aria-hidden="true")
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
-
-    // Delay content injection until after modal is fully shown
-    setTimeout(() => {
-        modalContent.innerHTML = contentDiv.innerHTML;
-    }, 10); // small delay to allow DOM to clean up aria attributes
+	const modal = new bootstrap.Modal(document.getElementById('dataModal'));
+	modal.show();
+	
 }
 
 class Store {

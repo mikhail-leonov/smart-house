@@ -7,3 +7,4 @@
 /home/admin/smart-house/Control.GMail/service.stop.cmd
 /home/admin/smart-house/Control.Telegram/service.stop.cmd
 /home/admin/smart-house/Command/service.stop.cmd
+/home/admin/smart-house/Mqtt.Test/service.stop.cmd

@@ -6,7 +6,7 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.1
+ * @version 0.7.3
  * @license MIT
  */
 -->
@@ -14,143 +14,122 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Smart Home Config</title>
-	<link href="/shared/bootstrap.min.css" rel="stylesheet">
+	<title>Smart Home :: Config</title>
 	<link href="/shared/ui.css" rel="stylesheet">
 	<link href="/shared/home.css" rel="stylesheet">
+	<link href="/shared/bootstrap.min.css" rel="stylesheet">
+
 	<link href="/shared/bootstrap-icons.css" rel="stylesheet">
 	<link rel="stylesheet" href="styles.css" />
 	<script src="jquery.js"></script>
+
+
 </head>
 <body>
-
-  <div class="container container-no-left">
-    
-	<div class="sidebar">
-      <h2>Smart Home</h2>
-      <ul>
-        <li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://www.jarvis.home:8080/'">UI</a></li>
-		<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
-		<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
-		<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
-        <li class="nav-item" onclick="showSection('config')"> - Config</li>
-        <li class="nav-item" onclick="showSection('html')"> - HTML</li>
-      </ul>
-    </div>
-	
-	
-    <div class="main-content">
-      <div class="dashboard-header">
-        <h1>Smart Home Config</h1>
-        <div id="current-time"></div>
-      </div>
-
-	  <div id="html" class="section" style="display: none;">
-		<div class="row">
-			<h2 class="mb-0">Html</h2>
+	<div class="container container-no-left">
+		<div class="sidebar">
+			<h2>Config</h2>
+			<ul>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://www.jarvis.home:8080/'">UI</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
+				<li class="nav-item" onclick="showSection('config')"> - Config</li>
+				<li class="nav-item" onclick="showSection('html')"> - HTML</li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://mqtt.jarvis.home:8082/'">MQTT</a></li>
+			</ul>
 		</div>
-		
-		<div class="row">
-			<div class="col-12">
-				<div class="mb-3">
-					<label for="inputText" class="form-label">Input Json</label>
-					<textarea class="form-control" id="inputText" rows="8" placeholder="Enter your JSON text here..."></textarea>
-				</div>
-				
-				<div class="text-center mb-3">
-					<button type="button" class="btn btn-primary btn-lg" id="convertJson2HtmlBtn">Convert</button>
-				</div>
-				
-				<div class="mb-3">
-					<label for="outputText" class="form-label">Output Text</label>
-					<textarea class="form-control" id="outputText" rows="8" placeholder="HTML text will appear here..." readonly></textarea>
-				</div>
+		<div class="main-content">
+			<div class="dashboard-header">
+				<h1>Config</h1>
+				<div id="current-time"></div>
 			</div>
-		</div>
-		  
-		
-	  </div>
-      <div id="config" class="section" style="display: none;">
-
-		<div class="d-flex align-items-center gap-2 flex-wrap">
-		  <h2 class="mb-0">Config</h2>
-		  <button class="btn btn-light p-1" onclick="exportConfig()" title="Save config data to file">
-			<i class="bi bi-save"></i>
-		  </button>
-		  <button class="btn" onclick="document.getElementById('importConfigFileInput').click()">
-			<i title="Load structure tree from file" class="bi bi-upload me-1"></i>
-		  </button>
-		  <input type="file" id="importConfigFileInput" accept=".config" style="display:none" onchange="importConfig(event)">
-		</div>
-	
-		<div class="container-fluid">
-		  <div class="row">
-		  
-			<!-- Left column: External Items -->
-			<div class="col-md-6">
-			  
-				<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-					<div class="d-flex align-items-center gap-2 flex-wrap">
-						<div class="d-flex align-items-center">
-							<h3 class="mb-0 me-2">Sensors</h3>
+			<div id="html" class="section" style="display: none;">
+				<div class="row">
+					<h2 class="mb-0">Html</h2>
+				</div>
+				<div class="row">
+					<div class="col-12">
+						<div class="mb-3">
+							<label for="inputText" class="form-label">Input Json</label>
+							<textarea class="form-control" id="inputText" rows="8" placeholder="Enter your JSON text here..."></textarea>
 						</div>
-						<button class="btn btn-light btn-sm" onclick="createNewSensor()" title="Add new sensor">
-							<i class="bi bi-plus-lg"></i>
-						</button>
-						<button class="btn btn-light p-1" onclick="exportSensors()" title="Save sensor list to file">
-							<i class="bi bi-save"></i>
-						</button>
-						<button class="btn btn-light p-1" onclick="document.getElementById('importSensorsFileInput').click()" title="Load sensor list from file">
-							<i class="bi bi-upload"></i>
-						</button>
-						<input type="file" id="importSensorsFileInput" accept=".sensors" style="display:none" onchange="importSensors(event)">
-						<div style="min-width: 200px; flex-grow: 1;">
-							<input type="text" id="sensorFilter" placeholder="Filter sensors..." class="form-control p-2" />
+						<div class="text-center mb-3">
+							<button type="button" class="btn btn-primary btn-lg" id="convertJson2HtmlBtn">Convert</button>
+						</div>
+						<div class="mb-3">
+							<label for="outputText" class="form-label">Output Text</label>
+							<textarea class="form-control" id="outputText" rows="8" placeholder="HTML text will appear here..." readonly></textarea>
 						</div>
 					</div>
 				</div>
-				<div class="col-md-12">
-					<ul id="sensors" class="list-group"></ul>
-				</div>
-			  
 			</div>
-
-			<!-- Right column: Main Tree -->
-			<div class="col-md-6">
-			
-				<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-   				  <div class="d-flex align-items-center gap-2 flex-wrap">
-				    <h3 class="mb-0">Structure</h3>
-  				    <div id="treeEditorTab" class="tab-pane d-flex">
-				      <button class="btn btn-light btn-sm" onclick="createNewTreeElement(event)" title="Add new sensor">
-					    <i class="bi bi-plus-lg"></i>
-				      </button>				  
-					  <button class="btn" onclick="exportTree(event)">
-					    <i title="Save structure tree to file" class="bi bi-save me-1"></i>
-					  </button>
-					  <button class="btn" onclick="document.getElementById('importTreeFileInput').click()">
-					    <i title="Load structure tree from file" class="bi bi-upload me-1"></i>
-					  </button>
-					  <input type="file" id="importTreeFileInput" accept=".tree" style="display:none" onchange="importTree(event)">
-				    </div>
- 				  </div>
- 				</div>
-			  
-				<div class="col-md-12">
-				  <ul id="tree" class="list-group"></ul>
+			<div id="config" class="section" style="display: none;">
+				<div class="d-flex align-items-center gap-2 flex-wrap">
+					<h2 class="mb-0">Config</h2>
+					<button class="btn btn-light p-1" onclick="exportConfig()" title="Save config data to file">
+						<i class="bi bi-save"></i>
+					</button>
+					<button class="btn" onclick="document.getElementById('importConfigFileInput').click()">
+						<i title="Load structure tree from file" class="bi bi-upload me-1"></i>
+					</button>
+					<input type="file" id="importConfigFileInput" accept=".config" style="display:none" onchange="importConfig(event)">
 				</div>
-			  
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+								<div class="d-flex align-items-center gap-2 flex-wrap">
+									<div class="d-flex align-items-center">
+										<h3 class="mb-0 me-2">Sensors</h3>
+									</div>
+									<button class="btn btn-light btn-sm" onclick="createNewSensor()" title="Add new sensor">
+										<i class="bi bi-plus-lg"></i>
+									</button>
+									<button class="btn btn-light p-1" onclick="exportSensors()" title="Save sensor list to file">
+										<i class="bi bi-save"></i>
+									</button>
+									<button class="btn btn-light p-1" onclick="document.getElementById('importSensorsFileInput').click()" title="Load sensor list from file">
+										<i class="bi bi-upload"></i>
+									</button>
+									<input type="file" id="importSensorsFileInput" accept=".sensors" style="display:none" onchange="importSensors(event)">
+									<div style="min-width: 200px; flex-grow: 1;">
+										<input type="text" id="sensorFilter" placeholder="Filter sensors..." class="form-control p-2" />
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<ul id="sensors" class="list-group"></ul>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+								<div class="d-flex align-items-center gap-2 flex-wrap">
+									<h3 class="mb-0">Structure</h3>
+									<div id="treeEditorTab" class="tab-pane d-flex">
+										<button class="btn btn-light btn-sm" onclick="createNewTreeElement(event)" title="Add new sensor">
+											<i class="bi bi-plus-lg"></i>
+										</button>				  
+										<button class="btn" onclick="exportTree(event)">
+											<i title="Save structure tree to file" class="bi bi-save me-1"></i>
+										</button>
+										<button class="btn" onclick="document.getElementById('importTreeFileInput').click()">
+											<i title="Load structure tree from file" class="bi bi-upload me-1"></i>
+										</button>
+										<input type="file" id="importTreeFileInput" accept=".tree" style="display:none" onchange="importTree(event)">
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<ul id="tree" class="list-group"></ul>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-			
-		  </div>
 		</div>
-		
-      </div>
-    </div>
-  </div>
-
-  <div id="modal_forms_storage">
-  
+	</div>
+	<div id="modal_forms_storage">
   		<!-- Sensor Edit Modal -->
 		<div class="modal fade" id="sensorEditModal" tabindex="-1" aria-labelledby="sensorEditModalLabel" aria-hidden="true">
 		  <div class="modal-dialog">

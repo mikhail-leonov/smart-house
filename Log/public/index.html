@@ -6,41 +6,63 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.1
+ * @version 0.7.3
  * @license MIT
  */
 -->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SmartHouse Logs</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="/shared/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { background-color: #f8f9fa; padding: 2rem; }
-    pre { background: #212529; color: #f8f9fa; padding: 1rem; border-radius: 0.5rem; max-height: 80vh; overflow-y: auto; }
-  </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Smart Home :: Logs</title>
+    <link href="/shared/ui.css" rel="stylesheet">
+    <link href="/shared/home.css" rel="stylesheet">
+    <link href="/shared/bootstrap.min.css" rel="stylesheet">
+
+	<style>
+		body { background-color: #f8f9fa; padding: 2rem; }
+		pre { background: #212529; color: #f8f9fa; padding: 1rem; border-radius: 0.5rem; max-height: 80vh; overflow-y: auto; }
+	</style>
+
 </head>
 <body>
-  <div class="container">
-    <h2 class="mb-4">Recent Log Output</h2>
-    <pre id="logContent">Loading logs...</pre>
-  </div>
-
-  <script>
-    async function loadLog() {
-      try {
-        const response = await fetch('/show'); // Adjust path if needed
-        if (!response.ok) throw new Error('Failed to fetch log');
-        const text = await response.text();
-        document.getElementById('logContent').textContent = text;
-      } catch (e) {
-        document.getElementById('logContent').textContent = 'Error loading log: ' + e.message;
-      }
-    }
-
-    loadLog();
-    setInterval(loadLog, 5000); // Refresh every 5 seconds
-  </script>
-</body>
+	<div class="container container-no-left">
+		<div class="sidebar">
+			<h2>Logs</h2>
+			<ul>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://www.jarvis.home:8080/'">UI</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://mqtt.jarvis.home:8082/'">MQTT</a></li>
+				
+				
+			</ul>
+		</div>
+		<div class="main-content">
+			<div class="dashboard-header">
+				<h1>Logs</h1>
+				<div id="current-time"></div>
+			</div>
+			<pre id="logContent">Loading logs...</pre>
+		</div>
+	</div>
+	
+	<script>
+		async function loadLog() {
+			try {
+				const response = await fetch('/show'); // Adjust path if needed
+				if (!response.ok) throw new Error('Failed to fetch log');
+				const text = await response.text();
+				document.getElementById('logContent').textContent = text;
+			} catch (e) {
+				document.getElementById('logContent').textContent = 'Error loading log: ' + e.message;
+			}
+		}
+		loadLog();
+		setInterval(loadLog, 5000); // Refresh every 5 seconds
+	</script>
+	
+	<script src="/shared/bootstrap.bundle.min.js"></script>
+	<script src="index.js"></script></body>
 </html>

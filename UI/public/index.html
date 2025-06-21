@@ -6,65 +6,68 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.1
+ * @version 0.7.3
  * @license MIT
  */
 -->
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Home Dashboard</title>
+	<title>Smart Home :: UI</title>
     <link href="/shared/ui.css" rel="stylesheet">
     <link href="/shared/home.css" rel="stylesheet">
     <link href="/shared/bootstrap.min.css" rel="stylesheet">
+
     <script src="/shared/mqtt.min.js"></script>
     <link href="/shared/mqtt-core.js" rel="stylesheet">
-  </head>
-  <body>
-		<div class="container container-no-left">
-			  <div class="sidebar">
-				<h2>Smart Home</h2>
-				<ul>
-					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://www.jarvis.home:8080/'">UI</a></li>
-					<li class="nav-item" onclick="showSection('map')"> - House Map</li>
-					<li class="nav-item" onclick="showSection('leaks')"> - Leaks</li>
-					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
-					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
-					<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
+
+
+
+</head>
+<body>
+	<div class="container container-no-left">
+		<div class="sidebar">
+			<h2>UI</h2>
+			<ul>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://www.jarvis.home:8080/'">UI</a></li>
+				<li class="nav-item" onclick="showSection('map')"> - House Map</li>
+				<li class="nav-item" onclick="showSection('leaks')"> - Leaks</li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://mqtt.jarvis.home:8082/'">MQTT</a></li>
+			</ul>
+		</div>
+		<div class="main-content">
+			<div class="dashboard-header">
+				<h1>UI</h1>
+				<div id="current-time"></div>
+			</div>
+				
+			<!-- Leaks Section -->
+			<div id="leaks" class="section" style="display: none;">
+				
+				
+			</div>
+			
+			<!-- Map Section -->
+			<div id="map" class="section" style="display: none;">
+				<!-- Nav tabs Section -->
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" id="first-tab" data-bs-toggle="tab" data-bs-target="#first" type="button" role="tab" aria-controls="first" aria-selected="true"> First Floor </button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#second" type="button" role="tab" aria-controls="second" aria-selected="false"> Second Floor </button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="roof-tab" data-bs-toggle="tab" data-bs-target="#roof" type="button" role="tab" aria-controls="roof" aria-selected="false"> House </button>
+					</li>
 				</ul>
-			  </div>
-			  <div class="main-content">
-			  
-				<div class="dashboard-header">
-				  <h1>Smart Home Dashboard</h1>
-				  <div id="current-time"></div>
-				</div>
-				<!-- Leaks Section -->
-				<div id="leaks" class="section" style="display: none;">
 				
-				
-				</div>
-				<!-- Map Section -->
-				<div id="map" class="section" style="display: none;">
-
-				  <!-- Nav tabs Section -->
-				  <ul class="nav nav-tabs" id="myTab" role="tablist">
-					<li class="nav-item" role="presentation">
-					  <button class="nav-link active" id="first-tab" data-bs-toggle="tab" data-bs-target="#first" type="button" role="tab" aria-controls="first" aria-selected="true"> First Floor </button>
-					</li>
-					<li class="nav-item" role="presentation">
-					  <button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#second" type="button" role="tab" aria-controls="second" aria-selected="false"> Second Floor </button>
-					</li>
-					<li class="nav-item" role="presentation">
-					  <button class="nav-link" id="roof-tab" data-bs-toggle="tab" data-bs-target="#roof" type="button" role="tab" aria-controls="roof" aria-selected="false"> House </button>
-					</li>
-				  </ul>
-
-				  <!-- CUT -->
-
-				  <!-- Tab panes -->
-				  <div class="tab-content mt-3" id="myTabContent">
+				<!-- Tab panes -->
+				<div class="tab-content mt-3" id="myTabContent">
 					<div class="tab-pane fade show active" id="first" role="tabpanel" aria-labelledby="first-tab">
 
 
@@ -76,26 +79,22 @@
 							<div class="room backyard" data-location="outside" data-floor="first_floor" data-room="backyard" onclick="entryClicked(this)">
 							  Backyard 
 							  <div class="content">
-								soil_temperature: <span id="soil_temperature" data-bind="home/outside/first_floor/backyard/soil_temperature"></span></br>
-								soil_moisture: <span id="soil_moisture" data-bind="home/outside/first_floor/backyard/soil_moisture"></span></br>
-								sprinkler_status: <span id="sprinkler_status" data-bind="home/outside/first_floor/backyard/sprinkler_status"></span></br>
+							  
 							  </div>
 							</div>
 							
 							<div class="room pool" data-location="outside" data-floor="first_floor" data-room="pool" onclick="entryClicked(this)">
 							  Pool
 							  <div class="content">
-								water_temperature: <span id="water_temperature" data-bind="home/outside/first_floor/pool/water_temperature"></span></br>
-								vac_status: <span id="vac_status" data-bind="home/outside/first_floor/pool/vac_status"></span></br>
+								water_temperature: <span data-bind="home/outside/first_floor/pool/water_temperature"></span></br>
 							  </div>
 							</div>
 							
 							<div class="room home-left" data-location="outside" data-floor="first_floor" data-room="home-left" onclick="entryClicked(this)">
 							  Area left
 							  <div class="content">
-								soil_temperature: <span id="soil_temperature" data-bind="home/outside/first_floor/home-left/soil_temperature"></span></br>
-								soil_moisture: <span id="soil_moisture" data-bind="home/outside/first_floor/home-left/soil_moisture"></span></br>
-								sprinkler_status: <span id="sprinkler_status" data-bind="home/outside/first_floor/home-left/sprinkler_status"></span></br>
+								soil_temperature: <span data-bind="home/outside/first_floor/ground/soil_temperature"></span></br>
+								temperature: <span data-bind="home/outside/air/stat/temperature"></span></br>
 							  </div>
 							</div>
 						  
@@ -123,203 +122,100 @@
 							<div class="room sprinkler-area" data-location="outside" data-floor="first_floor" data-room="sprinkler-area" onclick="entryClicked(this)">
 							  Sprinkler
 							  <div class="content">
-								sprinkler_controller_last_active: <span id="sprinkler_controller_last_active" data-bind="home/outside/first_floor/sprinkler-area/sprinkler_controller_last_active"></span></br>
-								sprinkler_controller_name: <span id="sprinkler_controller_name" data-bind="home/outside/first_floor/sprinkler-area/sprinkler_controller_name"></span></br>
-								sprinkler_controller_serial: <span id="sprinkler_controller_serial" data-bind="home/outside/first_floor/sprinkler-area/sprinkler_controller_serial"></span></br>
-								sprinkler_controller_zone_num: <span id="sprinkler_controller_zone_num" data-bind="home/outside/first_floor/sprinkler-area/sprinkler_controller_zone_num"></span></br>
-								sprinkler_controller_status: <span id="sprinkler_controller_status" data-bind="home/outside/first_floor/sprinkler-area/sprinkler_controller_status"></span></br>
-								sprinkler_controller_version: <span id="sprinkler_controller_version" data-bind="home/outside/first_floor/sprinkler-area/sprinkler_controller_version"></span></br>
-								sprinkler_controller_sw_version: <span id="sprinkler_controller_sw_version" data-bind="home/outside/first_floor/sprinkler-area/sprinkler_controller_sw_version"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room office-1f" data-location="inside" data-floor="first_floor" data-room="office-1f" onclick="entryClicked(this)">
 							  Office
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/office-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/office-1f/occupancy"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/office-1f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/office-1f/humidity"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/office-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/office-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/office-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/office-1f/shatter_status"></span></br>
-								fan_status: <span id="fan_status" data-bind="home/inside/first_floor/office-1f/fan_status"></span></br>
+								temperature: <span data-bind="home/inside/house/stat/temperature"></span></br>
 							  </div>
 							</div>
 						  
 							<div class="room bathroom-1f" data-location="inside" data-floor="first_floor" data-room="bathroom-1f" onclick="entryClicked(this)">
 							  Bathroom
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/bathroom-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/bathroom-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/bathroom-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/bathroom-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/bathroom-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/bathroom-1f/shatter_status"></span></br>
-								water_leak: <span id="water_leak" data-bind="home/inside/first_floor/bathroom-1f/water_leak"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/bathroom-1f/humidity"></span></br>
-								water_leak_sensor_battery: <span id="water_leak_sensor_battery" data-bind="home/inside/first_floor/bathroom-1f/water_leak_sensor_battery"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/bathroom-1f/temperature"></span></br>
+								temperature: <span data-bind="home/inside/house/stat/temperature"></span></br>
 							  </div>
 							</div>
 						  
 							<div class="room living-room-1f" data-location="inside" data-floor="first_floor" data-room="living-room-1f" onclick="entryClicked(this)">
 							  Living Room
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/living-room-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/living-room-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/living-room-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/living-room-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/living-room-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/living-room-1f/shatter_status"></span></br>
-								tv_status: <span id="tv_status" data-bind="home/inside/first_floor/living-room-1f/tv_status"></span></br>
-								fan_status: <span id="fan_status" data-bind="home/inside/first_floor/living-room-1f/fan_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/living-room-1f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/living-room-1f/humidity"></span></br>
+								temperature: <span data-bind="home/inside/house/stat/temperature"></span></br>
+								tv_status: <span data-bind="home/inside/house/devices/tv_status"></span></br>
+								roomba: <span data-bind="home/inside/first_floor/hall-1f/roomba"></span></br>
 							  </div>
 							</div>
 							  
 							<div class="room dining-area-1f" data-location="inside" data-floor="first_floor" data-room="dining-area-1f" onclick="entryClicked(this)">
 							  Dining Area
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/dining-area-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/dining-area-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/dining-area-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/dining-area-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/dining-area-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/dining-area-1f/shatter_status"></span></br>
-								fan_status: <span id="fan_status" data-bind="home/inside/first_floor/dining-area-1f/fan_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/first_floor/dining-area-1f/door_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/dining-area-1f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/dining-area-1f/humidity"></span></br>
+								temperature: <span data-bind="home/inside/house/stat/temperature"></span></br>
 							  </div>
 							</div>
 						  
 							<div class="room kitchen-1f" data-location="inside" data-floor="first_floor" data-room="kitchen-1f" onclick="entryClicked(this)">
 							  Kitchen
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/kitchen-1f/light_level"></span></br>
-								stove_status: <span id="stove_status" data-bind="home/inside/first_floor/kitchen-1f/stove_status"></span></br>
-								microwave_status: <span id="microwave_status" data-bind="home/inside/first_floor/kitchen-1f/microwave_status"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/kitchen-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/kitchen-1f/motion_detected"></span></br>
-								fridge_temp: <span id="fridge_temp" data-bind="home/inside/first_floor/kitchen-1f/fridge_temp"></span></br>
-								kettle_status: <span id="kettle_status" data-bind="home/inside/first_floor/kitchen-1f/kettle_status"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/kitchen-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/kitchen-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/kitchen-1f/shatter_status"></span></br>
-								water_leak: <span id="water_leak" data-bind="home/inside/first_floor/kitchen-1f/water_leak"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/kitchen-1f/humidity"></span></br>
-								water_leak_sensor_battery: <span id="water_leak_sensor_battery" data-bind="home/inside/first_floor/kitchen-1f/water_leak_sensor_battery"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/kitchen-1f/temperature"></span></br>
+								temperature: <span data-bind="home/inside/house/stat/temperature"></span></br>
 							  </div>
 							</div>
 							
 							<div class="room corridor-1f" data-location="inside" data-floor="first_floor" data-room="corridor-1f" onclick="entryClicked(this)">
 							  Corridor
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/corridor-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/corridor-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/corridor-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/corridor-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/corridor-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/corridor-1f/shatter_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/corridor-1f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/corridor-1f/humidity"></span></br>
+								temperature: <span data-bind="home/inside/house/stat/temperature"></span></br>
 							  </div>
 							</div>
 						  
 							<div class="room stairs-1f" data-location="inside" data-floor="first_floor" data-room="stairs-1f" onclick="entryClicked(this)">
 							  Stairs
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/stairs-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/stairs-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/stairs-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/stairs-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/stairs-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/stairs-1f/shatter_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/stairs-1f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/stairs-1f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room laundry-1f" data-location="inside" data-floor="first_floor" data-room="laundry-1f" onclick="entryClicked(this)">
 							  Laundry
 							  <div class="content">
-								washer_status: <span id="washer_status" data-bind="home/inside/first_floor/laundry-1f/washer_status"></span></br>
-								dryer_status: <span id="dryer_status" data-bind="home/inside/first_floor/laundry-1f/dryer_status"></span></br>
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/laundry-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/laundry-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/laundry-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/laundry-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/laundry-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/laundry-1f/shatter_status"></span></br>
-								water_leak: <span id="water_leak" data-bind="home/inside/first_floor/laundry-1f/water_leak"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/laundry-1f/humidity"></span></br>
-								water_leak_sensor_battery: <span id="water_leak_sensor_battery" data-bind="home/inside/first_floor/laundry-1f/water_leak_sensor_battery"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/laundry-1f/temperature"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room closet-1f" data-location="inside" data-floor="first_floor" data-room="closet-1f" onclick="entryClicked(this)">
 							  Closet
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/closet-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/closet-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/closet-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/closet-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/closet-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/closet-1f/shatter_status"></span></p>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/closet-1f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/closet-1f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room garage-1f" data-location="inside" data-floor="first_floor" data-room="garage-1f" onclick="entryClicked(this)">
 							  Garage
 							  <div class="content">
-								car_presence: <span id="car_presence" data-bind="home/inside/first_floor/garage-1f/car_presence"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/first_floor/garage-1f/door_status"></span></br>
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/garage-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/garage-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/garage-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/garage-1f/smoke_detected"></span></br>
-								water_leak: <span id="water_leak" data-bind="home/inside/first_floor/garage-1f/water_leak"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/garage-1f/humidity"></span></br>
-								water_leak_sensor_battery: <span id="water_leak_sensor_battery" data-bind="home/inside/first_floor/garage-1f/water_leak_sensor_battery"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/garage-1f/temperature"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room hall-1f" data-location="inside" data-floor="first_floor" data-room="hall-1f" onclick="entryClicked(this)">
 							  Hall
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/first_floor/hall-1f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/first_floor/hall-1f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/first_floor/hall-1f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/first_floor/hall-1f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/first_floor/hall-1f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/first_floor/hall-1f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/first_floor/hall-1f/door_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/first_floor/hall-1f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/first_floor/hall-1f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room front-yard" data-location="outside" data-floor="first_floor" data-room="frontyard" onclick="entryClicked(this)">
 							  Front Yard
 							  <div class="content">
-								soil_temperature: <span id="soil_temperature" data-bind="home/outside/first_floor/frontyard/soil_temperature"></span></br>
-								soil_moisture: <span id="soil_moisture" data-bind="home/outside/first_floor/frontyard/soil_moisture"></span></br>
-								sprinkler_status: <span id="sprinkler_status" data-bind="home/outside/first_floor/frontyard/sprinkler_status"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room driveway" data-location="outside" data-floor="first_floor" data-room="driveway" onclick="entryClicked(this)">
 							  Driveway
 							  <div class="content">
-								car_presence: <span id="car_presence" data-bind="home/outside/first_floor/driveway/car_presence"></span></br>
+							  
 							  </div>
 							</div>
 						  
@@ -334,53 +230,7 @@
 							<div class="room backend-area" data-location="outside" data-floor="first_floor" data-room="weather" onclick="entryClicked(this)">
 							  Area
 							  <div class="content">
-								temperature: <span id="temperature" data-bind="home/outside/first_floor/weather/temperature"></span></br>
-								relative_humidity: <span id="relative_humidity" data-bind="home/outside/first_floor/weather/relative_humidity"></span></br>
-								dew_point: <span id="dew_point" data-bind="home/outside/first_floor/weather/dew_point"></span></br>
-								pressure: <span id="pressure" data-bind="home/outside/first_floor/weather/pressure"></span></br>
-								cloud_cover: <span id="cloud_cover" data-bind="home/outside/first_floor/weather/cloud_cover"></span></br>
-								visibility: <span id="visibility" data-bind="home/outside/first_floor/weather/visibility"></span></br>
-								wind_speed: <span id="wind_speed" data-bind="home/outside/first_floor/weather/wind_speed"></span></br>
-								wind_direction: <span id="wind_direction" data-bind="home/outside/first_floor/weather/wind_direction"></span></br>
-								wind_gusts: <span id="wind_gusts" data-bind="home/outside/first_floor/weather/wind_gusts"></span></br>
-								precipitation: <span id="precipitation" data-bind="home/outside/first_floor/weather/precipitation"></span></br>
-								precipitation_probability: <span id="precipitation_probability" data-bind="home/outside/first_floor/weather/precipitation_probability"></span></br>
-								weather_code: <span id="weather_code" data-bind="home/outside/first_floor/weather/weather_code"></span></br>
-
-								pm10: <span id="pm10" data-bind="home/outside/first_floor/weather/pm10"></span></br>
-								pm2_5: <span id="pm2_5" data-bind="home/outside/first_floor/weather/pm2_5"></span></br>
-								carbon_monoxide: <span id="carbon_monoxide" data-bind="home/outside/first_floor/weather/carbon_monoxide"></span></br>
-								carbon_dioxide: <span id="carbon_dioxide" data-bind="home/outside/first_floor/weather/carbon_dioxide"></span></br>
-								nitrogen_dioxide: <span id="nitrogen_dioxide" data-bind="home/outside/first_floor/weather/nitrogen_dioxide"></span></br>
-								sulphur_dioxide: <span id="sulphur_dioxide" data-bind="home/outside/first_floor/weather/sulphur_dioxide"></span></br>
-								ozone: <span id="ozone" data-bind="home/outside/first_floor/weather/ozone"></span></br>
-								ammonia: <span id="ammonia" data-bind="home/outside/first_floor/weather/ammonia"></span></br>
-								methane: <span id="methane" data-bind="home/outside/first_floor/weather/methane"></span></br>
-								aerosol_optical_depth: <span id="aerosol_optical_depth" data-bind="home/outside/first_floor/weather/aerosol_optical_depth"></span></br>
-								dust: <span id="dust" data-bind="home/outside/first_floor/weather/dust"></span></br>
-								uv_index: <span id="uv_index" data-bind="home/outside/first_floor/weather/uv_index"></span></br>
-
-								alder_pollen: <span id="alder_pollen" data-bind="home/outside/first_floor/weather/alder_pollen"></span></br>
-								birch_pollen: <span id="birch_pollen" data-bind="home/outside/first_floor/weather/birch_pollen"></span></br>
-								grass_pollen: <span id="grass_pollen" data-bind="home/outside/first_floor/weather/grass_pollen"></span></br>
-								mugwort_pollen: <span id="mugwort_pollen" data-bind="home/outside/first_floor/weather/mugwort_pollen"></span></br>
-								olive_pollen: <span id="olive_pollen" data-bind="home/outside/first_floor/weather/olive_pollen"></span></br>
-								ragweed_pollen: <span id="ragweed_pollen" data-bind="home/outside/first_floor/weather/ragweed_pollen"></span></br>
-								soil_temperature: <span id="soil_temperature" data-bind="home/outside/first_floor/weather/soil_temperature"></span></br>
-								soil_moisture: <span id="soil_moisture" data-bind="home/outside/first_floor/weather/soil_moisture"></span></br>
-								wave_height: <span id="wave_height" data-bind="home/outside/first_floor/weather/wave_height"></span></br>
-								wave_direction: <span id="wave_direction" data-bind="home/outside/first_floor/weather/wave_direction"></span></br>
-								wave_period: <span id="wave_period" data-bind="home/outside/first_floor/weather/wave_period"></span></br>
-								wind_wave_height: <span id="wind_wave_height" data-bind="home/outside/first_floor/weather/wind_wave_height"></span></br>
-								wind_wave_direction: <span id="wind_wave_direction" data-bind="home/outside/first_floor/weather/wind_wave_direction"></span></br>
-								wind_wave_period: <span id="wind_wave_period" data-bind="home/outside/first_floor/weather/wind_wave_period"></span></br>
-								swell_wave_direction: <span id="swell_wave_direction" data-bind="home/outside/first_floor/weather/swell_wave_direction"></span></br>
-								swell_wave_height: <span id="swell_wave_height" data-bind="home/outside/first_floor/weather/swell_wave_height"></span></br>
-								swell_wave_period: <span id="swell_wave_period" data-bind="home/outside/first_floor/weather/swell_wave_period"></span></br>
-								sea_level_height_msl: <span id="sea_level_height_msl" data-bind="home/outside/first_floor/weather/sea_level_height_msl"></span></br>
-								sea_surface_temperature: <span id="sea_surface_temperature" data-bind="home/outside/first_floor/weather/sea_surface_temperature"></span></br>
-								ocean_current_velocity: <span id="ocean_current_velocity" data-bind="home/outside/first_floor/weather/ocean_current_velocity"></span></br>
-								ocean_current_direction: <span id="ocean_current_direction" data-bind="home/outside/first_floor/weather/ocean_current_direction"></span></br>
+							  
 							  </div>
 							</div>
 						  
@@ -394,160 +244,70 @@
 							<div class="room master-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="master-bedroom-2f" onclick="entryClicked(this)">
 							  Master Bedroom
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/master-bedroom-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/master-bedroom-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/master-bedroom-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/master-bedroom-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/master-bedroom-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/master-bedroom-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/master-bedroom-2f/door_status"></span></br>
-								tv_status: <span id="tv_status" data-bind="home/inside/second_floor/master-bedroom-2f/tv_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/master-bedroom-2f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/master-bedroom-2f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room master-bathroom-2f" data-location="inside" data-floor="second_floor" data-room="master-bathroom-2f" onclick="entryClicked(this)">
 							  Master Bathroom
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/master-bathroom-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/master-bathroom-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/master-bathroom-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/master-bathroom-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/master-bathroom-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/master-bathroom-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/master-bathroom-2f/door_status"></span></br>
-								water_leak: <span id="water_leak" data-bind="home/inside/second_floor/master-bathroom-2f/water_leak"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/master-bathroom-2f/humidity"></span></br>
-								water_leak_sensor_battery: <span id="water_leak_sensor_battery" data-bind="home/inside/second_floor/master-bathroom-2f/water_leak_sensor_battery"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/master-bathroom-2f/temperature"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room master-closet-2f" data-location="inside" data-floor="second_floor" data-room="master-closet-2f" onclick="entryClicked(this)">
 							  Master Closet
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/master-closet-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/master-closet-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/master-closet-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/master-closet-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/master-closet-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/master-closet-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/master-closet-2f/door_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/master-closet-2f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/master-closet-2f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room stairs-2f" data-location="inside" data-floor="second_floor" data-room="stairs-2f" onclick="entryClicked(this)">
 							  Stairs
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/stairs-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/stairs-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/stairs-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/stairs-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/stairs-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/stairs-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/stairs-2f/door_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/stairs-2f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/stairs-2f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room bathroom-2f" data-location="inside" data-floor="second_floor" data-room="bathroom-2f" onclick="entryClicked(this)">
 							  Bathroom 2F
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/bathroom-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/bathroom-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/bathroom-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/bathroom-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/bathroom-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/bathroom-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/bathroom-2f/door_status"></span></br>
-								water_leak: <span id="water_leak" data-bind="home/inside/second_floor/bathroom-2f/water_leak"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/bathroom-2f/humidity"></span></br>
-								water_leak_sensor_battery: <span id="water_leak_sensor_battery" data-bind="home/inside/second_floor/bathroom-2f/water_leak_sensor_battery"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/bathroom-2f/temperature"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room hall-2f" data-location="inside" data-floor="second_floor" data-room="hall-2f" onclick="entryClicked(this)">
 							  Area
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/hall-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/hall-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/hall-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/hall-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/hall-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/hall-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/hall-2f/door_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/hall-2f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/hall-2f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room daria-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="daria-bedroom-2f" onclick="entryClicked(this)">
 							  Daria Bedroom
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/daria-bedroom-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/daria-bedroom-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/daria-bedroom-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/daria-bedroom-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/daria-bedroom-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/daria-bedroom-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/daria-bedroom-2f/door_status"></span></br>
-								tv_status: <span id="tv_status" data-bind="home/inside/second_floor/daria-bedroom-2f/tv_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/daria-bedroom-2f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/daria-bedroom-2f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room ivan-bedroom-2f" data-location="inside" data-floor="second_floor" data-room="ivan-bedroom-2f" onclick="entryClicked(this)">
 							  Ivan Bedroom
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/ivan-bedroom-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/ivan-bedroom-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/ivan-bedroom-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/ivan-bedroom-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/ivan-bedroom-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/ivan-bedroom-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/ivan-bedroom-2f/door_status"></span></br>
-								tv_status: <span id="tv_status" data-bind="home/inside/second_floor/ivan-bedroom-2f/tv_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/ivan-bedroom-2f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/ivan-bedroom-2f/humidity"></span></br>
+							  
 							  </div>
 							</div>
 						  
 							<div class="room den-2f" data-location="inside" data-floor="second_floor" data-room="den-2f" onclick="entryClicked(this)">
 							  Den
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/den-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/den-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/den-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/den-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/den-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/den-2f/shatter_status"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/den-2f/temperature"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/den-2f/humidity"></span></br>
+								roomba: <span data-bind="home/inside/second_floor/den/roomba"></span></br>
 							  </div>
 							</div>
 						  
 							<div class="room conditioner-2f" data-location="inside" data-floor="second_floor" data-room="conditioner-2f" onclick="entryClicked(this)">
 							  Cond
 							  <div class="content">
-								light_level: <span id="light_level" data-bind="home/inside/second_floor/conditioner-2f/light_level"></span></br>
-								occupancy: <span id="occupancy" data-bind="home/inside/second_floor/conditioner-2f/occupancy"></span></br>
-								motion_detected: <span id="motion_detected" data-bind="home/inside/second_floor/conditioner-2f/motion_detected"></span></br>
-								smoke_detected: <span id="smoke_detected" data-bind="home/inside/second_floor/conditioner-2f/smoke_detected"></span></br>
-								window_status: <span id="window_status" data-bind="home/inside/second_floor/conditioner-2f/window_status"></span></br>
-								shatter_status: <span id="shatter_status" data-bind="home/inside/second_floor/conditioner-2f/shatter_status"></span></br>
-								door_status: <span id="door_status" data-bind="home/inside/second_floor/conditioner-2f/door_status"></span></br>
-								ac_status: <span id="ac_status" data-bind="home/inside/second_floor/conditioner-2f/ac_status"></span></br>
-								ac_target_temperature: <span id="ac_target_temperature" data-bind="home/inside/second_floor/conditioner-2f/ac_target_temperature"></span></br>
-								water_leak: <span id="water_leak" data-bind="home/inside/second_floor/conditioner-2f/water_leak"></span></br>
-								humidity: <span id="humidity" data-bind="home/inside/second_floor/conditioner-2f/humidity"></span></br>
-								water_leak_sensor_battery: <span id="water_leak_sensor_battery" data-bind="home/inside/second_floor/conditioner-2f/water_leak_sensor_battery"></span></br>
-								temperature: <span id="temperature" data-bind="home/inside/second_floor/conditioner-2f/temperature"></span></br>
+							  
 							  </div>
 							</div>
 						  
@@ -583,7 +343,7 @@
 							<div class="room house" data-location="inside" data-floor="house" data-room="nas" onclick="entryClicked(this)">
 							  House
 							  <div class="content">
-								emails: <span id="emails" data-bind="home/inside/house/nas/emails"></span></br>
+							  
 							  </div>
 							</div>
 							
@@ -599,6 +359,9 @@
 					</div>
 				  </div>
 				</div>
+				
+				
+				
         <!-- Modal -->
         <div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true" style="width:700px">
           <div class="modal-dialog modal-dialog-centered">

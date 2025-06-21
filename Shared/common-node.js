@@ -4,13 +4,30 @@
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.2
+ * @version 0.7.3
  * @license MIT
  */
 
 const path = require('path');
 const location = require('./location');
 const config = require('./config-node');
+
+const mimeTypes = {
+	'.html': 'text/html',
+	'.js': 'text/javascript',
+	'.css': 'text/css',
+	'.json': 'application/json',
+	'.png': 'image/png',
+	'.jpg': 'image/jpeg',
+	'.ico': 'image/x-icon',
+	'.woff': 'font/woff',
+	'.woff2': 'font/woff2',
+	'.ttf': 'font/ttf',
+	'.otf': 'font/otf',
+	'.eot': 'application/vnd.ms-fontobject',
+	'.svg': 'image/svg+xml'
+};
+
 
 async function callFunction(func, m) {
     if (typeof func !== 'function') {
@@ -170,5 +187,5 @@ function firstFutureIndex(times) {
 }
 
 module.exports = { 
-	callFunction, processConfig, pause, firstFutureIndex, constructURL, getWeatherDescription, getVisibilityDescription, getWindDirection
+	mimeTypes, callFunction, processConfig, pause, firstFutureIndex, constructURL, getWeatherDescription, getVisibilityDescription, getWindDirection
 };

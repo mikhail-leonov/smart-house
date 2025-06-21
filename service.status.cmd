@@ -7,3 +7,4 @@
 /home/admin/smart-house/Control.GMail/service.status.cmd
 /home/admin/smart-house/Control.Telegram/service.status.cmd
 /home/admin/smart-house/Command/service.status.cmd
+/home/admin/smart-house/Mqtt.Test/service.status.cmd

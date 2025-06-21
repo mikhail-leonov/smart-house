@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- 
+/**
+ * SmartHub - AI powered Smart Home
+ * UI App which is reads values from MQTT and show them to user
+ * GitHub: https://github.com/mikhail-leonov/smart-house
+ * 
+ * @author Mikhail Leonov mikecommon@gmail.com
+ * @version 0.7.3
+ * @license MIT
+ */
+-->
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Smart Home :: MQTT</title>
+    <link href="/shared/ui.css" rel="stylesheet">
+    <link href="/shared/home.css" rel="stylesheet">
+    <link href="/shared/bootstrap.min.css" rel="stylesheet">
+
+	<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+	
+	
+	
+	
+</head>
+<body>
+	<div class="container container-no-left">
+		<div class="sidebar">
+			<h2>MQTT</h2>
+			<ul>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://www.jarvis.home:8080/'">UI</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://log.jarvis.home:3131/show'">Log</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://rnd.jarvis.home:8081/'">Random</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://edit.jarvis.home:8084/'">Edit</a></li>
+				<li class="nav-item"><a class="nav-link" target="_blank" onclick="window.location.href='http://mqtt.jarvis.home:8082/'">MQTT</a></li>
+				
+				
+			</ul>
+		</div>
+		<div class="main-content">
+			<div class="dashboard-header">
+				<h1>MQTT</h1>
+				<div id="current-time"></div>
+			</div>
+			<div class="card mb-4">
+				<div class="card-header">Publish Message</div>
+					<div class="card-body">
+						<div class="mb-3">
+							<label for="pub-topic" class="form-label">Topic</label>
+							<input type="text" id="pub-topic" class="form-control" placeholder="e.g. test/topic" value="test/topic">
+						</div>
+					<div class="mb-3">
+						<label for="pub-message" class="form-label">Message</label>
+						<input type="text" id="pub-message" class="form-control" placeholder='e.g. {"value": 42}' value="{'value': 42}">
+					</div>
+					<button id="publish-btn" class="btn btn-primary">Publish</button>
+				</div>
+			</div>
+			<div class="card mb-4">
+				<div class="card-header">Subscribe to Topic</div>
+					<div class="card-body">
+						<div class="mb-3">
+							<label for="sub-topic" class="form-label">Topic</label>
+							<input type="text" id="sub-topic" class="form-control" placeholder="e.g. test/#" value="#">
+						</div>
+						<button id="subscribe-btn" class="btn btn-success">Subscribe</button>
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-header">Received Messages</div>
+					<div class="card-body">
+						<ul id="message-log" class="list-group small"></ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="/shared/bootstrap.bundle.min.js"></script>
+	<script src="index.js"></script>
+</body>
+</html>

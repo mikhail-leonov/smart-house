@@ -80,7 +80,13 @@ const client = mqtt.connect('ws://mqtt.jarvis.home:9001');
 client.on('connect', () => {
 	console.log("MQTT connected");
 	store.set("status", "Connected");
-	client.subscribe('#');
+	client.subscribe('#', (err, granted) => {
+		if (err) {
+			console.error('Subscription failed:', err);
+		} else {
+			console.log('Subscribed to topics:', granted);
+		}
+	});	
 });
 
 client.on('close', () => {
@@ -105,33 +111,7 @@ client.on('message', (topic, message) => {
 		// Leave value as-is if not JSON
 	}
 	store.set(topic, value);
-	
-	if (topic.includes('water_leak_sensor_battery')) {
-		const el = document.querySelector(`[data-bind="${topic}"]`);
-		if (el) {
-			const num = parseFloat(value);
-			// Remove old battery-* classes
-			el.classList.remove('battery-low', 'battery-ok', 'battery-full', 'battery-unknown');
-			// Add new class based on value
-			if (isNaN(num)) {
-				el.classList.add('battery-unknown');
-			} else if (num < 30) {
-				el.classList.add('battery-low');
-			} else if (num < 90) {
-				el.classList.add('battery-ok');
-			} else {
-				el.classList.add('battery-full');
-			}
-		}
-	}
-	if (topic.includes('water_leak')) {
-		const el = document.querySelector(`[data-bind="${topic}"]`);
-		if (el) {
-			const detected = value === "true" || value === "1" || value === 1;
-			el.classList.toggle('leak-detected', detected);
-		}
-	}	
-	
+
 });
 
 

@@ -74,7 +74,6 @@ function startRandomSelection(filteredMap) {
         const randomIndex = Math.floor(Math.random() * keys.length);
         const randomTopic = keys[randomIndex];
         const randomValue = filteredMap[randomTopic];
-		
 		const randomTopicValue = getVariableValue(randomValue);
 		
 		// Generate variable from this settings and send as mqtt message
@@ -89,14 +88,12 @@ function startRandomSelection(filteredMap) {
 
 function getVariableValue(variable) {
     if (!variable) { return null; }
-    // If a fixed value exists
-    if ('value' in variable) return variable.value;
+	
     // If a list of possible values is provided
-    if (Array.isArray(variable.values)) {
+    if (variable.values.lenght > 0) {
         const idx = Math.floor(Math.random() * variable.values.length);
         return variable.values[idx];
     }
-    // If it's a range with min and max
     if ('min_value' in variable && 'max_value' in variable) {
         const min = parseFloat(variable.min_value);
         const max = parseFloat(variable.max_value);

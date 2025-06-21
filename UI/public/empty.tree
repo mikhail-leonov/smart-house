@@ -1,0 +1,35 @@
+{
+  "home": {
+    "inside": {
+      "first_floor": {
+        "hall-1f": {}
+      },
+      "second_floor": {
+        "hall-2f": {}
+      },
+      "house": {
+        "warning": {},
+        "devices": {},
+        "presence": {},
+        "ac": {},
+        "currency": {},
+        "metals": {},
+        "stat": {}
+      }
+    },
+    "outside": {
+      "first_floor": {
+        "pool": {},
+        "frontyard": {},
+        "driveway": {},
+        "backyard": {},
+        "ground": {},
+        "warning": {}
+      },
+      "air": {
+        "stat": {},
+        "warning": {}
+      }
+    }
+  }
+}

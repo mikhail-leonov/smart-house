@@ -1,0 +1,48 @@
+{
+  "home": {
+    "inside": {
+      "house": {
+        "warnings": {}
+      },
+      "first_floor": {
+        "office-1f": {},
+        "bathroom-1f": {},
+        "living-room-1f": {},
+        "dining-area-1f": {},
+        "kitchen-1f": {},
+        "corridor-1f": {},
+        "stairs-1f": {},
+        "laundry-1f": {},
+        "closet-1f": {},
+        "garage-1f": {},
+        "hall-1f": {}
+      },
+      "second_floor": {
+        "master-bedroom-2f": {},
+        "master-bathroom-2f": {},
+        "master-closet-2f": {},
+        "stairs-2f": {},
+        "bathroom-2f": {},
+        "hall-2f": {},
+        "daria-bedroom-2f": {},
+        "ivan-bedroom-2f": {},
+        "den-2f": {},
+        "conditioner-2f": {}
+      }
+    },
+    "outside": {
+      "first_floor": {
+        "backyard": {},
+        "pool": {},
+        "home-left": {},
+        "pool-area": {},
+        "ac-area": {},
+        "water-area": {},
+        "sprinkler-area": {},
+        "frontyard": {},
+        "driveway": {},
+        "weather": {}
+      }
+    }
+  }
+}

@@ -25,6 +25,8 @@ const roombaConfigs = [
 ];
 
 async function getRoombaStatus(roomba) {
+	console.log(`     - getRoombaStatus(${roomba.blid}, ${roomba.password}, ${roomba.ip})`);
+
 	const local = new Local(roomba.blid, roomba.password, roomba.ip);
 	try {
 		const state = await local.getRobotState(['batPct', 'cleanMissionStatus', 'bin.full', 'errorCode', 'dock', 'lastCommand.command', 'state']);

@@ -46,21 +46,14 @@ function walkDirectory(dirPath, depth = 0) {
 
   for (const entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
-
     if (entry.isDirectory()) {
       if (forbiddenDirs.includes(entry.name)) {
-        // Special case: allow processing of public subdir inside forbidden ones
-        const publicPath = path.join(fullPath, 'public');
-        if (fs.existsSync(publicPath) && fs.statSync(publicPath).isDirectory()) {
-          console.log(`   Found 'public' in forbidden dir, processing: ${publicPath}`);
-          walkDirectory(publicPath, depth + 1);
-        } else {
-          console.log(`   Skipping forbidden directory: ${entry.name}`);
-        }
         continue;
       }
-
       if (entry.name === 'public' || depth < 1) {
+        walkDirectory(fullPath, depth + 1);
+      }
+      if (entry.name === 'test' || depth < 1) {
         walkDirectory(fullPath, depth + 1);
       }
     } else if (entry.isFile()) {

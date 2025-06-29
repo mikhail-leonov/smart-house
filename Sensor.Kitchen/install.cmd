@@ -1,1 +1,1 @@
-npm install ini sync-request
+npm install ini sync-request chai mocha sinon

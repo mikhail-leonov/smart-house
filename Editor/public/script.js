@@ -835,3 +835,12 @@ document.getElementById('convertJson2HtmlBtn').addEventListener('click', functio
 	const outputTextarea = document.getElementById('outputText');
 	outputTextarea.value = convertJson2Html(inputText);
 });
+
+// Update current time
+function updateTime() {
+	const now = new Date(); const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };  document.getElementById('current-time').textContent = now.toLocaleDateString('en-US', options);
+}
+
+// Update time every second
+updateTime();
+setInterval(updateTime, 1000);

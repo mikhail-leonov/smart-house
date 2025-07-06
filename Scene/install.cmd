@@ -1,1 +1,1 @@
-npm install mqtt fs axios ini
+npm install mqtt fs axios ini chai sinon proxyquire node-fetch

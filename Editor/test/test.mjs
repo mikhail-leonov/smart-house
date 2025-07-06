@@ -23,11 +23,11 @@ describe('Online URL Checks', function () {
         await checkUrl('http://edit.jarvis.home:8084/index.html', 'GET');
     });
 
-    it('Rnd home root check - js', async () => {
+    it('Edit home root check - js', async () => {
         await checkUrl('http://edit.jarvis.home:8084/script.js', 'GET');
     });
     
-    it('Rnd home root check - bootstrap', async () => {
+    it('Edit home root check - bootstrap', async () => {
         await checkUrl('http://edit.jarvis.home:8084/shared/bootstrap.bundle.min.js', 'GET');
     });
 

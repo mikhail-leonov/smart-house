@@ -1,1 +1,1 @@
-npm install ini
+npm install ini chai sinon proxyquire node-fetch

@@ -1,3 +1,6 @@
 #!/bin/bash
-cd /home/admin/smart-house/Sensor.Garage/
+DIR="/home/admin/smart-house/Sensor.Garage/"
+cd "$DIR" || exit 1
+
+echo "$(basename "$DIR")"
 npx mocha test/test.mjs

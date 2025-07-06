@@ -8,13 +8,12 @@
 /home/admin/smart-house/Mqtt.Test/test.sh
 /home/admin/smart-house/Scene/test.sh
 /home/admin/smart-house/Schedule/test.sh
-/home/admin/smart-house/Scene/test.sh
 /home/admin/smart-house/Sensor.BTooth/test.sh
 /home/admin/smart-house/Sensor.Currency/test.sh
 /home/admin/smart-house/Sensor.Flood/test.sh
 /home/admin/smart-house/Sensor.Garage/test.sh
 /home/admin/smart-house/Sensor.GMail/test.sh
-/home/admin/smart-house/Sensor.Hurricane/test.sh
+/home/admin/smart-house/Sensor.Huricane/test.sh
 /home/admin/smart-house/Sensor.Image/test.sh
 /home/admin/smart-house/Sensor.IPv4/test.sh
 /home/admin/smart-house/Sensor.IPv6/test.sh

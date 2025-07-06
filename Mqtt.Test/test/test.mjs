@@ -1,6 +1,6 @@
 /**
  * SmartHub - Test 
- * Test 
+ * Online URL Tests
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
@@ -9,29 +9,30 @@
  */
 
 import { expect } from 'chai';
-import sinon from 'sinon';
-import proxyquire from 'proxyquire';
+import fetch from 'node-fetch';
 
-describe('Data Functions', () => {
-    let sandbox, commonStub, dumbDataModule;
+describe('Online URL Checks', function () {
+    this.timeout(5000); // Just in case one is slow
 
-    beforeEach(() => {
-        sandbox = sinon.createSandbox();
+    async function checkUrl(url, method) {
+        const response = await fetch(url, { method });
+        expect(response.ok, `URL failed: ${url} with status ${response.status}`).to.be.true;
+    }
 
-        // Common stub for shared functionality, if needed
-        commonStub = {};
-
-        // Proxyquire will inject the real implementation of the thermostat module
-        dumbDataModule = proxyquire('../lib/thermostat', {
-            '../Shared/common-node': commonStub, // Inject stubs if necessary
-        });
+    it('MQTT home root check - html', async () => {
+        await checkUrl('http://test.jarvis.home:8082/index.html', 'GET');
     });
 
-    afterEach(() => {
-        sandbox.restore();
+    it('MQTT home root check - js', async () => {
+        await checkUrl('https://unpkg.com/mqtt/dist/mqtt.min.js', 'GET');
     });
 
-    // Empty test suite for now
-    // You can add the actual test cases here later
+    it('MQTT home root check - bootstrap', async () => {
+        await checkUrl('http://test.jarvis.home:8082/shared/bootstrap.bundle.min.js', 'GET');
+    });
+
+    it('MQTT home root check - js', async () => {
+        await checkUrl('http://test.jarvis.home:8082/index.js', 'GET');
+    });
 });
 

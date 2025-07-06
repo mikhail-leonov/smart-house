@@ -1,0 +1,1 @@
+npm install mocha chai sinon proxyquire node-fetch

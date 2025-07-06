@@ -1,6 +1,6 @@
 /**
  * SmartHub - Test 
- * Test 
+ * Online URL Tests
  * GitHub: https://github.com/mikhail-leonov/smart-house
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
@@ -9,29 +9,27 @@
  */
 
 import { expect } from 'chai';
-import sinon from 'sinon';
-import proxyquire from 'proxyquire';
+import fetch from 'node-fetch';
 
-describe('Data Functions', () => {
-    let sandbox, commonStub, dumbDataModule;
+describe('Online URL Checks', function () {
+    this.timeout(5000); // Just in case one is slow
 
-    beforeEach(() => {
-        sandbox = sinon.createSandbox();
+    async function checkUrl(url, method) {
+        const response = await fetch(url, { method });
+        expect(response.ok, `URL failed: ${url} with status ${response.status}`).to.be.true;
+    }
 
-        // Common stub for shared functionality, if needed
-        commonStub = {};
-
-        // Proxyquire will inject the real implementation of the thermostat module
-        dumbDataModule = proxyquire('../lib/thermostat', {
-            '../Shared/common-node': commonStub, // Inject stubs if necessary
-        });
+    it('Edit home root check - html', async () => {
+        await checkUrl('http://edit.jarvis.home:8084/index.html', 'GET');
     });
 
-    afterEach(() => {
-        sandbox.restore();
+    it('Rnd home root check - js', async () => {
+        await checkUrl('http://edit.jarvis.home:8084/script.js', 'GET');
+    });
+    
+    it('Rnd home root check - bootstrap', async () => {
+        await checkUrl('http://edit.jarvis.home:8084/shared/bootstrap.bundle.min.js', 'GET');
     });
 
-    // Empty test suite for now
-    // You can add the actual test cases here later
 });
 

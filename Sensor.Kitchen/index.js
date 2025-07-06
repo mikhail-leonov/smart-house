@@ -4,7 +4,7 @@
  * Fixed topic and variable name, no config dependency.
  * 
  * @author Mikhail Leonov mikecommon@gmail.com
- * @version 0.7.3
+ * @version 0.7.4
  * @license MIT
  */
 

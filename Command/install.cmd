@@ -1,1 +1,1 @@
-npm install fs axios ini
+npm install fs axios ini chai sinon proxyquire

@@ -1,1 +1,37 @@
-Here should be a dir
+sudo apt update
+sudo apt install -y build-essential cmake git
+
+# 2. Clone llama.cpp
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+
+# 3. Build
+mkdir build && cd build
+cmake ..
+make
+
+# 4. Download a small Gemma model (e.g., 2B Q4_K_M)
+# Use https://huggingface.co/google/gemma-2b-it-gguf or a community one
+# Place the .gguf model in the /models directory
+
+# 5. Run a local server
+./server -m ./models/gemma-2b-it.Q4_K_M.gguf -c 512 --port 8000
+Then visit http://<pi-ip>:8000 or curl it!
+
+
+// server.js
+const express = require('express');
+const { exec } = require('child_process');
+
+const app = express();
+app.use(express.json());
+
+app.post('/ask', (req, res) => {
+  const prompt = req.body.prompt;
+  exec(`./main -m ./models/gemma-2b-it.Q4_K_M.gguf -p "${prompt}"`, (err, stdout) => {
+    if (err) return res.status(500).send(err.message);
+    res.send(stdout);
+  });
+});
+
+app.listen(8080, () => console.log('Gemma local server on port 8080'));

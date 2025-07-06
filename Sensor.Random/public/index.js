@@ -90,7 +90,7 @@ function getVariableValue(variable) {
     if (!variable) { return null; }
 	
     // If a list of possible values is provided
-    if (variable.values.lenght > 0) {
+    if (variable.values.length > 0) {
         const idx = Math.floor(Math.random() * variable.values.length);
         return variable.values[idx];
     }

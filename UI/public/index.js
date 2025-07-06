@@ -62,9 +62,16 @@ class Store {
 	get(prop) {
 		return this.data[prop];
 	}
+	dump() {
+		let result = [];
+		for (const [key, value] of Object.entries(this.data)) {
+			result.push(key + ' = ' + value);
+		}
+		return result;
+	}
 }
 
-const store = new Store({ status: "Connecting..." });
+const store = new Store({ });
 
 // Bind HTML elements to store properties
 document.querySelectorAll('[data-bind]').forEach(el => {
@@ -152,7 +159,18 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 });
 
-
+function loadLog() {
+	try {
+		let text = "";
+		const mqtts = store.dump();	
+		mqtts.forEach(element => {
+			text += element + "\n";
+		});
+		document.getElementById('logContent').textContent = text;
+	} catch (e) {
+		document.getElementById('logContent').textContent = 'Error loading log: ' + e.message;
+	}
+}
 
 // Update current time
 function updateTime() {
@@ -162,7 +180,7 @@ function updateTime() {
 // Update time every second
 updateTime();
 setInterval(updateTime, 1000);
-showSection('map');
+showSection('state');
 
 
 
